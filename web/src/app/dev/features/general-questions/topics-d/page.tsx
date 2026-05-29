@@ -132,13 +132,13 @@ export default function TopicsDPage() {
   return (
     <div>
       <p className="text-xs font-medium text-mirai-text-secondary mb-1">
-        パターン D：市民向けキャッチー型
+        パターン D：県民向けキャッチー型
       </p>
       <h1 className="text-2xl font-bold text-mirai-text mb-1">
-        市議会で何が決まった？
+        県議会で何が決まった？
       </h1>
       <p className="text-sm text-mirai-text-secondary mb-8">
-        議員が問い、市が答えた。あなたの暮らしに関わる取り組みをまとめました。
+        議員が問い、県が答えた。あなたの暮らしに関わる取り組みをまとめました。
       </p>
 
       <div className="flex flex-col gap-10">
