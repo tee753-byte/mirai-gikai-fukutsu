@@ -20,114 +20,166 @@ type InterviewMessageInsert =
 type InterviewReportInsert =
   Database["public"]["Tables"]["interview_report"]["Insert"];
 
-// 定例会データ
+// 定例会データ（福岡県議会）
 export const councilSessions: CouncilSessionInsert[] = [
   {
-    name: "令和8年 第1回定例会（2・3月）",
-    slug: "r8-1",
-    council_url: "https://gikai.city.fukuoka.lg.jp/schedule/regular/",
-    start_date: "2026-02-17",
-    end_date: "2026-03-27",
+    name: "令和8年 6月定例会",
+    slug: "r8-6",
+    council_url: "https://www.gikai.pref.fukuoka.lg.jp/site/honkaigi/menu-0806.html",
+    start_date: "2026-06-08",
+    end_date: "2026-06-25",
     is_active: true,
   },
   {
-    name: "令和7年 第4回定例会（12月）",
-    slug: "r7-4",
-    council_url: "https://gikai.city.fukuoka.lg.jp/schedule/regular/",
+    name: "令和8年 2月定例会",
+    slug: "r8-2",
+    council_url: "https://www.gikai.pref.fukuoka.lg.jp/site/honkaigi/menu-0802.html",
+    start_date: "2026-02-20",
+    end_date: "2026-03-24",
+    is_active: false,
+  },
+  {
+    name: "令和7年 12月定例会",
+    slug: "r7-12",
+    council_url: "https://www.gikai.pref.fukuoka.lg.jp/site/honkaigi/menu-0712.html",
     start_date: "2025-12-01",
     end_date: "2025-12-19",
     is_active: false,
   },
+  {
+    name: "令和7年 9月定例会",
+    slug: "r7-9",
+    council_url: "https://www.gikai.pref.fukuoka.lg.jp/site/honkaigi/menu-0709.html",
+    start_date: "2025-09-08",
+    end_date: "2025-10-14",
+    is_active: false,
+  },
 ];
 
-// 会派データ（福岡市議会 2026年3月時点）
+// 会派データ（福岡県議会 2026年5月時点・12会派87名）
 export const factions: FactionInsert[] = [
   {
-    name: "mirai",
-    display_name: "みらい",
+    name: "jimin",
+    display_name: "自民党県議団",
     sort_order: 1,
     is_active: true,
   },
   {
-    name: "jimin-fukuoka",
-    display_name: "自由民主党福岡市議団",
+    name: "minshu",
+    display_name: "民主県政県議団",
     sort_order: 2,
     is_active: true,
   },
   {
     name: "komei",
-    display_name: "公明党福岡市議団",
+    display_name: "公明党",
     sort_order: 3,
     is_active: true,
   },
   {
-    name: "fukuoka-shimin",
-    display_name: "福岡市民クラブ",
+    name: "shinseikai",
+    display_name: "新政会",
     sort_order: 4,
-    is_active: true,
-  },
-  {
-    name: "kyosan",
-    display_name: "日本共産党福岡市議団",
-    sort_order: 5,
-    is_active: true,
-  },
-  {
-    name: "atarashii-kaze",
-    display_name: "新しい風ふくおか",
-    sort_order: 6,
-    is_active: true,
-  },
-  {
-    name: "ishin",
-    display_name: "日本維新の会福岡市議団",
-    sort_order: 7,
-    is_active: true,
-  },
-  {
-    name: "jimin-shin-fukuoka",
-    display_name: "自民党新福岡",
-    sort_order: 8,
     is_active: true,
   },
   {
     name: "mushozoku",
-    display_name: "無所属",
+    display_name: "無所属の会",
+    sort_order: 5,
+    is_active: true,
+  },
+  {
+    name: "jiyu-hanei",
+    display_name: "自由と繁栄の会",
+    sort_order: 6,
+    is_active: true,
+  },
+  {
+    name: "fukuoka-seisaku",
+    display_name: "ふくおか政策の会",
+    sort_order: 7,
+    is_active: true,
+  },
+  {
+    name: "ryokuyu",
+    display_name: "緑友会",
+    sort_order: 8,
+    is_active: true,
+  },
+  {
+    name: "owa",
+    display_name: "桜和会",
     sort_order: 9,
+    is_active: true,
+  },
+  {
+    name: "shisei",
+    display_name: "至誠会",
+    sort_order: 10,
+    is_active: true,
+  },
+  {
+    name: "ishin",
+    display_name: "日本維新の会福岡",
+    sort_order: 11,
+    is_active: true,
+  },
+  {
+    name: "hochu",
+    display_name: "豊築会",
+    sort_order: 12,
     is_active: true,
   },
 ];
 
-// 委員会データ（福岡市議会 常任委員会）
+// 委員会データ（福岡県議会 常任委員会）
 export const committees: CommitteeInsert[] = [
   {
-    name: "総務財政委員会",
-    description: "総務、財政、企画、税務などについての審査",
+    name: "総務企画地域振興委員会",
+    description: "総務、企画、地域振興などについての審査",
     sort_order: 1,
     is_active: true,
   },
   {
-    name: "教育こども委員会",
-    description: "教育、こども、保育、学校などについての審査",
+    name: "厚生環境委員会",
+    description: "厚生、環境などについての審査",
     sort_order: 2,
     is_active: true,
   },
   {
-    name: "経済振興委員会",
-    description: "産業、観光、農業、商工業などについての審査",
+    name: "商工労働委員会",
+    description: "商工業、労働などについての審査",
     sort_order: 3,
     is_active: true,
   },
   {
-    name: "福祉都市委員会",
-    description: "福祉、保健、医療、都市整備などについての審査",
+    name: "農林水産委員会",
+    description: "農業、林業、水産業などについての審査",
     sort_order: 4,
     is_active: true,
   },
   {
-    name: "生活環境委員会",
-    description: "環境、ごみ、水道、交通などについての審査",
+    name: "県土整備委員会",
+    description: "道路、河川、港湾などの県土整備についての審査",
     sort_order: 5,
+    is_active: true,
+  },
+  {
+    name: "建築都市委員会",
+    description: "建築、都市計画などについての審査",
+    sort_order: 6,
+    is_active: true,
+  },
+  {
+    name: "文教委員会",
+    description: "教育、文化、スポーツなどについての審査",
+    sort_order: 7,
+    is_active: true,
+  },
+  {
+    name: "警察委員会",
+    description: "警察に関する事項についての審査",
+    sort_order: 8,
     is_active: true,
   },
 ];
@@ -153,15 +205,15 @@ export const tags: TagInsert[] = [
 
 export const bills: BillInsert[] = [
   {
-    name: "福岡市子ども医療費助成条例の一部改正",
+    name: "福岡県子ども医療費助成条例の一部改正",
     status: "in_committee",
-    status_note: "文教委員会で審査中",
+    status_note: "厚生環境委員会で審査中",
     published_at: "2025-11-25T09:00:00+09:00",
     publish_status: "published",
     is_featured: true,
   },
   {
-    name: "福岡市地域包括ケアシステム推進条例",
+    name: "福岡県地域包括ケアシステム推進条例",
     status: "approved",
     status_note: "本会議で可決",
     published_at: "2025-09-15T10:00:00+09:00",
@@ -169,23 +221,23 @@ export const bills: BillInsert[] = [
     is_featured: true,
   },
   {
-    name: "福岡市公園条例の一部改正",
-    status: "rejected",
-    status_note: "本会議で否決",
+    name: "福岡県農林水産業振興条例の一部改正",
+    status: "approved",
+    status_note: "本会議で可決",
     published_at: "2025-10-01T09:00:00+09:00",
     publish_status: "published",
     is_featured: false,
   },
   {
-    name: "福岡市学校給食費の無償化に関する条例",
+    name: "福岡県公立学校における教育環境整備条例",
     status: "approved",
-    status_note: "本会議で可決、来年度から実施",
+    status_note: "本会議で可決",
     published_at: "2025-09-10T09:00:00+09:00",
     publish_status: "published",
     is_featured: false,
   },
   {
-    name: "福岡市防災対策基本条例の一部改正",
+    name: "福岡県防災対策基本条例の一部改正",
     status: "rejected",
     status_note: "本会議で否決",
     published_at: "2025-09-20T10:00:00+09:00",
