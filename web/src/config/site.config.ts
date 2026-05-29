@@ -4,26 +4,26 @@
  * @see docs/kawasaki/20260304_1000_別地域向けfork手順.md
  */
 export const siteConfig = {
-  siteName: "みらい議会＠福岡市",
+  siteName: "みらい議会＠福岡県",
   siteDescription:
-    "福岡市議会で今どんな議案が検討されているか、わかりやすく伝えるプラットフォームです",
-  cityName: "福岡市",
-  councilName: "福岡市議会",
+    "福岡県議会で今どんな議案が検討されているか、わかりやすく伝えるプラットフォームです",
+  cityName: "福岡県",
+  councilName: "福岡県議会",
   keywords: [
-    "みらい議会ー福岡市版",
+    "みらい議会ー福岡県版",
     "議案",
-    "福岡市",
-    "市議会",
+    "福岡県",
+    "県議会",
     "地方政治",
     "政策",
     "解説",
   ],
-  councilBaseUrl: "https://gikai.city.fukuoka.lg.jp/",
+  councilBaseUrl: "https://www.gikai.pref.fukuoka.lg.jp/",
   /** 議案・議決結果の一覧ページ */
-  councilBillsDetailUrl: "https://gikai.city.fukuoka.lg.jp/result/result/",
-  twitterHashtag: "みらい議会福岡市版", // # なし
+  councilBillsDetailUrl: "https://www.gikai.pref.fukuoka.lg.jp/site/honkaigi/",
+  twitterHashtag: "みらい議会福岡県版", // # なし
   externalLinks: {
-    report: "https://forms.gle/PbZdpdRzTrsAuDST7",
+    report: "https://x.com/bakumon0907",
     aboutNote: "",
     donation: "https://team-mir.ai/support/donation",
     teamAbout: "https://team-mir.ai/about",
@@ -60,5 +60,7 @@ export const siteConfig = {
      * 非公式運営など、党の公式サービスとして出さない場合は false にする。
      */
     showTeamMiraiSection: false as boolean,
+    /** 会派スタンス表示（採決結果の詳細が公開されていない議会では false にする） */
+    showFactionStances: false as boolean,
   },
 } as const;
