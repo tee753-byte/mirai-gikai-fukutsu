@@ -4,6 +4,7 @@ export type GeneralQuestionTopic = {
   answer_summary: string;
   answerer_role: string;
   answerer_name: string;
+  block_summary?: string | null;
 };
 
 export type GeneralQuestion = {

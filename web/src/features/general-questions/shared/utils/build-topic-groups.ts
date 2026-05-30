@@ -190,13 +190,16 @@ function buildEntry(
   q: GeneralQuestion,
   topics: GeneralQuestionTopic[]
 ): TopicEntry {
-  const last = topics[topics.length - 1];
+  const first = topics[0];
+  // block_summary がある場合（複数トピック統合時にAI生成）はそれを優先
+  // ない場合は最初のトピックのQ/Aを使う（最後のトピックはタイトルと不一致になるため）
+  const useBlockSummary = !!first.block_summary;
   return {
-    title: topics[0].title,
-    questionSummary: topics[0].question_summary,
-    answerSummary: last.answer_summary,
-    answererRole: last.answerer_role,
-    answererName: last.answerer_name,
+    title: first.title,
+    questionSummary: first.question_summary,
+    answerSummary: first.block_summary ?? first.answer_summary,
+    answererRole: useBlockSummary ? "" : first.answerer_role,
+    answererName: useBlockSummary ? "" : first.answerer_name,
     topicCount: topics.length,
     questioner: {
       id: q.id,
