@@ -38,7 +38,9 @@ export function HeaderClient({ difficultyLevel }: HeaderClientProps) {
                   height={36}
                 />
               )}
-              <div className="text-xl font-bold">{siteConfig.siteName}</div>
+              <div className="text-sm sm:text-base font-bold whitespace-nowrap">
+                {siteConfig.siteName}
+              </div>
             </Link>
           </div>
 
