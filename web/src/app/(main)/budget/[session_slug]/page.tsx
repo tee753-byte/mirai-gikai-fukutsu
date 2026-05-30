@@ -29,15 +29,31 @@ export async function generateMetadata({
     return { title: "会期が見つかりません" };
   }
 
+  const overviews = await getBudgetOverviews(session.id);
+  const isGaiyouStyle = isBudgetGaiyouStyle(overviews);
+
   return {
-    title: `${session.name} 各局の重点施策`,
-    description: `${session.name}の各局予算の重点施策・方向性をわかりやすく解説します。`,
+    title: isGaiyouStyle
+      ? `${toFiscalYearLabel(session.name)} 当初予算の概要`
+      : `${session.name} 各局の重点施策`,
+    description: isGaiyouStyle
+      ? `${toFiscalYearLabel(session.name)}の当初予算の概要・主要施策をまとめています。`
+      : `${session.name}の各局予算の重点施策・方向性をわかりやすく解説します。`,
   };
 }
 
 function toFiscalYearLabel(sessionName: string): string {
   const match = sessionName.match(/令和(\d+)年/);
-  return match ? `令和${match[1]}年度予算` : sessionName;
+  return match ? `令和${match[1]}年度` : sessionName;
+}
+
+/** 全概要が同じdirectionを持つ場合＝予算概要スタイル */
+function isBudgetGaiyouStyle(
+  overviews: { direction: string | null }[]
+): boolean {
+  if (overviews.length === 0) return false;
+  const dir = overviews[0].direction;
+  return !!dir && overviews.every((o) => o.direction === dir);
 }
 
 export default async function BudgetListPage({ params }: BudgetListPageProps) {
@@ -63,17 +79,43 @@ export default async function BudgetListPage({ params }: BudgetListPageProps) {
       )
     : null;
 
+  const gaiyouStyle = isBudgetGaiyouStyle(overviews);
+  const budgetHeadline = gaiyouStyle ? overviews[0].direction : null;
+  const fiscalYear = toFiscalYearLabel(session.name);
+
   return (
     <Container className="py-10 pb-28">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-mirai-text">各局の重点施策</h1>
-        <p className="mt-2 text-sm text-mirai-text-secondary">
-          {toFiscalYearLabel(session.name)}{" "}
-          の各局予算の方向性と主要施策をまとめています。
-        </p>
+        {gaiyouStyle ? (
+          <>
+            <p className="text-xs font-medium text-mirai-text-muted uppercase tracking-wide mb-1">
+              令和8年度当初予算編成の考え方
+            </p>
+            <h1 className="text-2xl font-bold text-mirai-text">
+              {budgetHeadline}
+            </h1>
+            <p className="mt-2 text-sm text-mirai-text-secondary">
+              {fiscalYear}当初予算の概要 —
+              4つの柱ごとの主要施策をまとめています。
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="text-2xl font-bold text-mirai-text">
+              各局の重点施策
+            </h1>
+            <p className="mt-2 text-sm text-mirai-text-secondary">
+              {fiscalYear}予算の各局予算の方向性と主要施策をまとめています。
+            </p>
+          </>
+        )}
       </div>
 
-      <BudgetOverviewList overviews={overviews} sessionSlug={session_slug} />
+      <BudgetOverviewList
+        overviews={overviews}
+        sessionSlug={session_slug}
+        showDirection={!gaiyouStyle}
+      />
 
       {/* 前年度予算セクション */}
       {prevSessionWithBudget && (
