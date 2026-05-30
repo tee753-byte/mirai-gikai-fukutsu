@@ -1,10 +1,9 @@
 import type { MetadataRoute } from "next";
 import { getBills } from "@/features/bills/server/loaders/get-bills";
+import { env } from "@/lib/env";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
+  const baseUrl = env.webUrl;
 
   const bills = await getBills();
 
