@@ -19,6 +19,10 @@ import { getAllPastSessions } from "@/features/council-sessions/server/loaders/g
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
 import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { getLatestSessionWithQuestions } from "@/features/general-questions/server/loaders/get-latest-session-with-questions";
+import { PressConferenceArchiveSection } from "@/features/press-conferences/client/components/press-conference-archive-section";
+import { PressConferenceNoticeBanner } from "@/features/press-conferences/client/components/press-conference-notice-banner";
+import { getLatestPressConference } from "@/features/press-conferences/server/loaders/get-latest-press-conference";
+import { getPressConferences } from "@/features/press-conferences/server/loaders/get-press-conferences";
 import { getJapanTime } from "@/lib/utils/date";
 
 export default async function Home() {
@@ -32,6 +36,8 @@ export default async function Home() {
     pastSessions,
     budgetSessions,
     latestQuestionsSlug,
+    latestPressConference,
+    pressConferences,
   ] = await Promise.all([
     getCurrentCouncilSession(getJapanTime()),
     getActiveCouncilSession(),
@@ -39,6 +45,8 @@ export default async function Home() {
     getAllPastSessions(),
     getSessionsWithBudget(),
     getLatestSessionWithQuestions(),
+    getLatestPressConference(),
+    getPressConferences(),
   ]);
 
   const toBillChatContext = (bill: BillWithContent) => {
@@ -71,6 +79,15 @@ export default async function Home() {
         </Container>
       )}
 
+      {/* 知事記者会見バナー */}
+      {latestPressConference && (
+        <Container className="pt-3">
+          <PressConferenceNoticeBanner
+            pressConference={latestPressConference}
+          />
+        </Container>
+      )}
+
       {/* 議案一覧セクション */}
       <Container className="">
         <div className="py-10">
@@ -93,6 +110,17 @@ export default async function Home() {
           />
         </Container>
       </div>
+
+      {/* 知事記者会見アーカイブセクション */}
+      {pressConferences.length > 0 && (
+        <div className="bg-white py-10">
+          <Container>
+            <PressConferenceArchiveSection
+              pressConferences={pressConferences}
+            />
+          </Container>
+        </div>
+      )}
 
       <Container>
         {/* みらい議会とは セクション */}
