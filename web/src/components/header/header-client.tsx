@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Search } from "lucide-react";
 import { DifficultySelector } from "@/features/bill-difficulty/client/components/difficulty-selector";
 import type { DifficultyLevelEnum } from "@/features/bill-difficulty/shared/types";
 import { InterviewHeaderActions } from "@/features/interview-session/client/components/interview-header-actions";
@@ -38,7 +39,9 @@ export function HeaderClient({ difficultyLevel }: HeaderClientProps) {
                   height={36}
                 />
               )}
-              <div className="text-xl font-bold">{siteConfig.siteName}</div>
+              <div className="text-sm sm:text-base font-bold whitespace-nowrap">
+                {siteConfig.siteName}
+              </div>
             </Link>
           </div>
 
@@ -51,6 +54,13 @@ export function HeaderClient({ difficultyLevel }: HeaderClientProps) {
               <DifficultySelector currentLevel={difficultyLevel} />
             )}
             {showInterviewActions && <InterviewHeaderActions />}
+            <Link
+              href="/search"
+              aria-label="検索"
+              className="p-2 text-mirai-text-muted hover:text-mirai-text transition-colors"
+            >
+              <Search className="size-5" />
+            </Link>
             <HamburgerMenu />
           </nav>
         </div>

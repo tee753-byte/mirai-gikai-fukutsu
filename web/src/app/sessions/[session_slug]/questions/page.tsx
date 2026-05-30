@@ -1,3 +1,5 @@
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
 import { siteConfig } from "@/config/site.config";
@@ -35,6 +37,15 @@ export default async function SessionQuestionsPage({ params }: Props) {
 
   return (
     <Container className="py-8">
+      <div className="mb-4">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-sm text-mirai-text-secondary hover:text-mirai-text"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          トップに戻る
+        </Link>
+      </div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-mirai-text">
           {session.name}の一般質問

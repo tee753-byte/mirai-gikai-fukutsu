@@ -118,7 +118,8 @@ describe("buildTopicGroups", () => {
     expect(entry?.topicCount).toBe(3);
     // merged block uses first topic's title; N件 badge shows the count
     expect(entry?.title).toBe("火災警報の発令基準について");
-    expect(entry?.answerSummary).toBe("プッシュ通知の拡充を検討する。");
+    // block_summary がない場合は最初のトピックの answer_summary を使う
+    expect(entry?.answerSummary).toBe("制度の検討を進める。");
   });
 
   it("同一議員でもカテゴリが異なれば別カードになる", () => {

@@ -13,7 +13,7 @@ describe("buildConfigGenerationPrompt", () => {
   describe("共通部分", () => {
     it("ベースロール（専門家の役割）を含む", () => {
       const result = buildConfigGenerationPrompt(baseParams);
-      expect(result).toContain("市民インタビューの設計を支援する専門家です");
+      expect(result).toContain("県民インタビューの設計を支援する専門家です");
     });
 
     it("法案情報セクションを含む", () => {
@@ -121,7 +121,7 @@ describe("buildConfigGenerationPrompt", () => {
         ...baseParams,
         stage: "theme_confirmed" as "theme_proposal",
       });
-      expect(result).toContain("市民インタビューの設計を支援する専門家です");
+      expect(result).toContain("県民インタビューの設計を支援する専門家です");
       expect(result).not.toContain("テーマ提案のガイドライン");
       expect(result).not.toContain("質問提案のガイドライン");
     });
