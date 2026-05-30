@@ -8,6 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { RubyToggle } from "@/lib/rubyful";
+import { TextSizeToggle } from "@/lib/text-size";
 
 export function HamburgerMenu() {
   return (
@@ -23,7 +24,10 @@ export function HamburgerMenu() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-50" align="end">
-        <RubyToggle />
+        <div className="flex flex-col gap-3">
+          <RubyToggle />
+          <TextSizeToggle />
+        </div>
       </PopoverContent>
     </Popover>
   );
