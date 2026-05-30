@@ -5,11 +5,13 @@ import type { BudgetOverview } from "../../shared/types";
 type BudgetOverviewListProps = {
   overviews: BudgetOverview[];
   sessionSlug: string;
+  showDirection?: boolean;
 };
 
 export function BudgetOverviewList({
   overviews,
   sessionSlug,
+  showDirection = true,
 }: BudgetOverviewListProps) {
   if (overviews.length === 0) {
     return (
@@ -31,7 +33,7 @@ export function BudgetOverviewList({
               {overview.department_name}
             </h2>
 
-            {overview.direction && (
+            {showDirection && overview.direction && (
               <p className="mt-2 text-sm text-mirai-text-secondary line-clamp-2">
                 {overview.direction}
               </p>
