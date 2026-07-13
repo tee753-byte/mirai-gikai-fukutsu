@@ -70,6 +70,39 @@ python3 tools/jimu-jigyo-pdf/crosscheck.py \
 各extractスクリプトはWARNをstderrに出す。WARNが出たら該当ページをpdfplumberで
 目視確認し、様式変種ならパーサを直す（勘で握りつぶさない）。
 
+## 過年度データと年度間マッチング
+
+```bash
+# 過年度（例: R6）の様式1号を抽出 → docs/data/jimu-jigyo/r6/items.json
+python3 tools/jimu-jigyo-pdf/extract_hyoka.py <R6分冊...> > docs/data/jimu-jigyo/r6/items.json
+
+# 最新年度↔過年度の事業対応表を生成（overridesは手動マッピング、無ければ {} ）
+python3 tools/jimu-jigyo-pdf/match_years.py \
+  docs/data/jimu-jigyo/r7/items.json \
+  docs/data/jimu-jigyo/r6/items.json \
+  docs/data/jimu-jigyo/matching-overrides.json \
+  > docs/data/jimu-jigyo/matching.json
+```
+
+**重要な前提: 県の事務事業評価は毎年「一部の事業」だけが対象**（R7=266事業、
+R6=201事業で、両年度とも評価されたのは53事業のみ）。過年度突合で予算推移を
+延長できるのはこの重なり分だけで、それ以外はR7評価書由来の3点
+（R6決算/R7当初/R8当初）のままとなる。これはデータ側の制約であり正常。
+
+- マッチ方式は override → exact（親部局＋正規化名）→ name → similar（同一親部局内
+  ratio≥0.82かつ一意）→ none。R7時点の実績: exact 49 / similar 4 / none 213
+- 検証として「R7当初」の重複記載（R6評価書の翌年度当初 vs R7評価書の当年度当初）を
+  突合する。不一致WARNは組み替え・補正によるものがあり、seedでは**最新年度評価書の
+  値を正**とし、過年度評価書からは重複しない年度（R5決算・R6当初）だけを取り込む
+
+### 過年度PDFの既知の制約
+
+| 年度 | 事象 | 対応 |
+|---|---|---|
+| R6 | 概要一覧PDFが rotation=270 の回転ページで、表の抽出が困難 | 概要一覧はスキップ。検証は年度間の当初予算突合で代替 |
+| R6 | 約10シートが文字レイヤーのないスキャン画像（印字ページ85-91等） | OCRなしでは抽出不可。該当事業は突合対象外（201事業中191件を抽出） |
+| R5 | 全冊が ToUnicode 欠落のサブセットフォントで、埋め込みフォントにcmapも無く復号不能 | **R5は断念**。予算推移はR5決算〜R8当初の4年分に縮退（計画時に承認済みのフォールバック） |
+
 ## 検証の考え方
 
 概要一覧と様式1号は**独立に作られた公式資料**なので、両者から別々に抽出して

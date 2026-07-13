@@ -35,6 +35,32 @@ BUREAUS = [
 REVIEW_MAJOR = ["継続", "終了"]
 REVIEW_MINOR = ["拡充", "改善", "一部改善", "縮小", "完了", "再構築", "廃止"]
 
+# 親部局（フィルタ・年度間マッチングの集約単位。県の組織順）
+PARENT_BUREAUS = [
+    "総務部",
+    "企画・地域振興部",
+    "人づくり・県民生活部",
+    "保健医療介護部",
+    "福祉労働部",
+    "環境部",
+    "商工部",
+    "農林水産部",
+    "県土整備部",
+    "建築都市部",
+    "教育庁",
+    "警察本部",
+]
+
+
+def parent_bureau(name):
+    """'商工部観光局' → '商工部'。未知の部局はそのまま返す"""
+    if not name:
+        return None
+    for p in PARENT_BUREAUS:
+        if name.startswith(p):
+            return p
+    return name
+
 
 def normalize_text(s):
     """全角英数字→半角、空白正規化。漢字かなはそのまま"""
