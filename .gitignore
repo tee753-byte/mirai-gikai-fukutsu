@@ -15,3 +15,6 @@ docs/fukuoka/sample/
 
 # local claude permissions
 .claude/settings.local.json
+
+# python
+__pycache__/
