@@ -8,7 +8,20 @@ description: 福岡県の行政評価PDF（事務事業評価書・概要一覧�
 福岡県が公表する行政評価PDF（AI不使用・pdfplumber座標ベース）から
 `docs/data/jimu-jigyo/<year>/` のJSONを生成し、独立2ソース間の全件突合で検証する。
 
-## データソース（令和7年度）
+## 年度の指定（最初に決めること）
+
+対象年度スラッグ `<year>`（例: `r7`, `r8`）を決め、**出力先は必ず
+`docs/data/jimu-jigyo/<year>/`** にする（既存年度のディレクトリを上書きしない）。
+
+- 最新年度のPDF URLは公表ページ
+  https://www.pref.fukuoka.lg.jp/contents/gyouseihyouka-01.html から取得する
+  （`curl` でHTMLを取得し `<a href="/uploaded/life/..._misc.pdf">` を抽出。
+  分冊構成・件数は年度で変わるため、リンクテキストの部局名とページ範囲を確認する）
+- 過年度は https://www.pref.fukuoka.lg.jp/gyosei-shiryo/gyouseihyoukarepo-to-0N.html
+  （N=3〜が令和3年度〜）
+- 下表のURLは**令和7年度の実績**。他年度ではURLもファイル数も異なる
+
+## データソース（令和7年度の実績）
 
 公表ページ: https://www.pref.fukuoka.lg.jp/contents/gyouseihyouka-01.html
 
@@ -27,24 +40,31 @@ description: 福岡県の行政評価PDF（事務事業評価書・概要一覧�
 ## ワークフロー
 
 ```bash
+# 0. 対象年度を決める（例）
+YEAR=r7
+mkdir -p docs/data/jimu-jigyo/$YEAR
+
 # 1. PDFをスクラッチディレクトリにダウンロード（リポジトリにはコミットしない）
-curl -s <URL> -o <名前>.pdf
+#    --fail がないとエラーページを.pdfとして保存してしまう
+curl --fail --location --silent --show-error <URL> -o <名前>.pdf
 
-# 2. 概要一覧を抽出（266件）
-python3 tools/jimu-jigyo-pdf/extract_gaiyou.py gaiyou-ichiran.pdf > docs/data/jimu-jigyo/r7/gaiyou.json
+# 2. 概要一覧を抽出
+python3 tools/jimu-jigyo-pdf/extract_gaiyou.py gaiyou-ichiran.pdf \
+  > docs/data/jimu-jigyo/$YEAR/gaiyou.json
 
-# 3. 様式1号5分冊を抽出（266件、分冊の順序＝概要一覧のNo順で指定すること）
+# 3. 様式1号の分冊を抽出（分冊の順序＝概要一覧のNo順で指定すること）
 python3 tools/jimu-jigyo-pdf/extract_hyoka.py somu.pdf hoken.pdf kankyo.pdf norin.pdf kyoiku.pdf \
-  > docs/data/jimu-jigyo/r7/items.json
+  > docs/data/jimu-jigyo/$YEAR/items.json
 
 # 4. 公共事業再評価総括表を抽出
-python3 tools/jimu-jigyo-pdf/extract_saihyoka.py soukatsu.pdf > docs/data/jimu-jigyo/r7/saihyoka.json
+python3 tools/jimu-jigyo-pdf/extract_saihyoka.py soukatsu.pdf \
+  > docs/data/jimu-jigyo/$YEAR/saihyoka.json
 
 # 5. 全件突合検証（FAILが0であることを必ず確認。exit code 1 = FAILあり）
 python3 tools/jimu-jigyo-pdf/crosscheck.py \
-  docs/data/jimu-jigyo/r7/gaiyou.json \
-  docs/data/jimu-jigyo/r7/items.json \
-  docs/data/jimu-jigyo/r7/saihyoka.json
+  docs/data/jimu-jigyo/$YEAR/gaiyou.json \
+  docs/data/jimu-jigyo/$YEAR/items.json \
+  docs/data/jimu-jigyo/$YEAR/saihyoka.json
 ```
 
 各extractスクリプトはWARNをstderrに出す。WARNが出たら該当ページをpdfplumberで

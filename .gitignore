@@ -14,4 +14,7 @@ docs/fukuoka/sample/
 !.env.production.example
 
 # local claude permissions
-.claude/settings.local.json__pycache__/
+.claude/settings.local.json
+
+# python
+__pycache__/

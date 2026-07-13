@@ -20,7 +20,13 @@ import unicodedata
 
 import pdfplumber
 
-from common import BUREAUS, normalize_text, parse_amount
+from common import (
+    BUREAUS,
+    REVIEW_MAJOR,
+    REVIEW_MINOR,
+    normalize_text,
+    parse_amount,
+)
 
 # ---------------------------------------------------------------- 正規化
 
@@ -69,8 +75,6 @@ FREE_TEXT_KEYS = {
 # KPI・事業費グリッドの行ラベル語
 KIND_SET = {"目標", "実績", "決算", "見込", "参考", "計画"}
 
-REVIEW_MAJORS = ["継続", "終了"]
-REVIEW_MINORS = ["拡充", "改善", "一部改善", "縮小", "完了", "再構築", "廃止"]
 
 YEAR_PAT = re.compile(r"^R\d+$")
 
@@ -583,13 +587,13 @@ def detect_review_marks(page):
         if not (band_top <= w["top"] <= band_bottom):
             continue
         t = squash(w["text"])
-        for opt in REVIEW_MAJORS + REVIEW_MINORS:
+        for opt in REVIEW_MAJOR + REVIEW_MINOR:
             if t == opt or t.startswith(opt + "(") or t.startswith(opt + "（"):
                 char_w = (w["x1"] - w["x0"]) / max(len(w["text"]), 1)
                 options.append(
                     {
                         "opt": opt,
-                        "level": "major" if opt in REVIEW_MAJORS else "minor",
+                        "level": "major" if opt in REVIEW_MAJOR else "minor",
                         "x0": w["x0"],
                         "x1": w["x0"] + char_w * len(opt),
                         "top": w["top"],
