@@ -53,11 +53,15 @@ bills_tags       … 議案×タグの中間テーブル（PK: bill_id + tag_id�
 
 福岡県版の `featured_priority` 付きタグは **現状3つだけ**。ID は環境ごとに違うので **必ずDBから引く**（下記ワークフロー参照）。
 
+`featured_priority` の昇順が **トップページ「タグ別議案一覧」の表示順** になる（`findFeaturedTags()` が `order by featured_priority asc`）。市民に身近なテーマを上に置くため、現状は以下の順。
+
 | priority | label | 対象（description） |
 |---|---|---|
-| 1 | まちづくり・環境 | まちづくり、環境保護、都市計画に関する議案 |
-| 2 | 子育て・教育 | 子育て支援、教育政策、若者支援に関する議案 |
-| 3 | 福祉・医療 | 福祉、医療、高齢者支援に関する議案 |
+| 1 | 子育て・教育 | 子育て支援、教育政策、若者支援に関する議案 |
+| 2 | 福祉・医療 | 福祉、医療、高齢者支援に関する議案 |
+| 3 | まちづくり・環境 | まちづくり、環境保護、都市計画に関する議案 |
+
+> 表示順を変えたいときは `tags.featured_priority` をPATCHで振り直す（本番DB更新なので事前にユーザー確認）。
 
 ### 分類の方針（重要）
 
@@ -148,5 +152,5 @@ curl -s "$SUPABASE_URL/rest/v1/bills_tags?select=bill_id,bills!inner(council_ses
 ## 関連
 
 - `db-access` スキル … 本番DB接続規約
-- `general-questions`（福岡市版）… 8カテゴリのキーワード分類が語彙の参考
 - `web/src/app/(main)/page.tsx` … トップの議案表示セクション
+- `web/src/features/bills/server/loaders/get-bills-by-featured-tags.ts` … タグ別表示・並び順（`featured_priority` 昇順）
