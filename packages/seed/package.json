@@ -6,6 +6,7 @@
   "scripts": {
     "seed": "tsx main/run.ts",
     "seed:csv": "tsx csv/import-csv.ts",
+    "seed:jimu-jigyo": "tsx fukuoka/seed-jimu-jigyo.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
