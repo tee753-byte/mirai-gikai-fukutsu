@@ -37,7 +37,7 @@ export async function generateMetadata({
     title: `${record.事業名}｜事務事業評価`,
     // PDFの折り返し改行が残ると description に不自然な改行が入る
     description:
-      normalizePdfText(record.ねらい目的 ?? record.概要一覧?.事業の内容) ??
+      normalizePdfText(record.ねらい目的 || record.概要一覧?.事業の内容) ??
       undefined,
   };
 }

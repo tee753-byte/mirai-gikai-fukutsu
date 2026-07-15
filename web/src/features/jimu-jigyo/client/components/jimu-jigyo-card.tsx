@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { JimuJigyoRecord } from "../../shared/types/jimu-jigyo";
 import { getInitial } from "../../shared/utils/budget-accessor";
+import { formatBudget } from "../../shared/utils/format-budget";
 import { DirectionBadge } from "./direction-badge";
 import { ReviewCategoryBadge } from "./review-category-badge";
 
@@ -10,13 +11,6 @@ type Props = {
   /** 当年度当初予算の年度（例: "r7"）。一覧の並び順の根拠として金額を表示する */
   budgetYear: string;
 };
-
-/** 千円単位の歳出を、桁が大きい場合は億・万円に丸めて読みやすくする */
-function formatBudget(senYen: number): string {
-  if (senYen >= 100_000) return `${(senYen / 100_000).toFixed(1)}億円`;
-  if (senYen >= 10) return `${Math.round(senYen / 10).toLocaleString()}万円`;
-  return `${senYen.toLocaleString()}千円`;
-}
 
 export function JimuJigyoCard({ record, basePath, budgetYear }: Props) {
   const { analysis } = record;
