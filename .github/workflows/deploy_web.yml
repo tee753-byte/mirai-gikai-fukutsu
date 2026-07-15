@@ -2,13 +2,18 @@ name: Migrate DB then Deploy Web
 
 on:
   push:
-    branches: [fukuoka-city/develop]
+    # 福岡県版の統合ブランチ。市版からのfork時の設定（fukuoka-city/develop）が
+    # 残っていたため、このワークフローは一度も起動していなかった
+    branches: [fukuoka-pref/develop]
   workflow_dispatch:
 
 jobs:
   migrate-and-deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    # このリポジトリに存在するEnvironmentは Production のみ（main ブランチも無く、
+    # fukuoka-pref/develop が既定ブランチ兼デプロイ元）。以前は 'staging' に解決され、
+    # 存在しないEnvironment＝Secret空で必ず失敗する状態だった
+    environment: Production
     steps:
       - uses: actions/checkout@v5
 
@@ -20,21 +25,27 @@ jobs:
       # Supabase プロジェクトへリンク（ノンインタラクティブ）
       - name: Supabase link
         run: |
-          supabase link --project-ref $SUPABASE_PROJECT_REF --password $SUPABASE_DB_PASSWORD
+          supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
 
       # マイグレーション適用（idempotent）
+      #
+      # 以前ここにあった `supabase config push` は削除した。
+      # config.toml はローカル開発用の値（site_url = http://127.0.0.1:3000 等）を持つため、
+      # 本番へpushすると認証のリダイレクト先がlocalhostに書き換わり、
+      # マジックリンク・パスワードリセットが壊れる。
+      # 本番のプロジェクト設定はSupabaseダッシュボードで管理する。
       - name: Supabase db push
         run: |
           supabase db push --include-all
-          supabase config push
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       # 成功したら Vercel デプロイを開始
+      # --fail が無いとHTTPエラーでもジョブが成功扱いになる
       - name: Trigger Vercel Deploy Hook
         run: |
-          curl -X POST "${{ secrets.WEB_VERCEL_DEPLOY_HOOK_URL }}"
+          curl --fail --silent --show-error -X POST "${{ secrets.WEB_VERCEL_DEPLOY_HOOK_URL }}"
