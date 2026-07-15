@@ -5,6 +5,7 @@ import type {
   JimuJigyoRecord,
 } from "../../shared/types/jimu-jigyo";
 import { analyzeJimuJigyo } from "../../shared/utils/analysis";
+import { getInitial } from "../../shared/utils/budget-accessor";
 
 // 年度メタデータ。新年度追加はここだけ変更する。
 // analysisYear: 3軸分析の基準年（R7評価書の最新実績はR6）
@@ -64,7 +65,13 @@ export async function loadJimuJigyoList(
     });
   }
 
-  records.sort((a, b) => a.整理番号 - b.整理番号);
+  // 事業費（当年度当初予算）の大きい順。金額はカードにも表示するため並びの根拠が見える。
+  // 同額・欠測時はPDF掲載順（整理番号）で安定させる。
+  records.sort((a, b) => {
+    const av = getInitial(a, meta.slug) ?? -1;
+    const bv = getInitial(b, meta.slug) ?? -1;
+    return bv - av || a.整理番号 - b.整理番号;
+  });
   cache.set(year, records);
   return records;
 }
