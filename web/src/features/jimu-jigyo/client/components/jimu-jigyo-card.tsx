@@ -1,15 +1,26 @@
 import Link from "next/link";
 import type { JimuJigyoRecord } from "../../shared/types/jimu-jigyo";
+import { getInitial } from "../../shared/utils/budget-accessor";
 import { DirectionBadge } from "./direction-badge";
 import { ReviewCategoryBadge } from "./review-category-badge";
 
 type Props = {
   record: JimuJigyoRecord;
   basePath: string;
+  /** 当年度当初予算の年度（例: "r7"）。一覧の並び順の根拠として金額を表示する */
+  budgetYear: string;
 };
 
-export function JimuJigyoCard({ record, basePath }: Props) {
+/** 千円単位の歳出を、桁が大きい場合は億・万円に丸めて読みやすくする */
+function formatBudget(senYen: number): string {
+  if (senYen >= 100_000) return `${(senYen / 100_000).toFixed(1)}億円`;
+  if (senYen >= 10) return `${Math.round(senYen / 10).toLocaleString()}万円`;
+  return `${senYen.toLocaleString()}千円`;
+}
+
+export function JimuJigyoCard({ record, basePath, budgetYear }: Props) {
   const { analysis } = record;
+  const budget = getInitial(record, budgetYear);
   return (
     <Link href={`${basePath}/${record.id}`} className="block group">
       <div className="bg-card rounded-lg border border-mirai-border shadow-sm hover:shadow-md transition-shadow p-4 h-full flex flex-col gap-3">
@@ -32,6 +43,15 @@ export function JimuJigyoCard({ record, basePath }: Props) {
             {record.事業開始年度 && ` · ${record.事業開始年度}開始`}
           </p>
         </div>
+
+        {budget !== null && (
+          <p className="text-sm font-bold text-mirai-text">
+            {formatBudget(budget)}
+            <span className="ml-1 text-xs font-normal text-mirai-text-muted">
+              （{budgetYear.toUpperCase()}当初予算）
+            </span>
+          </p>
+        )}
 
         <div className="space-y-1 border-t border-mirai-border pt-2">
           <DirectionBadge

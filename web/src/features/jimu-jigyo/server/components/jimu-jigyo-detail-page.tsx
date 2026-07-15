@@ -10,6 +10,7 @@ import type {
   PrefKpiItem,
   ReiwaYear,
 } from "../../shared/types/jimu-jigyo";
+import { normalizePdfText } from "../../shared/utils/normalize-pdf-text";
 
 type Props = {
   record: JimuJigyoRecord;
@@ -79,23 +80,21 @@ export function JimuJigyoDetailPage({ record, basePath }: Props) {
         </p>
       </div>
 
-      {/* 見直しの内容 */}
-      <Section title="見直しの内容">
-        <div className="text-sm text-mirai-text-secondary space-y-2">
-          {record.見直し.理由 && (
-            <p className="whitespace-pre-line">
-              <span className="font-medium text-mirai-text">理由：</span>
-              {record.見直し.理由}
+      {/* 事業のねらい・概要 */}
+      {(record.ねらい目的 || record.概要一覧?.事業の内容) && (
+        <Section title="事業のねらい・概要">
+          {record.ねらい目的 && (
+            <p className="text-sm text-mirai-text-secondary whitespace-pre-line">
+              {normalizePdfText(record.ねらい目的)}
             </p>
           )}
-          {record.見直し.内容 && (
-            <p className="whitespace-pre-line">
-              <span className="font-medium text-mirai-text">内容：</span>
-              {record.見直し.内容}
+          {record.概要一覧?.事業の内容 && (
+            <p className="text-sm text-mirai-text-secondary whitespace-pre-line border-t border-mirai-border pt-2">
+              {normalizePdfText(record.概要一覧.事業の内容)}
             </p>
           )}
-        </div>
-      </Section>
+        </Section>
+      )}
 
       {/* 総合計画位置づけ */}
       {sogo && (sogo.柱 || sogo.中項目) && (
@@ -111,17 +110,57 @@ export function JimuJigyoDetailPage({ record, basePath }: Props) {
         </Section>
       )}
 
-      {/* 事業のねらい・概要 */}
-      {(record.ねらい目的 || record.概要一覧?.事業の内容) && (
-        <Section title="事業のねらい・概要">
-          {record.ねらい目的 && (
-            <p className="text-sm text-mirai-text-secondary whitespace-pre-line">
-              {record.ねらい目的}
+      {/* 成果指標 */}
+      {record.成果指標.length > 0 ? (
+        <Section title="成果指標の推移">
+          <div className="space-y-6">
+            {record.成果指標.map((kpi, i) => (
+              <div key={`${kpi.内容}-${i}`} className="space-y-2">
+                <h3 className="text-sm font-medium text-mirai-text">
+                  {kpi.内容}
+                </h3>
+                <KpiTable kpi={kpi} />
+                <KpiTrendChart kpi={kpi} />
+              </div>
+            ))}
+          </div>
+          {record.成果指標設定根拠 && (
+            <p className="text-xs text-mirai-text-muted whitespace-pre-line border-t border-mirai-border pt-2">
+              <span className="font-medium">設定根拠：</span>
+              {normalizePdfText(record.成果指標設定根拠)}
             </p>
           )}
-          {record.概要一覧?.事業の内容 && (
-            <p className="text-sm text-mirai-text-secondary whitespace-pre-line border-t border-mirai-border pt-2">
-              {record.概要一覧.事業の内容}
+          {record.実績評価と要因 && (
+            <p className="text-xs text-mirai-text-muted whitespace-pre-line">
+              <span className="font-medium">実績評価と要因：</span>
+              {normalizePdfText(record.実績評価と要因)}
+            </p>
+          )}
+        </Section>
+      ) : (
+        record.進捗状況テキスト && (
+          <Section title="進捗状況">
+            <p className="text-sm text-mirai-text-secondary whitespace-pre-line">
+              {normalizePdfText(record.進捗状況テキスト)}
+            </p>
+          </Section>
+        )
+      )}
+
+      {/* 事業費 */}
+      {record.事業費?.年度別 && (
+        <Section title="事業費の推移（千円）">
+          <BudgetBarChart data={record} />
+          {record.事業費.人件費 && (
+            <p className="text-xs text-mirai-text-muted">
+              ※
+              人件費は事業費（歳出）と別掲。棒グラフは歳出（一般財源＋特定財源）を示します。
+            </p>
+          )}
+          {record.効率化工夫 && (
+            <p className="text-xs text-mirai-text-muted whitespace-pre-line border-t border-mirai-border pt-2">
+              <span className="font-medium">効率化の工夫：</span>
+              {normalizePdfText(record.効率化工夫)}
             </p>
           )}
         </Section>
@@ -151,61 +190,23 @@ export function JimuJigyoDetailPage({ record, basePath }: Props) {
         </div>
       </Section>
 
-      {/* 成果指標 */}
-      {record.成果指標.length > 0 ? (
-        <Section title="成果指標の推移">
-          <div className="space-y-6">
-            {record.成果指標.map((kpi, i) => (
-              <div key={`${kpi.内容}-${i}`} className="space-y-2">
-                <h3 className="text-sm font-medium text-mirai-text">
-                  {kpi.内容}
-                </h3>
-                <KpiTable kpi={kpi} />
-                <KpiTrendChart kpi={kpi} />
-              </div>
-            ))}
-          </div>
-          {record.成果指標設定根拠 && (
-            <p className="text-xs text-mirai-text-muted whitespace-pre-line border-t border-mirai-border pt-2">
-              <span className="font-medium">設定根拠：</span>
-              {record.成果指標設定根拠}
+      {/* 見直しの内容（県の判断）。事業の中身・実績・費用を示した後に結論を置く */}
+      <Section title="見直しの内容">
+        <div className="text-sm text-mirai-text-secondary space-y-2">
+          {record.見直し.理由 && (
+            <p className="whitespace-pre-line">
+              <span className="font-medium text-mirai-text">理由：</span>
+              {normalizePdfText(record.見直し.理由)}
             </p>
           )}
-          {record.実績評価と要因 && (
-            <p className="text-xs text-mirai-text-muted whitespace-pre-line">
-              <span className="font-medium">実績評価と要因：</span>
-              {record.実績評価と要因}
+          {record.見直し.内容 && (
+            <p className="whitespace-pre-line">
+              <span className="font-medium text-mirai-text">内容：</span>
+              {normalizePdfText(record.見直し.内容)}
             </p>
           )}
-        </Section>
-      ) : (
-        record.進捗状況テキスト && (
-          <Section title="進捗状況">
-            <p className="text-sm text-mirai-text-secondary whitespace-pre-line">
-              {record.進捗状況テキスト}
-            </p>
-          </Section>
-        )
-      )}
-
-      {/* 事業費 */}
-      {record.事業費?.年度別 && (
-        <Section title="事業費の推移（千円）">
-          <BudgetBarChart data={record} />
-          {record.事業費.人件費 && (
-            <p className="text-xs text-mirai-text-muted">
-              ※
-              人件費は事業費（歳出）と別掲。棒グラフは歳出（一般財源＋特定財源）を示します。
-            </p>
-          )}
-          {record.効率化工夫 && (
-            <p className="text-xs text-mirai-text-muted whitespace-pre-line border-t border-mirai-border pt-2">
-              <span className="font-medium">効率化の工夫：</span>
-              {record.効率化工夫}
-            </p>
-          )}
-        </Section>
-      )}
+        </div>
+      </Section>
 
       {/* 原本PDF */}
       {pdf && (

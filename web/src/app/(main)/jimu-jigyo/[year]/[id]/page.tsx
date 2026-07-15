@@ -9,6 +9,7 @@ import {
   isValidYear,
   YEAR_METADATA,
 } from "@/features/jimu-jigyo/server/loaders/load-jimu-jigyo-list";
+import { normalizePdfText } from "@/features/jimu-jigyo/shared/utils/normalize-pdf-text";
 
 export const dynamicParams = true;
 
@@ -34,7 +35,10 @@ export async function generateMetadata({
   if (!record) return { title: "事業が見つかりません" };
   return {
     title: `${record.事業名}｜事務事業評価`,
-    description: record.ねらい目的 ?? record.概要一覧?.事業の内容 ?? undefined,
+    // PDFの折り返し改行が残ると description に不自然な改行が入る
+    description:
+      normalizePdfText(record.ねらい目的 ?? record.概要一覧?.事業の内容) ??
+      undefined,
   };
 }
 
