@@ -648,6 +648,7 @@ export type Database = {
       }
       general_questions: {
         Row: {
+          answer_raw_text: string | null
           council_session_id: string
           created_at: string | null
           id: string
@@ -664,6 +665,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          answer_raw_text?: string | null
           council_session_id: string
           created_at?: string | null
           id?: string
@@ -680,6 +682,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          answer_raw_text?: string | null
           council_session_id?: string
           created_at?: string | null
           id?: string
@@ -937,6 +940,139 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      jimu_jigyo_bureaus: {
+        Row: {
+          code: string
+          created_at: string
+          display_order: number
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          display_order?: number
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          display_order?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      jimu_jigyo_evaluations: {
+        Row: {
+          created_at: string
+          fiscal_year: number
+          id: string
+          item_id: string
+          raw_data: Json
+          review_major: string | null
+          review_minor: string | null
+          source_page: number | null
+          source_pdf: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          fiscal_year: number
+          id?: string
+          item_id: string
+          raw_data: Json
+          review_major?: string | null
+          review_minor?: string | null
+          source_page?: number | null
+          source_pdf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          fiscal_year?: number
+          id?: string
+          item_id?: string
+          raw_data?: Json
+          review_major?: string | null
+          review_minor?: string | null
+          source_page?: number | null
+          source_pdf?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jimu_jigyo_evaluations_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "jimu_jigyo_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jimu_jigyo_items: {
+        Row: {
+          bureau_code: string
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          bureau_code: string
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          bureau_code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jimu_jigyo_items_bureau_code_fkey"
+            columns: ["bureau_code"]
+            isOneToOne: false
+            referencedRelation: "jimu_jigyo_bureaus"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      jimu_jigyo_reevaluations: {
+        Row: {
+          created_at: string
+          fiscal_year: number
+          id: string
+          raw_data: Json
+          slug: string
+          source_page: number | null
+          source_pdf: string | null
+        }
+        Insert: {
+          created_at?: string
+          fiscal_year: number
+          id?: string
+          raw_data: Json
+          slug: string
+          source_page?: number | null
+          source_pdf?: string | null
+        }
+        Update: {
+          created_at?: string
+          fiscal_year?: number
+          id?: string
+          raw_data?: Json
+          slug?: string
+          source_page?: number | null
+          source_pdf?: string | null
+        }
+        Relationships: []
       }
       press_conference_items: {
         Row: {
