@@ -160,14 +160,22 @@ async function run() {
   console.log(`部局マスタ: ${BUREAUS.length}件 upsert`);
 
   // 2. 既存データ削除（冪等性。evaluations は cascade）
-  await supabase
+  // 削除が失敗したまま先に進むと、古い行が残ったまま挿入して
+  // 一意制約違反という無関係なエラーになるため、ここで必ず止める
+  const { error: deleteItemsError } = await supabase
     .from("jimu_jigyo_items")
     .delete()
     .neq("id", "00000000-0000-0000-0000-000000000000");
-  await supabase
+  if (deleteItemsError) {
+    throw new Error(`items delete失敗: ${deleteItemsError.message}`);
+  }
+  const { error: deleteReevalsError } = await supabase
     .from("jimu_jigyo_reevaluations")
     .delete()
     .neq("id", "00000000-0000-0000-0000-000000000000");
+  if (deleteReevalsError) {
+    throw new Error(`reevaluations delete失敗: ${deleteReevalsError.message}`);
+  }
   console.log("既存の items / reevaluations を削除");
 
   // 3. items + evaluations
