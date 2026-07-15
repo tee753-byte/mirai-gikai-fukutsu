@@ -3,6 +3,8 @@ import { About } from "@/components/top/about";
 import { BudgetOverviewBanner } from "@/components/top/budget-overview-banner";
 import { GeneralQuestionsBanner } from "@/components/top/general-questions-banner";
 import { Hero } from "@/components/top/hero";
+import { JimuJigyoArchiveSection } from "@/components/top/jimu-jigyo-archive-section";
+import { JimuJigyoBanner } from "@/components/top/jimu-jigyo-banner";
 import { PastSessionsSection } from "@/components/top/past-sessions-section";
 import { TeamMirai } from "@/components/top/team-mirai";
 import { siteConfig } from "@/config/site.config";
@@ -82,6 +84,11 @@ export default async function Home() {
         </Container>
       )}
 
+      {/* 事務事業評価バナー */}
+      <Container className="pt-3">
+        <JimuJigyoBanner />
+      </Container>
+
       {/* 知事記者会見バナー */}
       {latestPressConference && (
         <Container className="pt-3">
@@ -124,6 +131,13 @@ export default async function Home() {
           </Container>
         </div>
       )}
+
+      {/* 事務事業評価セクション（Archive） */}
+      <div className="bg-mirai-surface-muted py-10">
+        <Container>
+          <JimuJigyoArchiveSection />
+        </Container>
+      </div>
 
       <Container>
         {/* みらい議会とは セクション */}
