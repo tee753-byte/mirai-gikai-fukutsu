@@ -30,6 +30,40 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 const FISCAL_YEAR_R7 = 2025;
 const FISCAL_YEAR_R6 = 2024;
 
+// 抽出時のローカルPDFファイル名 → 県公式サイトの公開ファイル名。
+// items.json の 出典.pdf には抽出実行時に渡したローカル名が入るため、
+// 原本リンクを正しく張るにはここで公式名に解決する。
+// 公開元: https://www.pref.fukuoka.lg.jp/contents/gyouseihyouka-01.html
+const SOURCE_PDF_MAP: Record<string, string> = {
+  // R7 事務事業評価書（様式1号）5分冊
+  "hyoukasho-somu.pdf": "810515_62838387_misc.pdf", // 総務部、企画・地域振興部、人づくり・県民生活部
+  "hyoukasho-hoken.pdf": "810515_62838388_misc.pdf", // 保健医療介護部、福祉労働部
+  "hyoukasho-kankyo.pdf": "810515_62838389_misc.pdf", // 環境部、商工部
+  "hyoukasho-norin.pdf": "810515_62838390_misc.pdf", // 農林水産部、県土整備部、建築都市部
+  "hyoukasho-kyoiku.pdf": "810515_62838391_misc.pdf", // 教育庁、警察本部
+  // R7 公共事業再評価に関する総括表（様式3号）
+  "soukatsu-koukyou.pdf": "810515_62838394_misc.pdf",
+  // R6 事務事業評価書（過年度・出典保存用）
+  "62586282.pdf": "781665_62586282_misc.pdf",
+  "62586283.pdf": "781665_62586283_misc.pdf",
+  "62586284.pdf": "781665_62586284_misc.pdf",
+  "62586285.pdf": "781665_62586285_misc.pdf",
+  "62586286.pdf": "781665_62586286_misc.pdf",
+};
+
+/** 公式PDF名に解決する。未知の名前は落として更新漏れを検知する */
+function officialPdf(localName: string | null | undefined): string | null {
+  if (!localName) return null;
+  const official = SOURCE_PDF_MAP[localName];
+  if (!official) {
+    throw new Error(
+      `SOURCE_PDF_MAP に未登録のPDFです: ${localName}\n` +
+        `県公式サイトの公開ファイル名を SOURCE_PDF_MAP に追加してください。`,
+    );
+  }
+  return official;
+}
+
 // 親部局コード（県の組織順）
 const BUREAUS: { code: string; name: string }[] = [
   { code: "somu", name: "総務部" },
@@ -152,10 +186,11 @@ async function run() {
       throw new Error(`items insert失敗 (No.${no}): ${itemError?.message}`);
     }
 
-    // 概要一覧テキストの付与
+    // 概要一覧テキストの付与＋出典PDFを公式ファイル名に解決
     const g = gaiyouByNo.get(no);
     const rawData: Record<string, unknown> = {
       ...item,
+      出典: { ...item.出典, pdf: officialPdf(item.出典.pdf) },
       概要一覧: g
         ? {
             事業の内容: g.事業の内容,
@@ -184,7 +219,7 @@ async function run() {
           年度別: merged,
           過年度出典: {
             マッチ方式: match!.method,
-            pdf: r6.出典.pdf,
+            pdf: officialPdf(r6.出典.pdf),
             印字ページ: r6.出典.印字ページ,
           },
         };
@@ -196,7 +231,7 @@ async function run() {
         item_id: inserted.id,
         fiscal_year: FISCAL_YEAR_R7,
         raw_data: rawData,
-        source_pdf: item.出典.pdf,
+        source_pdf: officialPdf(item.出典.pdf),
         source_page: item.出典.印字ページ,
       },
       // 過年度評価書があれば出典保存として保持
@@ -205,8 +240,11 @@ async function run() {
             {
               item_id: inserted.id,
               fiscal_year: FISCAL_YEAR_R6,
-              raw_data: r6 as unknown as Record<string, unknown>,
-              source_pdf: r6.出典.pdf,
+              raw_data: {
+                ...r6,
+                出典: { ...r6.出典, pdf: officialPdf(r6.出典.pdf) },
+              } as unknown as Record<string, unknown>,
+              source_pdf: officialPdf(r6.出典.pdf),
               source_page: r6.出典.印字ページ,
             },
           ]
@@ -228,7 +266,7 @@ async function run() {
     slug: `koukyo-${String(i + 1).padStart(3, "0")}`,
     fiscal_year: FISCAL_YEAR_R7,
     raw_data: s as unknown as Record<string, unknown>,
-    source_pdf: (s as { page?: number }).page != null ? "810515_62838394_misc.pdf" : null,
+    source_pdf: officialPdf("soukatsu-koukyou.pdf"),
     source_page: (s as { page?: number }).page ?? null,
   }));
   const { error: reevalError } = await supabase
