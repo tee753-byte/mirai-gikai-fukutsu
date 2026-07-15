@@ -1,0 +1,65 @@
+import Link from "next/link";
+import type { JimuJigyoRecord } from "../../shared/types/jimu-jigyo";
+import { DirectionBadge } from "./direction-badge";
+import { ReviewCategoryBadge } from "./review-category-badge";
+
+type Props = {
+  record: JimuJigyoRecord;
+  basePath: string;
+};
+
+export function JimuJigyoCard({ record, basePath }: Props) {
+  const { analysis } = record;
+  return (
+    <Link href={`${basePath}/${record.id}`} className="block group">
+      <div className="bg-card rounded-lg border border-mirai-border shadow-sm hover:shadow-md transition-shadow p-4 h-full flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-2">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-mirai-surface-warm text-mirai-text-secondary border border-mirai-border">
+            {record.部局}
+          </span>
+          <ReviewCategoryBadge
+            major={record.見直し.大区分}
+            minor={record.見直し.小区分}
+          />
+        </div>
+
+        <div>
+          <h3 className="text-sm font-bold text-mirai-text line-clamp-2 group-hover:underline">
+            {record.事業名}
+          </h3>
+          <p className="text-xs text-mirai-text-muted mt-0.5">
+            {record.課室}
+            {record.事業開始年度 && ` · ${record.事業開始年度}開始`}
+          </p>
+        </div>
+
+        <div className="space-y-1 border-t border-mirai-border pt-2">
+          <DirectionBadge
+            label="KPI"
+            direction={analysis.kpi.direction}
+            changeRate={analysis.kpi.changeRate}
+          />
+          <DirectionBadge
+            label="予算"
+            direction={analysis.budget.direction}
+            changeRate={analysis.budget.changeRate}
+            sub={{
+              label: "次年度",
+              direction: analysis.budget.nextYearDirection,
+              changeRate: analysis.budget.nextYearChangeRate,
+            }}
+          />
+          <DirectionBadge
+            label="効率"
+            direction={analysis.efficiency.direction}
+            changeRate={analysis.efficiency.changeRate}
+          />
+        </div>
+
+        <div className="mt-auto text-xs text-primary font-medium">
+          詳細を見る →
+        </div>
+      </div>
+    </Link>
+  );
+}

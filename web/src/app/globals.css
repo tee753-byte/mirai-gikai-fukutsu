@@ -103,6 +103,28 @@
   /* Gradient endpoints */
   --color-mirai-gradient-start: #dbd3f9;
   --color-mirai-gradient-end: #ede9fd;
+
+  /* 事務事業評価: 3軸方向インジケータ */
+  --color-jimu-up: #1f8a4c;
+  --color-jimu-up-bg: #e5f4ea;
+  --color-jimu-down: #c0392b;
+  --color-jimu-down-bg: #fbeae7;
+  --color-jimu-flat: #6b7280;
+  --color-jimu-flat-bg: #eef0f2;
+
+  /* 事務事業評価: 見直し区分バッジ（拡充=緑/改善系=青/縮小=琥珀/完了=灰/再構築=紫/廃止=赤） */
+  --color-review-kakuju-bg: #e5f4ea;
+  --color-review-kakuju-text: #1f8a4c;
+  --color-review-kaizen-bg: #e6f0fa;
+  --color-review-kaizen-text: #1f5f9e;
+  --color-review-shukusho-bg: #fdf1e0;
+  --color-review-shukusho-text: #9a6410;
+  --color-review-kanryo-bg: #eef0f2;
+  --color-review-kanryo-text: #4b5563;
+  --color-review-saikochiku-bg: #efe8fa;
+  --color-review-saikochiku-text: #6b3fa0;
+  --color-review-haishi-bg: #fbeae7;
+  --color-review-haishi-text: #c0392b;
 }
 
 :root {
