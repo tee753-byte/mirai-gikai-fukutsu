@@ -12,7 +12,10 @@ import { getInitial } from "../../shared/utils/budget-accessor";
 export const YEAR_METADATA = [
   {
     slug: "r7",
+    /** 一覧・アーカイブでの正式名。実績の年度が評価年度と1年ずれるため併記する */
     label: "令和7年度評価（令和6年度実績）",
+    /** 見出しなど、括弧の入れ子を避けたい箇所で使う短縮名 */
+    shortLabel: "令和7年度",
     description: "266事業の見直し状況とKPI・予算・効率を分析",
     fiscalYear: 2025,
     analysisYear: "R6",
