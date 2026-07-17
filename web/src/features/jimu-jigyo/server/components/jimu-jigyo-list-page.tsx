@@ -143,75 +143,77 @@ export async function JimuJigyoListPage({
         />
       </div>
 
+      {/* タブ＋検索（同じ行。縦の圧迫を避けるため市版同様フィルタ帯は薄くする） */}
       <Tabs
         basePath={basePath}
         view="jimu"
         jimuCount={allRecords.length}
         saihyokaCount={saihyoka.length}
+        right={
+          <JimuJigyoSearchForm
+            action={basePath}
+            defaultValue={filter.q}
+            hidden={{ bureau: filter.bureau, category: filter.category }}
+          />
+        }
       />
 
-      {/* 検索 */}
-      <JimuJigyoSearchForm
-        action={basePath}
-        defaultValue={filter.q}
-        hidden={{ bureau: filter.bureau, category: filter.category }}
-      />
-
-      {/* 部局フィルタ（横スクロール1行→sm以上で折り返し） */}
-      <div>
-        <p className="text-xs text-mirai-text-muted mb-1">部局</p>
-        <div className="flex sm:flex-wrap gap-2 overflow-x-auto pb-1 -mb-1">
+      {/* 部局フィルタ（ラベルは行内・モバイルは横スクロール1行、sm以上で折り返し） */}
+      <div className="flex sm:flex-wrap gap-2 items-center overflow-x-auto pb-1 -mb-1">
+        <span className="text-xs text-mirai-text-muted shrink-0">部局:</span>
+        <Pill
+          href={buildHref(basePath, {
+            category: filter.category,
+            q: filter.q,
+          })}
+          active={!filter.bureau}
+        >
+          全て
+        </Pill>
+        {BUREAUS.map((b) => (
           <Pill
+            key={b.code}
             href={buildHref(basePath, {
+              bureau: b.code,
               category: filter.category,
               q: filter.q,
             })}
-            active={!filter.bureau}
+            active={filter.bureau === b.code}
           >
-            全て
+            {b.name} {bureauCounts[b.code] ?? 0}
           </Pill>
-          {BUREAUS.map((b) => (
-            <Pill
-              key={b.code}
-              href={buildHref(basePath, {
-                bureau: b.code,
-                category: filter.category,
-                q: filter.q,
-              })}
-              active={filter.bureau === b.code}
-            >
-              {b.name} {bureauCounts[b.code] ?? 0}
-            </Pill>
-          ))}
-        </div>
+        ))}
       </div>
 
-      {/* 見直し区分フィルタ（大区分→小区分の2段） */}
-      <div>
-        <p className="text-xs text-mirai-text-muted mb-1">見直し区分</p>
-        <div className="flex flex-wrap gap-2 items-center">
+      {/* 見直し区分フィルタ（大区分を選ぶと小区分が同じ行に続けて展開される） */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-xs text-mirai-text-muted shrink-0">
+          見直し区分:
+        </span>
+        <Pill
+          href={buildHref(basePath, { bureau: filter.bureau, q: filter.q })}
+          active={!filter.category}
+        >
+          全て {allRecords.length}
+        </Pill>
+        {REVIEW_MAJORS.map((mj) => (
           <Pill
-            href={buildHref(basePath, { bureau: filter.bureau, q: filter.q })}
-            active={!filter.category}
+            key={mj}
+            href={buildHref(basePath, {
+              bureau: filter.bureau,
+              category: buildCategorySlug(mj),
+              q: filter.q,
+            })}
+            active={parsedCategory?.major === mj && !parsedCategory?.minor}
           >
-            全て {allRecords.length}
+            {mj} {majorCounts[mj] ?? 0}
           </Pill>
-          {REVIEW_MAJORS.map((mj) => (
-            <Pill
-              key={mj}
-              href={buildHref(basePath, {
-                bureau: filter.bureau,
-                category: buildCategorySlug(mj),
-                q: filter.q,
-              })}
-              active={parsedCategory?.major === mj && !parsedCategory?.minor}
-            >
-              {mj} {majorCounts[mj] ?? 0}
-            </Pill>
-          ))}
-        </div>
+        ))}
         {parsedCategory && (
-          <div className="flex flex-wrap gap-2 items-center mt-2 pl-3 border-l-2 border-mirai-border">
+          <>
+            <span className="text-mirai-text-muted text-xs" aria-hidden>
+              ›
+            </span>
             {REVIEW_MINORS_BY_MAJOR[parsedCategory.major].map((mn) => (
               <Pill
                 key={mn}
@@ -225,7 +227,7 @@ export async function JimuJigyoListPage({
                 {mn} {minorCounts[`${parsedCategory.major}:${mn}`] ?? 0}
               </Pill>
             ))}
-          </div>
+          </>
         )}
       </div>
 
@@ -323,11 +325,14 @@ function Tabs({
   view,
   jimuCount,
   saihyokaCount,
+  right,
 }: {
   basePath: string;
   view: "jimu" | "saihyoka";
   jimuCount: number;
   saihyokaCount: number;
+  /** タブ行の右側に置く要素（検索フォーム等）。縦の行数を増やさないための同居枠 */
+  right?: React.ReactNode;
 }) {
   const tab = (target: "jimu" | "saihyoka", label: string, count: number) => {
     const active = view === target;
@@ -335,7 +340,7 @@ function Tabs({
     return (
       <Link
         href={href}
-        className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+        className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
           active
             ? "border-primary text-mirai-text"
             : "border-transparent text-mirai-text-muted hover:text-mirai-text"
@@ -346,9 +351,12 @@ function Tabs({
     );
   };
   return (
-    <div className="flex gap-2 border-b border-mirai-border">
-      {tab("jimu", "事務事業評価", jimuCount)}
-      {tab("saihyoka", "公共事業再評価", saihyokaCount)}
+    <div className="flex flex-wrap items-end gap-x-6 gap-y-2 border-b border-mirai-border">
+      <div className="flex gap-2">
+        {tab("jimu", "事務事業評価", jimuCount)}
+        {tab("saihyoka", "公共事業再評価", saihyokaCount)}
+      </div>
+      {right && <div className="ml-auto w-full sm:w-80 pb-2">{right}</div>}
     </div>
   );
 }
