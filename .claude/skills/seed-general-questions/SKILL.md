@@ -8,8 +8,10 @@ description: 福岡県議会の一般質問テキスト（Shift-JIS）をパー�
 福岡県議会の一般質問テキスト（Shift-JIS）をDBに投入するワークフロー。
 設計書: `docs/20260531_1400_一般質問データ化設計.md`
 
-> 接続先の確認は `.claude/skills/db-access/SKILL.md` の規約に従うこと
-> （本番への書き込みは必ずユーザーの確認を経る）。
+> **本番への書き込みは必ずユーザーの確認を経ること。**
+> 接続先はハードコードせず、本番なら `.env.production`、ローカルなら `.env` の
+> `SUPABASE_URL` を正とする。本番書き込み前にはプロジェクト名が
+> 福岡県版（`mirai-gikai-fukuoka-pref Project`）であることを確認する。
 
 ## 使い方
 
@@ -90,6 +92,7 @@ python3 packages/seed/fukuoka/parse-general-questions.py \
 
 `answer_raw_text` カラムの存在確認:
 ```bash
+# 投入先のenvを読み込む（ローカル投入なら .env、本番投入なら .env.production）
 set -a && source .env && set +a
 curl -s "$SUPABASE_URL/rest/v1/general_questions?select=answer_raw_text&limit=1" \
   -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \

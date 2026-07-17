@@ -18,7 +18,7 @@ description: 本番反映手順（migration→Vercel）。「本番に反映し�
 
 ## 自動経路（通常はこれだけ）
 
-```
+```text
 PRを統合ブランチにマージ
   → GitHub Actions「Migrate DB then Deploy Web」が起動
      1. supabase db push --include-all   … 未適用migrationを本番DBへ
@@ -64,7 +64,14 @@ node --import=tsx/esm --env-file=<本番用env> fukuoka/<seedスクリプト>.ts
 本番に手動適用された記録がリポジトリに無い状態。
 
 1. 中身を確認: Management API で `supabase_migrations.schema_migrations` の
-   `statements` を読む（db-accessスキル参照）
+   `statements` を読む（PostgRESTからは見えないスキーマのため）:
+
+   ```bash
+   set -a; . ./.env.production; set +a
+   curl -s -X POST "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query" \
+     -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H "Content-Type: application/json" \
+     -d '{"query":"select version, name, statements from supabase_migrations.schema_migrations order by version desc limit 5;"}'
+   ```
 2. 同じ変更がリポジトリ側に別タイムスタンプで存在し、かつ冪等なら
    `supabase migration repair --status reverted <version>` で帳簿だけ修正する
    （SQLは実行されない。データ・スキーマは変わらない）
@@ -74,6 +81,12 @@ node --import=tsx/esm --env-file=<本番用env> fukuoka/<seedスクリプト>.ts
 
 ## 本番の状態確認（読み取り）
 
-接続情報・確認方法は `.claude/skills/db-access/SKILL.md` を参照。
+接続情報は `.env.production` から読み込む（値をハードコードしない）。
 **書き込み前に、Supabaseプロジェクト名が冒頭の「このリポジトリの値」と一致することを
-確認する**（地域リポジトリの取り違えで別地域の本番に書く事故を防ぐ）。
+確認する**（地域リポジトリの取り違えで別地域の本番に書く事故を防ぐ）:
+
+```bash
+set -a; . ./.env.production; set +a
+curl -s "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" | jq -r '.name'
+```
