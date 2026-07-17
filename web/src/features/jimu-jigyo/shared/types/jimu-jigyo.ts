@@ -44,6 +44,17 @@ export interface GaiyouText {
   ねらい目的: string | null;
 }
 
+/** AIが評価書ダイジェストから生成した平易な概要（難易度「ふつう」で表示） */
+export interface JimuAiGaiyou {
+  事業説明: string;
+  推移の解説: string;
+  見直しの意味: string;
+}
+
+export interface SaiHyokaAiGaiyou {
+  平易な説明: string;
+}
+
 export interface JimuJigyoData {
   整理番号: number;
   事業名: string;
@@ -83,6 +94,7 @@ export interface JimuJigyoData {
     pdfページ?: number;
   };
   概要一覧?: GaiyouText | null;
+  ai概要?: JimuAiGaiyou | null;
 }
 
 /** 公共事業再評価（様式3号総括表） */
@@ -99,6 +111,7 @@ export interface SaiHyokaData {
   };
   再評価結果: string;
   理由: string | null;
+  ai概要?: SaiHyokaAiGaiyou | null;
 }
 
 // ─── 3軸方向分析 ─────────────────────────────────────────────

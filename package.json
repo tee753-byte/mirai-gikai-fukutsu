@@ -9,6 +9,7 @@
     "dev": "dotenv -e .env -- pnpm -r --stream --parallel run dev",
     "dev:admin:prod-db": "dotenv -e .env.production -- pnpm --filter admin dev",
     "seed": "dotenv -e .env -- pnpm --filter @mirai-gikai/seed seed",
+    "seed:jimu-ai-summary": "dotenv -e .env -- pnpm --filter @mirai-gikai/seed seed:jimu-ai-summary",
     "seed:csv": "dotenv -e .env -- pnpm --filter @mirai-gikai/seed seed:csv",
     "test": "pnpm -r --parallel run test",
     "test:coverage": "pnpm -r --parallel run test:coverage",

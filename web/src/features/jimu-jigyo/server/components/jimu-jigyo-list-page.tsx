@@ -1,5 +1,6 @@
 import "server-only";
 import Link from "next/link";
+import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
 import { JimuJigyoCard } from "../../client/components/jimu-jigyo-card";
 import { JimuJigyoSearchForm } from "../../client/components/jimu-jigyo-search-form";
 import { getBudgetTimeline } from "../../shared/utils/budget-accessor";
@@ -82,7 +83,11 @@ export async function JimuJigyoListPage({
 
   // 再評価タブ
   if (view === "saihyoka") {
-    const saihyoka = await loadSaiHyokaList(year);
+    // 難易度Cookieはこの分岐でのみ参照する（既定ビューの静的生成を保つため）
+    const [saihyoka, difficulty] = await Promise.all([
+      loadSaiHyokaList(year),
+      getDifficultyLevel(),
+    ]);
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
         <ListHeader meta={meta} basePath={basePath} total={allRecords.length} />
@@ -92,7 +97,7 @@ export async function JimuJigyoListPage({
           jimuCount={allRecords.length}
           saihyokaCount={saihyoka.length}
         />
-        <SaiHyokaSection records={saihyoka} />
+        <SaiHyokaSection records={saihyoka} difficulty={difficulty} />
       </div>
     );
   }
