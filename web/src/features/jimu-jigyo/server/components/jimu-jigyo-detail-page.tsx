@@ -1,6 +1,7 @@
 import "server-only";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Sparkles } from "lucide-react";
 import Link from "next/link";
+import type { DifficultyLevelEnum } from "@/features/bill-difficulty/shared/types";
 import { BudgetBarChart } from "../../client/components/budget-bar-chart";
 import { DirectionBadge } from "../../client/components/direction-badge";
 import { KpiTrendChart } from "../../client/components/kpi-trend-chart";
@@ -15,6 +16,7 @@ import { normalizePdfText } from "../../shared/utils/normalize-pdf-text";
 type Props = {
   record: JimuJigyoRecord;
   basePath: string;
+  difficulty: DifficultyLevelEnum;
 };
 
 const PDF_BASE = "https://www.pref.fukuoka.lg.jp/uploaded/life";
@@ -45,10 +47,119 @@ function kpiYears(kpi: PrefKpiItem): ReiwaYear[] {
     .sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
 }
 
-export function JimuJigyoDetailPage({ record, basePath }: Props) {
+export function JimuJigyoDetailPage({ record, basePath, difficulty }: Props) {
   const { analysis } = record;
   const sogo = record.総合計画位置づけ;
   const pdf = record.出典?.pdf;
+  const aiGaiyou = difficulty === "normal" ? (record.ai概要 ?? null) : null;
+
+  // 概要版（難易度「ふつう」かつAI概要あり）:
+  // 原文の転載を避け、AIによる平易な文章とグラフだけで構成する
+  if (aiGaiyou) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-5">
+        <div className="text-xs text-mirai-text-muted">
+          <Link href={basePath} className="hover:underline">
+            事務事業評価
+          </Link>
+          <span className="mx-1">/</span>
+          <span>{record.部局}</span>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="text-2xl font-bold text-mirai-text">
+              {record.事業名}
+            </h1>
+            <ReviewCategoryBadge
+              major={record.見直し.大区分}
+              minor={record.見直し.小区分}
+              size="md"
+            />
+          </div>
+          <p className="text-sm text-mirai-text-muted">
+            {record.部局}
+            {record.課室 && ` ${record.課室}`}
+            {record.事業開始年度 && ` · ${record.事業開始年度}開始`}
+          </p>
+        </div>
+
+        <Section title="どんな事業？">
+          <p className="text-sm text-mirai-text-secondary leading-relaxed">
+            {aiGaiyou.事業説明}
+          </p>
+        </Section>
+
+        {record.成果指標.length > 0 && (
+          <Section title="成果指標の推移">
+            <div className="space-y-6">
+              {record.成果指標.map((kpi, i) => (
+                <div key={`${kpi.内容}-${i}`} className="space-y-2">
+                  <h3 className="text-sm font-medium text-mirai-text">
+                    {kpi.内容}
+                  </h3>
+                  <KpiTrendChart kpi={kpi} />
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {record.事業費?.年度別 && (
+          <Section title="事業費の推移（千円）">
+            <BudgetBarChart data={record} />
+          </Section>
+        )}
+
+        <Section title="数字から見える動き">
+          <p className="text-sm text-mirai-text-secondary leading-relaxed">
+            {aiGaiyou.推移の解説}
+          </p>
+          <div className="space-y-3 border-t border-mirai-border pt-3">
+            <AnalysisRow
+              label="KPI"
+              direction={analysis.kpi.direction}
+              changeRate={analysis.kpi.changeRate}
+              text={analysis.kpi.text}
+            />
+            <AnalysisRow
+              label="予算"
+              direction={analysis.budget.direction}
+              changeRate={analysis.budget.changeRate}
+              text={analysis.budget.text}
+            />
+            <AnalysisRow
+              label="効率"
+              direction={analysis.efficiency.direction}
+              changeRate={analysis.efficiency.changeRate}
+              text={analysis.efficiency.text}
+            />
+          </div>
+        </Section>
+
+        <Section title="見直しの方向性">
+          <p className="text-sm text-mirai-text-secondary leading-relaxed">
+            {aiGaiyou.見直しの意味}
+          </p>
+        </Section>
+
+        <AiDisclaimer />
+
+        {pdf && (
+          <a
+            href={`${PDF_BASE}/${pdf}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+          >
+            <ExternalLink className="w-4 h-4" aria-hidden />
+            評価書の原本（PDF）を見る
+            {record.出典?.印字ページ && `（P${record.出典.印字ページ}）`}
+          </a>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-5">
@@ -222,6 +333,16 @@ export function JimuJigyoDetailPage({ record, basePath }: Props) {
         </a>
       )}
     </div>
+  );
+}
+
+/** AI生成コンテンツの注意書き（概要版のみ表示） */
+function AiDisclaimer() {
+  return (
+    <p className="flex items-start gap-1.5 text-xs text-mirai-text-muted">
+      <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0" aria-hidden />
+      この概要は、県の評価書をもとにAIが分かりやすく書き直したものです。正確な原文は、表示切替の「難しい」または原本PDFでご確認ください。
+    </p>
   );
 }
 
