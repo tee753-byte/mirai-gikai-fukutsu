@@ -37,6 +37,14 @@ description: 福岡県の行政評価PDF（事務事業評価書・概要一覧�
 
 過年度: 令和6年度 https://www.pref.fukuoka.lg.jp/gyosei-shiryo/gyouseihyoukarepo-to-06.html（-03〜-05が令和3〜5年度）
 
+### 出典PDFは公式ファイル名に解決してから投入する
+
+抽出JSONの `出典.pdf` には**抽出時に渡したローカルファイル名**（例: `hyoukasho-somu.pdf`）が
+入る。そのままseedすると詳細ページの「評価書の原本」リンクが404になる（実際に起きた）。
+`packages/seed/fukuoka/seed-jimu-jigyo.ts` の `SOURCE_PDF_MAP` がローカル名→公式名
+（例: `810515_62838387_misc.pdf`）に解決するので、**新しい年度を追加したら必ず
+SOURCE_PDF_MAP に公式名を登録する**こと。未登録名はseedが例外を投げて検知される。
+
 ## ワークフロー
 
 ```bash

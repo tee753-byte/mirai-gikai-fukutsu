@@ -30,9 +30,14 @@ cd ../mirai-gikai-<branch-name> && pnpm install --frozen-lockfile
 gh pr create --base fukuoka-pref/develop ...
 ```
 
-### Codexレビュー必須
-実装完了後（コミット前）に、必ず `/review-codex` スキルを実行してCodex CLIによるコードレビューを受けること。指摘があれば修正してからコミットする。
-Codexレビューを通過したら、ユーザーに確認せずそのままPR作成まで一気に進めること（push → `gh pr create --base fukuoka-pref/develop`）。
+### レビューはCodeRabbit
+コードレビューはPR作成後の**CodeRabbit自動レビュー**で行う（Codex CLIはこの環境に
+存在せず、`/review-codex` スキルは廃止済み）。フローは次のとおり:
+
+1. 実装完了後、コミット前にセルフレビュー（差分を読み直し、本ファイルの規約
+   —純粋関数のutils切り出し・テスト必須・カラートークン等—への違反がないか確認する）
+2. push → PR作成（ユーザーへの確認は不要）
+3. CodeRabbitのレビューを待ち、指摘対応→resolve（詳細は「PR作成後の状態確認」を参照）
 
 ### 並列PR作成
 複数の独立したPRを作成する場合は `/parallel-pr` スキルを使用すること。

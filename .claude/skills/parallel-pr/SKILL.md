@@ -81,7 +81,14 @@ Task(
 - ...
 
 ## 作業手順
-1. `git checkout -b {branch} fukuoka-city/develop` でブランチ作成
+
+{統合ブランチ} = このリポジトリのCLAUDE.md「ベースブランチは必ず◯◯」に記載のブランチ
+（福岡県版なら fukuoka-pref/develop、福岡市版なら fukuoka-city/develop）。
+このスキルは地域リポジトリ間で同期されるため、**ブランチ名をここに直書きしない**。
+`origin/HEAD` からの自動解決も使わない（多地域同居リポジトリでは別地域の既定ブランチが
+返ることがある）。実行前にCLAUDE.mdで必ず確認すること。
+
+1. `git checkout -b {branch} {統合ブランチ}` でブランチ作成
 2. 対象ファイルを読んで理解
 3. 実装・修正
 4. push前のローカル検証（CIと同じコマンドを全て実行し、全て通過すること）:
@@ -90,10 +97,10 @@ Task(
    - `pnpm typecheck` で型チェック通過を確認
    - `pnpm test` でテスト通過を確認
 5. エラーがあれば修正して再度ステップ4を実行
-6. コミット（Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>）
+6. コミット（Co-Authored-By: 使用中のClaudeモデル名 <noreply@anthropic.com>）
 7. `git push -u origin {branch}`
-8. `gh pr create --base fukuoka-city/develop --title "{title}" --body "..."`
-9. 次のPRがあれば `git checkout -b {next-branch} fukuoka-city/develop` で次へ
+8. `gh pr create --base {統合ブランチ} --title "{title}" --body "..."`
+9. 次のPRがあれば `git checkout -b {next-branch} {統合ブランチ}` で次へ
 10. 全完了後、リーダーにメッセージで報告（PR番号・URL）
 ```
 
