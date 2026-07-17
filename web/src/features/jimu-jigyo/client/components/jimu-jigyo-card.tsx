@@ -18,7 +18,13 @@ export function JimuJigyoCard({ record, basePath, budgetYear }: Props) {
   return (
     <Link href={`${basePath}/${record.id}`} className="block group">
       <div className="bg-card rounded-lg border border-mirai-border shadow-sm hover:shadow-md transition-shadow p-4 h-full flex flex-col gap-3">
-        <div className="flex items-start justify-between gap-2">
+        {/*
+          バッジは左寄せで並べて折り返す（市版の流儀）。
+          justify-between で左右に対峙させると、県の長い部局名
+          （例: 人づくり・県民生活部スポーツ局）と区分バッジがカード幅の中で
+          押し合い、横方向が窮屈に見える。
+        */}
+        <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-xs px-2 py-0.5 rounded-full bg-mirai-surface-warm text-mirai-text-secondary border border-mirai-border">
             {record.部局}
           </span>
