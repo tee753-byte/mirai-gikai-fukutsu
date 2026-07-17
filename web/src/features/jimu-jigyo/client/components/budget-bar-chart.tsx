@@ -46,7 +46,16 @@ export function BudgetBarChart({ data }: Props) {
         <Tooltip
           formatter={(v, name) => [`${Number(v).toLocaleString()}千円`, name]}
         />
-        <Legend />
+        {/*
+          rechartsの凡例は系列のfill色をそのまま文字色に使うため、
+          特定財源（淡い背景色）の文字がほぼ白で読めなくなる。
+          formatterで本文色を明示する。
+        */}
+        <Legend
+          formatter={(value) => (
+            <span className="text-xs text-mirai-text-secondary">{value}</span>
+          )}
+        />
         <Bar dataKey="一般財源" stackId="a" fill="var(--color-jimu-up)">
           {rows.map((r) => (
             <Cell

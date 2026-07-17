@@ -51,37 +51,83 @@ describe("analyzeKpi", () => {
 });
 
 describe("analyzeBudget", () => {
-  it("決算YoY増＋次年度当初方向も算出", () => {
+  it("主指標は当初予算どうしの前年比（R7当初→R8当初）", () => {
     const data = base({
       事業費: {
         年度別: {
-          R5決算: { 歳出: 1000 },
           R6決算: { 歳出: 1200 },
-          R7当初: { 歳出: 1300 },
-          R8当初: { 歳出: 1000 },
+          R7当初: { 歳出: 1000 },
+          R8当初: { 歳出: 1300 },
         },
       },
     });
     const r = analyzeBudget(data, "R6");
     expect(r.direction).toBe("up");
-    expect(r.changeRate).toBeCloseTo(0.2);
-    expect(r.nextYearDirection).toBe("down"); // 当初 1300→1000
-    expect(r.nextYearChangeRate).toBeCloseTo(-0.2307, 2);
+    expect(r.changeRate).toBeCloseTo(0.3); // 1000 → 1300
   });
 
-  it("前年度決算がなければ direction は unknown でも次年度方向は出る", () => {
+  it("R5決算が無くても当初予算ベースで評価できる（実データの大半＝227件のパターン）", () => {
     const data = base({
       事業費: {
         年度別: {
           R6決算: { 歳出: 1200 },
-          R7当初: { 歳出: 1300 },
-          R8当初: { 歳出: 1400 },
+          R7当初: { 歳出: 1000 },
+          R8当初: { 歳出: 500 },
         },
       },
     });
     const r = analyzeBudget(data, "R6");
+    expect(r.direction).toBe("down"); // 以前は unknown だった
+    expect(r.changeRate).toBeCloseTo(-0.5);
+    expect(r.settlementDirection).toBe("unknown"); // 決算は1点のみ
+  });
+
+  it("決算どうしの比較は突合できた事業でのみ副指標として出す", () => {
+    const data = base({
+      事業費: {
+        年度別: {
+          R5決算: { 歳出: 1000 },
+          R6決算: { 歳出: 1200 },
+          R7当初: { 歳出: 1000 },
+          R8当初: { 歳出: 1000 },
+        },
+      },
+    });
+    const r = analyzeBudget(data, "R6");
+    expect(r.settlementDirection).toBe("up");
+    expect(r.settlementChangeRate).toBeCloseTo(0.2); // 1000 → 1200
+    expect(r.direction).toBe("flat"); // 当初は横ばい
+  });
+
+  it("翌年度当初が無ければ主指標は unknown（実データ37件のパターン）", () => {
+    const data = base({
+      事業費: { 年度別: { R6決算: { 歳出: 1200 }, R7当初: { 歳出: 1000 } } },
+    });
+    const r = analyzeBudget(data, "R6");
     expect(r.direction).toBe("unknown");
-    expect(r.nextYearDirection).toBe("up");
+    expect(r.text).toContain("記載されていない");
+  });
+
+  it("決算と当初を直接比較しない（補正の有無で誤った増減が出るため）", () => {
+    // R6決算1200 → R7当初1000 は -17% だが、これは主指標にしない
+    const data = base({
+      事業費: {
+        年度別: {
+          R6決算: { 歳出: 1200 },
+          R7当初: { 歳出: 1000 },
+          R8当初: { 歳出: 1000 },
+        },
+      },
+    });
+    const r = analyzeBudget(data, "R6");
+    expect(r.changeRate).toBeCloseTo(0); // 当初どうしは横ばい
+    expect(r.direction).toBe("flat");
+  });
+
+  it("事業費が無ければデータなし", () => {
+    const r = analyzeBudget(base({}), "R6");
+    expect(r.direction).toBe("unknown");
+    expect(r.text).toContain("データがありません");
   });
 });
 

@@ -246,9 +246,9 @@ export async function JimuJigyoListPage({
         </span>
       </div>
 
-      {/* カードグリッド */}
+      {/* カードグリッド。PCでも2列（3列は事業名・部局・金額・3軸バッジに対して窮屈） */}
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filtered.map((r) => (
             <JimuJigyoCard
               key={r.id}

@@ -113,10 +113,19 @@ export type KpiAnalysisResult = {
 };
 
 export type BudgetAnalysisResult = {
+  /**
+   * 当初予算ベースの前年比（R7当初 → R8当初）。
+   * 県の評価書は「前年度決算・当年度当初・翌年度当初」しか載せないため、
+   * 同一基準で比較できるのは当初予算どうしだけ。これを予算軸の主指標とする。
+   */
   direction: ChangeDirection;
   changeRate: number | null;
-  nextYearDirection: ChangeDirection;
-  nextYearChangeRate: number | null;
+  /**
+   * 決算ベースの前年比（R5決算 → R6決算）。
+   * 過年度の評価書と突合できた事業でのみ算出できる（R7時点で52/266件）。
+   */
+  settlementDirection: ChangeDirection;
+  settlementChangeRate: number | null;
   text: string;
 };
 

@@ -32,8 +32,8 @@ function record(input: {
       budget: {
         direction: "unknown",
         changeRate: null,
-        nextYearDirection: "unknown",
-        nextYearChangeRate: null,
+        settlementDirection: "unknown",
+        settlementChangeRate: null,
         text: "",
       },
       efficiency: { direction: "unknown", changeRate: null, text: "" },

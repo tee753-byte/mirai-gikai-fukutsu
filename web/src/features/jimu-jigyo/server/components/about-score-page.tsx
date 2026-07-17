@@ -34,8 +34,9 @@ export function AboutScorePage() {
             ：主たる成果指標の実績値の前年度比。達成率（実績÷目標）も併記します。
           </li>
           <li>
-            <span className="font-medium text-mirai-text">予算</span>
-            ：決算歳出の前年度比。翌年度の当初予算の方向も併せて示します。過年度の決算が評価書に揃わない事業では「―」と表示されます。
+            <span className="font-medium text-mirai-text">予算</span>：
+            <strong>当初予算どうし</strong>
+            の前年比（当年度当初→翌年度当初）です。県の評価書は「前年度決算・当年度当初・翌年度当初」の3点しか掲載しないため、同じ基準で比較できるのは当初予算どうしになります。決算は補正後の実績、当初予算は補正前の計上額と性質が異なるため、両者を直接比べると補正の有無だけで増減が出てしまいます。過年度の評価書と突合できた事業では、決算どうしの前年比も併せて表示します。
           </li>
           <li>
             <span className="font-medium text-mirai-text">効率</span>

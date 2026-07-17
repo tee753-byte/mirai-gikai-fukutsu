@@ -145,57 +145,77 @@ export function analyzeBudget(
   year: string = "R6"
 ): BudgetAnalysisResult {
   const n = Number(year.replace(/^r/i, ""));
-  const prev = getBudgetEntry(data, `R${n - 1}`, "決算")?.歳出;
-  const curr = getBudgetEntry(data, `R${n}`, "決算")?.歳出;
-
-  // 次年度方向: 当初(n+1) → 当初(n+2)
+  // 当初予算の前年比（R(n+1)当初 → R(n+2)当初）。
+  // 県の評価書は「前年度決算・当年度当初・翌年度当初」の3点しか載せないため、
+  // 同一基準で比較できるのは当初予算どうしだけ。これを予算軸の主指標とする。
+  // 決算と当初は性質が異なり（決算は補正後の実績、当初は補正前の計上額）、
+  // 直接比較すると補正の有無だけで増減が出てしまうため主指標には使わない。
   const initCurr = getBudgetEntry(data, `R${n + 1}`, "当初")?.歳出;
   const initNext = getBudgetEntry(data, `R${n + 2}`, "当初")?.歳出;
-  let nextYearDirection: ChangeDirection = "unknown";
-  let nextYearChangeRate: number | null = null;
+  let changeRate: number | null = null;
+  let dir: ChangeDirection = "unknown";
   if (initCurr != null && initNext != null && initCurr > 0) {
-    nextYearChangeRate = (initNext - initCurr) / initCurr;
-    nextYearDirection = direction(nextYearChangeRate);
+    changeRate = (initNext - initCurr) / initCurr;
+    dir = direction(changeRate);
   }
 
-  if (prev == null || curr == null || prev === 0) {
-    const nextText =
-      nextYearChangeRate !== null
-        ? `翌年度当初予算は前年比${pct(nextYearChangeRate)}の見込みです。`
-        : "過年度の決算が揃わないため決算ベースの増減は算出できません。";
-    return {
-      direction: "unknown",
-      changeRate: null,
-      nextYearDirection,
-      nextYearChangeRate,
-      text: nextText,
-    };
+  // 決算の前年比（R(n-1)決算 → R(n)決算）。過年度の評価書と突合できた事業のみ。
+  const prevSettle = getBudgetEntry(data, `R${n - 1}`, "決算")?.歳出;
+  const currSettle = getBudgetEntry(data, `R${n}`, "決算")?.歳出;
+  let settlementChangeRate: number | null = null;
+  let settlementDirection: ChangeDirection = "unknown";
+  if (prevSettle != null && currSettle != null && prevSettle > 0) {
+    settlementChangeRate = (currSettle - prevSettle) / prevSettle;
+    settlementDirection = direction(settlementChangeRate);
   }
 
-  const changeRate = (curr - prev) / prev;
-  const dir = direction(changeRate);
+  // 表示用テキスト
+  const parts: string[] = [];
+  if (changeRate !== null && initCurr != null && initNext != null) {
+    const from = initCurr.toLocaleString();
+    const to = initNext.toLocaleString();
+    if (changeRate >= 0.3)
+      parts.push(
+        `当初予算はR${n + 1}の${from}千円からR${n + 2}の${to}千円へ${pct(changeRate)}と大幅に増加します。`
+      );
+    else if (changeRate >= 0.05)
+      parts.push(
+        `当初予算はR${n + 1}の${from}千円からR${n + 2}の${to}千円へ${pct(changeRate)}増加します。`
+      );
+    else if (changeRate >= -0.05)
+      parts.push(
+        `当初予算はR${n + 1}の${from}千円からR${n + 2}の${to}千円へほぼ横ばいです（${pct(changeRate)}）。`
+      );
+    else
+      parts.push(
+        `当初予算はR${n + 1}の${from}千円からR${n + 2}の${to}千円へ${pct(changeRate)}削減されます。`
+      );
+  } else if (initCurr != null && initNext == null) {
+    parts.push(
+      `翌年度（R${n + 2}）の当初予算が評価書に記載されていないため、当初予算ベースの増減は算出できません。`
+    );
+  }
 
-  let trend: string;
-  if (changeRate >= 0.3)
-    trend = `決算歳出は前年度の${prev.toLocaleString()}千円から${curr.toLocaleString()}千円へ${pct(changeRate)}と大幅に増加しています。`;
-  else if (changeRate >= 0.05)
-    trend = `決算歳出は前年度の${prev.toLocaleString()}千円から${curr.toLocaleString()}千円へ${pct(changeRate)}増加しています。`;
-  else if (changeRate >= -0.05)
-    trend = `決算歳出は前年度の${prev.toLocaleString()}千円からほぼ横ばいです（${pct(changeRate)}）。`;
-  else
-    trend = `決算歳出は前年度の${prev.toLocaleString()}千円から${curr.toLocaleString()}千円へ${pct(changeRate)}削減されました。`;
+  if (currSettle != null) {
+    if (settlementChangeRate !== null) {
+      parts.push(
+        `決算はR${n}が${currSettle.toLocaleString()}千円で、前年度比${pct(settlementChangeRate)}です。`
+      );
+    } else {
+      parts.push(
+        `R${n}決算は${currSettle.toLocaleString()}千円です（前年度決算が評価書に無いため決算どうしの比較はできません）。`
+      );
+    }
+  }
 
-  const nextText =
-    nextYearChangeRate !== null
-      ? `翌年度当初予算は前年比${pct(nextYearChangeRate)}の見込みです。`
-      : "";
+  if (parts.length === 0) parts.push("事業費のデータがありません。");
 
   return {
     direction: dir,
     changeRate,
-    nextYearDirection,
-    nextYearChangeRate,
-    text: [trend, nextText].filter(Boolean).join(""),
+    settlementDirection,
+    settlementChangeRate,
+    text: parts.join(""),
   };
 }
 
