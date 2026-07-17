@@ -84,7 +84,7 @@ export async function JimuJigyoListPage({
   if (view === "saihyoka") {
     const saihyoka = await loadSaiHyokaList(year);
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
         <ListHeader meta={meta} basePath={basePath} total={allRecords.length} />
         <Tabs
           basePath={basePath}
@@ -129,7 +129,7 @@ export async function JimuJigyoListPage({
   const saihyoka = await loadSaiHyokaList(year);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       <ListHeader meta={meta} basePath={basePath} total={allRecords.length} />
 
       {/* サマリー */}
@@ -280,9 +280,12 @@ function ListHeader({
 }) {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-mirai-text">事務事業評価</h1>
+      <h1 className="text-2xl font-bold text-mirai-text">
+        事務事業 分析（{meta.shortLabel}）
+      </h1>
       <p className="text-sm text-mirai-text-secondary mt-1">
-        {meta.label}｜{total}事業の見直し状況とKPI・予算・効率を分析します。
+        福岡県 {total}事業の見直し状況とKPI・予算・効率の動向を分析します。
+        <span className="text-mirai-text-muted">（実績は令和6年度）</span>
       </p>
       <div className="mt-2">
         <Link

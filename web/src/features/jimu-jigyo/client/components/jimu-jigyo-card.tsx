@@ -57,11 +57,15 @@ export function JimuJigyoCard({ record, basePath, budgetYear }: Props) {
             label="予算"
             direction={analysis.budget.direction}
             changeRate={analysis.budget.changeRate}
-            sub={{
-              label: "次年度",
-              direction: analysis.budget.nextYearDirection,
-              changeRate: analysis.budget.nextYearChangeRate,
-            }}
+            sub={
+              analysis.budget.settlementDirection !== "unknown"
+                ? {
+                    label: "決算",
+                    direction: analysis.budget.settlementDirection,
+                    changeRate: analysis.budget.settlementChangeRate,
+                  }
+                : undefined
+            }
           />
           <DirectionBadge
             label="効率"
