@@ -469,8 +469,138 @@ export type Database = {
           },
         ]
       }
+      committee_meeting_topics: {
+        Row: {
+          bill_id: string | null
+          budget_overview_id: string | null
+          created_at: string
+          discussion_summary: string | null
+          end_voice_no: number | null
+          id: string
+          meeting_id: string
+          speakers: Json
+          start_voice_no: number | null
+          summary: string | null
+          title: string
+          topic_order: number
+          updated_at: string
+        }
+        Insert: {
+          bill_id?: string | null
+          budget_overview_id?: string | null
+          created_at?: string
+          discussion_summary?: string | null
+          end_voice_no?: number | null
+          id?: string
+          meeting_id: string
+          speakers?: Json
+          start_voice_no?: number | null
+          summary?: string | null
+          title: string
+          topic_order: number
+          updated_at?: string
+        }
+        Update: {
+          bill_id?: string | null
+          budget_overview_id?: string | null
+          created_at?: string
+          discussion_summary?: string | null
+          end_voice_no?: number | null
+          id?: string
+          meeting_id?: string
+          speakers?: Json
+          start_voice_no?: number | null
+          summary?: string | null
+          title?: string
+          topic_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "committee_meeting_topics_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "committee_meeting_topics_budget_overview_id_fkey"
+            columns: ["budget_overview_id"]
+            isOneToOne: false
+            referencedRelation: "budget_overviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "committee_meeting_topics_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "committee_meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      committee_meetings: {
+        Row: {
+          committee_id: string | null
+          committee_name: string
+          committee_slug: string
+          created_at: string
+          id: string
+          meeting_date: string
+          publish_status: string
+          raw_text: string
+          source_document_id: number
+          source_url: string
+          speeches: Json
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          committee_id?: string | null
+          committee_name: string
+          committee_slug: string
+          created_at?: string
+          id?: string
+          meeting_date: string
+          publish_status?: string
+          raw_text: string
+          source_document_id: number
+          source_url: string
+          speeches?: Json
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          committee_id?: string | null
+          committee_name?: string
+          committee_slug?: string
+          created_at?: string
+          id?: string
+          meeting_date?: string
+          publish_status?: string
+          raw_text?: string
+          source_document_id?: number
+          source_url?: string
+          speeches?: Json
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "committee_meetings_committee_id_fkey"
+            columns: ["committee_id"]
+            isOneToOne: false
+            referencedRelation: "committees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       committees: {
         Row: {
+          committee_type: string
           created_at: string
           description: string | null
           id: string
@@ -480,6 +610,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          committee_type?: string
           created_at?: string
           description?: string | null
           id?: string
@@ -489,6 +620,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          committee_type?: string
           created_at?: string
           description?: string | null
           id?: string
