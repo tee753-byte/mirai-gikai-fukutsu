@@ -8,14 +8,14 @@ type Props = {
 };
 
 export default async function CommitteeMeetingPage({ params }: Props) {
-  const { documentId } = await params;
+  const { slug, documentId } = await params;
   const documentIdNumber = Number(documentId);
   if (!Number.isInteger(documentIdNumber)) {
     notFound();
   }
 
   const meeting = await getCommitteeMeeting(documentIdNumber);
-  if (!meeting) {
+  if (!meeting || meeting.committeeSlug !== slug) {
     notFound();
   }
 

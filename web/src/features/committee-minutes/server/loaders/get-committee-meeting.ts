@@ -6,10 +6,5 @@ import { findMeetingByDocumentId } from "../repositories/committee-meeting-repos
 export async function getCommitteeMeeting(
   documentId: number
 ): Promise<CommitteeMeetingDetail | null> {
-  try {
-    return await findMeetingByDocumentId(documentId);
-  } catch (e) {
-    console.error("委員会会議の取得に失敗しました", e);
-    return null;
-  }
+  return findMeetingByDocumentId(documentId);
 }

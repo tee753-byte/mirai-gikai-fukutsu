@@ -6,10 +6,5 @@ import { findMeetingsBySlug } from "../repositories/committee-meeting-repository
 export async function getCommitteeMeetingsBySlug(
   slug: string
 ): Promise<CommitteeMeetingSummary[]> {
-  try {
-    return await findMeetingsBySlug(slug);
-  } catch (e) {
-    console.error("委員会会議一覧の取得に失敗しました", e);
-    return [];
-  }
+  return findMeetingsBySlug(slug);
 }

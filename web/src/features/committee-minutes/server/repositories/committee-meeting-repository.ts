@@ -63,6 +63,15 @@ function mapSummary(row: MeetingRow): CommitteeMeetingSummary {
   };
 }
 
+/**
+ * テーブル未作成による失敗か（マイグレーション適用前の環境）。
+ * この場合のみ「データなし」として扱い、それ以外のDB障害はエラーとして伝播させる。
+ */
+function isMissingTableError(error: { code?: string | null }): boolean {
+  // 42P01: undefined_table / PGRST205: スキーマキャッシュにテーブルなし
+  return error.code === "42P01" || error.code === "PGRST205";
+}
+
 const LIST_SELECT = `
   id,
   committee_name,
@@ -83,6 +92,7 @@ export async function findAllMeetings(): Promise<CommitteeMeetingSummary[]> {
     .order("meeting_date", { ascending: false });
 
   if (error) {
+    if (isMissingTableError(error)) return [];
     throw new Error(`委員会会議の取得に失敗しました: ${error.message}`);
   }
   return (data ?? []).map((row) => mapSummary(row as unknown as MeetingRow));
@@ -99,6 +109,7 @@ export async function findMeetingsBySlug(
     .order("meeting_date", { ascending: false });
 
   if (error) {
+    if (isMissingTableError(error)) return [];
     throw new Error(`委員会会議の取得に失敗しました: ${error.message}`);
   }
   return (data ?? []).map((row) => mapSummary(row as unknown as MeetingRow));
@@ -115,6 +126,7 @@ export async function findMeetingByDocumentId(
     .maybeSingle();
 
   if (error) {
+    if (isMissingTableError(error)) return null;
     throw new Error(`委員会会議の取得に失敗しました: ${error.message}`);
   }
   if (!data) return null;

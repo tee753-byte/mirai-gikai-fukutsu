@@ -43,6 +43,8 @@ function SpeechBubbles({
   const right = isRightSide(speech);
   const body = detailMode ? speech.text : (speech.simpleText ?? speech.text);
   const segments = splitSpeechSegments(body);
+  // 冒頭が〔場内の様子〕で始まる発言でもラベルを出せるよう、最初の本文位置を使う
+  const firstTextIndex = segments.findIndex((s) => s.kind === "text");
 
   return (
     <div className="space-y-2">
@@ -60,7 +62,7 @@ function SpeechBubbles({
             className={`flex ${right ? "justify-end" : "justify-start"}`}
           >
             <div className={`max-w-[85%] ${right ? "text-right" : ""}`}>
-              {i === 0 && speech.speakerLabel && (
+              {i === firstTextIndex && speech.speakerLabel && (
                 <div
                   className={`mb-1 flex items-center gap-1.5 text-xs ${
                     right ? "justify-end" : ""
@@ -107,6 +109,7 @@ export function ChatTranscript({ sections }: Props) {
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-center gap-2">
         <Button
+          aria-pressed={!detailMode}
           variant={detailMode ? "outline" : "default"}
           size="sm"
           onClick={() => setDetailMode(false)}
@@ -115,6 +118,7 @@ export function ChatTranscript({ sections }: Props) {
           わかりやすい表現
         </Button>
         <Button
+          aria-pressed={detailMode}
           variant={detailMode ? "default" : "outline"}
           size="sm"
           onClick={() => setDetailMode(true)}
