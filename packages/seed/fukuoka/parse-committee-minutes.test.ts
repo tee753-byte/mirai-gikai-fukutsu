@@ -165,6 +165,15 @@ describe("splitSpeakerLabel", () => {
       body: text,
     });
   });
+
+  it("改行で分断された氏名を役職語尾までつなげる", () => {
+    expect(
+      splitSpeakerLabel("◯堀\n大助委員　今のに関連して伺います。")
+    ).toEqual({
+      speakerLabel: "堀大助委員",
+      body: "今のに関連して伺います。",
+    });
+  });
 });
 
 describe("classifySpeaker", () => {

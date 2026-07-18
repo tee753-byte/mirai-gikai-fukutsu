@@ -252,9 +252,15 @@ export function classifySpeaker(label: string): SpeakerType {
   return "executive";
 }
 
+// 発言者ラベルの末尾に来る役職語尾。ラベルの区切り判定に使う
+const ROLE_SUFFIX_RE =
+  /(委員長|副委員長|委員|知事|副知事|教育長|本部長|書記|課長|部長|局長|次長|室長|所長|理事|参事|監|議長|副議長)$/;
+
 /**
  * 発言本文の冒頭から発言者ラベルを取り出す。
  * 例: 「◯井上博行委員長　それでは、…」→ label「井上博行委員長」
+ * 氏名が「◯堀\n大助委員」のように改行で分断されることがあるため、
+ * 最初の区切りまでで役職語尾に達しない場合は次の語まで取り込む。
  * 開会時刻の記載など「◯」で始まらないブロックはラベルなしとして扱う。
  */
 export function splitSpeakerLabel(text: string): {
@@ -265,7 +271,16 @@ export function splitSpeakerLabel(text: string): {
   if (!match) {
     return { speakerLabel: null, body: text };
   }
-  return { speakerLabel: match[1], body: match[2] };
+  let speakerLabel = match[1];
+  let body = match[2];
+  if (!ROLE_SUFFIX_RE.test(speakerLabel)) {
+    const continued = body.match(/^([^\s　]+)[　\s]+([\s\S]*)$/);
+    if (continued && ROLE_SUFFIX_RE.test(continued[1])) {
+      speakerLabel += continued[1];
+      body = continued[2];
+    }
+  }
+  return { speakerLabel, body };
 }
 
 /**
