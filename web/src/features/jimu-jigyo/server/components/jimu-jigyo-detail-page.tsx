@@ -67,15 +67,18 @@ export function JimuJigyoDetailPage({ record, basePath, difficulty }: Props) {
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-start justify-between gap-3">
+          {/* スマホは縦積み（バッジ内改行やタイトルの潰れを防ぐ）、sm以上で横並び */}
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
             <h1 className="text-2xl font-bold text-mirai-text">
               {record.事業名}
             </h1>
-            <ReviewCategoryBadge
-              major={record.見直し.大区分}
-              minor={record.見直し.小区分}
-              size="md"
-            />
+            <div className="shrink-0">
+              <ReviewCategoryBadge
+                major={record.見直し.大区分}
+                minor={record.見直し.小区分}
+                size="md"
+              />
+            </div>
           </div>
           <p className="text-sm text-mirai-text-muted">
             {record.部局}
@@ -174,15 +177,18 @@ export function JimuJigyoDetailPage({ record, basePath, difficulty }: Props) {
 
       {/* ヘッダー */}
       <div className="space-y-2">
-        <div className="flex items-start justify-between gap-3">
+        {/* スマホは縦積み（バッジ内改行やタイトルの潰れを防ぐ）、sm以上で横並び */}
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <h1 className="text-2xl font-bold text-mirai-text">
             {record.事業名}
           </h1>
-          <ReviewCategoryBadge
-            major={record.見直し.大区分}
-            minor={record.見直し.小区分}
-            size="md"
-          />
+          <div className="shrink-0">
+            <ReviewCategoryBadge
+              major={record.見直し.大区分}
+              minor={record.見直し.小区分}
+              size="md"
+            />
+          </div>
         </div>
         <p className="text-sm text-mirai-text-muted">
           {record.部局}

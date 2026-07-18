@@ -16,7 +16,7 @@ export function ReviewCategoryBadge({ major, minor, size = "sm" }: Props) {
   const pad = size === "md" ? "px-3 py-1 text-sm" : "px-2 py-0.5 text-xs";
   return (
     <span
-      className={`inline-block rounded-full font-medium ${pad} ${bg} ${text}`}
+      className={`inline-block whitespace-nowrap rounded-full font-medium ${pad} ${bg} ${text}`}
     >
       {reviewLabel(major, minor)}
     </span>
