@@ -5,6 +5,7 @@ import {
   isInterviewPage,
   isInterviewSection,
   isMainPage,
+  isWidePage,
 } from "./page-layout-utils";
 
 describe("isMainPage", () => {
@@ -27,6 +28,26 @@ describe("isMainPage", () => {
   it("returns false for the bills list page", () => {
     expect(isMainPage("/bills")).toBe(false);
     expect(isMainPage("/bills/")).toBe(false);
+  });
+
+  it("returns true for jimu-jigyo pages (difficulty selector shown)", () => {
+    expect(isMainPage("/jimu-jigyo")).toBe(true);
+    expect(isMainPage("/jimu-jigyo/r7")).toBe(true);
+    expect(isMainPage("/jimu-jigyo/r7/somu-001")).toBe(true);
+  });
+});
+
+describe("isWidePage", () => {
+  it("returns true for jimu-jigyo pages", () => {
+    expect(isWidePage("/jimu-jigyo")).toBe(true);
+    expect(isWidePage("/jimu-jigyo/r7")).toBe(true);
+    expect(isWidePage("/jimu-jigyo/r7/somu-001")).toBe(true);
+  });
+
+  it("returns false for the top page and bills pages", () => {
+    expect(isWidePage("/")).toBe(false);
+    expect(isWidePage("/bills/abc-123")).toBe(false);
+    expect(isWidePage("/budget/r8")).toBe(false);
   });
 });
 
