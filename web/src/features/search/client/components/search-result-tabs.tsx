@@ -1,22 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import {
+  BarChart2,
+  ChevronDown,
   FileText,
   MessageSquare,
-  ChevronDown,
   Search,
-  BarChart2,
+  Users,
 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type {
+  BillSearchResult,
+  BudgetSearchResult,
+  CommitteeSearchResult,
+  QuestionSearchResult,
   SearchResults,
   SearchTab,
-  BillSearchResult,
-  QuestionSearchResult,
-  BudgetSearchResult,
 } from "../../shared/types/search-types";
 
 const TAB_LABELS: Record<SearchTab, string> = {
@@ -24,6 +26,7 @@ const TAB_LABELS: Record<SearchTab, string> = {
   bills: "議案",
   questions: "一般質問",
   budget: "予算",
+  committees: "委員会",
 };
 
 const SECTION_LIMIT = 3;
@@ -115,6 +118,39 @@ function BudgetCard({ budget }: { budget: BudgetSearchResult }) {
   );
 }
 
+function CommitteeCard({ committee }: { committee: CommitteeSearchResult }) {
+  return (
+    <Link
+      href={`/committees/${committee.committeeSlug}/${committee.sourceDocumentId}`}
+      className="block border border-mirai-border rounded-lg p-4 bg-white hover:bg-mirai-surface transition-colors"
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <Users className="size-4 text-mirai-text-muted shrink-0" />
+        <span className="text-xs text-mirai-text-muted">
+          委員会 · {committee.committeeName}
+        </span>
+      </div>
+      <p className="font-medium text-mirai-text text-sm leading-snug mb-2">
+        {committee.title}
+      </p>
+      {committee.summary && (
+        <p className="text-xs text-mirai-text-secondary line-clamp-2 mb-2">
+          {committee.summary}
+        </p>
+      )}
+      {committee.matchedTopics.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {committee.matchedTopics.slice(0, 3).map((topic) => (
+            <Badge key={topic} variant="muted" className="text-xs">
+              {topic}
+            </Badge>
+          ))}
+        </div>
+      )}
+    </Link>
+  );
+}
+
 function ResultSection<T>({
   title,
   items,
@@ -171,8 +207,9 @@ export function SearchResultTabs({ query, results }: Props) {
     );
   }
 
-  const { bills, questions, budgets } = results;
-  const totalCount = bills.length + questions.length + budgets.length;
+  const { bills, questions, budgets, committees } = results;
+  const totalCount =
+    bills.length + questions.length + budgets.length + committees.length;
 
   if (totalCount === 0) {
     return (
@@ -190,6 +227,7 @@ export function SearchResultTabs({ query, results }: Props) {
     { key: "bills", count: bills.length },
     { key: "questions", count: questions.length },
     { key: "budget", count: budgets.length },
+    { key: "committees", count: committees.length },
   ];
 
   return (
@@ -245,6 +283,13 @@ export function SearchResultTabs({ query, results }: Props) {
             title="予算"
             items={budgets}
             renderCard={(b, i) => <BudgetCard key={i} budget={b} />}
+          />
+        )}
+        {(tab === "all" || tab === "committees") && committees.length > 0 && (
+          <ResultSection
+            title="委員会"
+            items={committees}
+            renderCard={(c, i) => <CommitteeCard key={i} committee={c} />}
           />
         )}
       </div>

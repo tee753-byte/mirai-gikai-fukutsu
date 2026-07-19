@@ -2,12 +2,13 @@ import { Container } from "@/components/layouts/container";
 import { About } from "@/components/top/about";
 import { BannerAccordion } from "@/components/top/banner-accordion";
 import { BudgetOverviewBanner } from "@/components/top/budget-overview-banner";
+import { CommitteeBanner } from "@/components/top/committee-banner";
 import { GeneralQuestionsBanner } from "@/components/top/general-questions-banner";
 import { Hero } from "@/components/top/hero";
 import { JimuJigyoArchiveSection } from "@/components/top/jimu-jigyo-archive-section";
 import { JimuJigyoBanner } from "@/components/top/jimu-jigyo-banner";
-import { PrefFinanceBanner } from "@/components/top/pref-finance-banner";
 import { PastSessionsSection } from "@/components/top/past-sessions-section";
+import { PrefFinanceBanner } from "@/components/top/pref-finance-banner";
 import { TeamMirai } from "@/components/top/team-mirai";
 import { siteConfig } from "@/config/site.config";
 import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
@@ -16,12 +17,12 @@ import { BillsByTagSection } from "@/features/bills/server/components/bills-by-t
 import { FeaturedBillSection } from "@/features/bills/server/components/featured-bill-section";
 import { loadHomeData } from "@/features/bills/server/loaders/load-home-data";
 import type { BillWithContent } from "@/features/bills/shared/types";
+import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { HomeChatClient } from "@/features/chat/client/components/home-chat-client";
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
 import { getActiveCouncilSession } from "@/features/council-sessions/server/loaders/get-active-council-session";
 import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
-import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { getLatestSessionWithQuestions } from "@/features/general-questions/server/loaders/get-latest-session-with-questions";
 import { PressConferenceArchiveSection } from "@/features/press-conferences/client/components/press-conference-archive-section";
 import { PressConferenceNoticeBanner } from "@/features/press-conferences/client/components/press-conference-notice-banner";
@@ -84,6 +85,11 @@ export default async function Home() {
           <GeneralQuestionsBanner sessionSlug={latestQuestionsSlug} />
         </Container>
       )}
+
+      {/* 委員会バナー */}
+      <Container className="pt-3">
+        <CommitteeBanner />
+      </Container>
 
       {/* 予算・事務事業評価・お金の使い道（まとめてアコーディオン） */}
       <Container className="pt-3">

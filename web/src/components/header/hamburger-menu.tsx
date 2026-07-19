@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { href: "/", label: "トップページ" },
   { href: "/sessions", label: "過去の定例会" },
   { href: "/budget", label: "過去の予算" },
+  { href: "/committees", label: "委員会" },
   { href: "/press-conferences", label: "知事記者会見" },
 ] as const;
 
