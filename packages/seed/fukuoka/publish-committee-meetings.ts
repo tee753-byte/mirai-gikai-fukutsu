@@ -20,7 +20,16 @@ import { createAdminClient } from "../shared/helper";
 
 async function main(): Promise<void> {
   const supabase = createAdminClient();
-  const docIds = process.argv.slice(2).map(Number).filter(Number.isInteger);
+  const rawArgs = process.argv.slice(2);
+  const docIds = rawArgs.map(Number).filter(Number.isInteger);
+
+  // 引数を渡したのに一部でも整数として解釈できない場合は、
+  // タイポ等で意図せず全件公開してしまうのを防ぐため中止する
+  if (rawArgs.length > 0 && docIds.length !== rawArgs.length) {
+    throw new Error(
+      `不正な引数が含まれています: ${rawArgs.join(", ")} / DocumentIDは整数で指定してください（引数なしで実行するとdraft全件公開）`
+    );
+  }
 
   let query = supabase
     .from("committee_meetings")
