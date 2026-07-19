@@ -1,6 +1,7 @@
 import { Container } from "@/components/layouts/container";
 import { About } from "@/components/top/about";
 import { BudgetOverviewBanner } from "@/components/top/budget-overview-banner";
+import { CommitteeBanner } from "@/components/top/committee-banner";
 import { GeneralQuestionsBanner } from "@/components/top/general-questions-banner";
 import { Hero } from "@/components/top/hero";
 import { JimuJigyoArchiveSection } from "@/components/top/jimu-jigyo-archive-section";
@@ -14,12 +15,12 @@ import { BillsByTagSection } from "@/features/bills/server/components/bills-by-t
 import { FeaturedBillSection } from "@/features/bills/server/components/featured-bill-section";
 import { loadHomeData } from "@/features/bills/server/loaders/load-home-data";
 import type { BillWithContent } from "@/features/bills/shared/types";
+import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { HomeChatClient } from "@/features/chat/client/components/home-chat-client";
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
 import { getActiveCouncilSession } from "@/features/council-sessions/server/loaders/get-active-council-session";
 import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
-import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { getLatestSessionWithQuestions } from "@/features/general-questions/server/loaders/get-latest-session-with-questions";
 import { PressConferenceArchiveSection } from "@/features/press-conferences/client/components/press-conference-archive-section";
 import { PressConferenceNoticeBanner } from "@/features/press-conferences/client/components/press-conference-notice-banner";
@@ -87,6 +88,11 @@ export default async function Home() {
       {/* 事務事業評価バナー */}
       <Container className="pt-3">
         <JimuJigyoBanner />
+      </Container>
+
+      {/* 委員会バナー */}
+      <Container className="pt-3">
+        <CommitteeBanner />
       </Container>
 
       {/* 知事記者会見バナー */}

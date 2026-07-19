@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 
 const SUGGESTED_KEYWORDS = ["子育て", "防災", "道路", "環境", "福祉", "予算"];

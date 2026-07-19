@@ -1,4 +1,4 @@
-export type SearchTab = "all" | "bills" | "questions" | "budget";
+export type SearchTab = "all" | "bills" | "questions" | "budget" | "committees";
 
 export type BillSearchResult = {
   id: string;
@@ -26,8 +26,20 @@ export type BudgetSearchResult = {
   departmentSlug: string;
 };
 
+export type CommitteeSearchResult = {
+  id: string;
+  committeeName: string;
+  committeeSlug: string;
+  title: string;
+  summary: string | null;
+  meetingDate: string;
+  sourceDocumentId: number;
+  matchedTopics: string[];
+};
+
 export type SearchResults = {
   bills: BillSearchResult[];
   questions: QuestionSearchResult[];
   budgets: BudgetSearchResult[];
+  committees: CommitteeSearchResult[];
 };
