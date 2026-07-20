@@ -36,6 +36,15 @@ type AiPatch = {
   meetingSummary: string;
   topicSummaries: { topicOrder: number; summary: string }[];
   speechSimpleTexts: { voiceNo: number; simpleText: string }[];
+  // 機械抽出で議題が立たない会議（保留質疑・採決など）に手動で議題を与える。
+  // 会議に既存議題が1件も無いときだけ挿入する（冪等）。
+  manualTopics?: {
+    topicOrder: number;
+    title: string;
+    summary: string;
+    startVoiceNo: number;
+    endVoiceNo: number;
+  }[];
 };
 
 async function main(): Promise<void> {
@@ -89,8 +98,43 @@ async function main(): Promise<void> {
       }
     }
 
+    // 手動議題: 既存議題が0件のときだけ挿入（冪等）
+    let insertedManual = 0;
+    if (patch.manualTopics && patch.manualTopics.length > 0) {
+      const { count, error: countError } = await supabase
+        .from("committee_meeting_topics")
+        .select("id", { count: "exact", head: true })
+        .eq("meeting_id", meeting.id);
+      if (countError) {
+        throw new Error(
+          `議題数の取得に失敗 (DocumentID=${patch.documentId}): ${countError.message}`
+        );
+      }
+      if ((count ?? 0) === 0) {
+        const rows = patch.manualTopics.map((t) => ({
+          meeting_id: meeting.id,
+          topic_order: t.topicOrder,
+          title: t.title,
+          summary: t.summary,
+          start_voice_no: t.startVoiceNo,
+          end_voice_no: t.endVoiceNo,
+        }));
+        const { error: insertError } = await supabase
+          .from("committee_meeting_topics")
+          .insert(rows);
+        if (insertError) {
+          throw new Error(
+            `手動議題の挿入に失敗 (DocumentID=${patch.documentId}): ${insertError.message}`
+          );
+        }
+        insertedManual = rows.length;
+      }
+    }
+
     console.log(
-      `反映: DocumentID=${patch.documentId}（議題${patch.topicSummaries.length}件・発言${patch.speechSimpleTexts.length}件）`
+      `反映: DocumentID=${patch.documentId}（議題${patch.topicSummaries.length}件更新` +
+        (insertedManual > 0 ? `・手動議題${insertedManual}件挿入` : "") +
+        `・発言${patch.speechSimpleTexts.length}件）`
     );
   }
 
