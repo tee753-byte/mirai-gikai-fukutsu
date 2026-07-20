@@ -83,6 +83,10 @@ export function CommitteesView({ archives, meetings }: Props) {
                           </li>
                         )}
                       </ul>
+                    ) : m.summary ? (
+                      <p className="mt-2 text-sm text-mirai-text-secondary leading-relaxed line-clamp-2">
+                        {m.summary}
+                      </p>
                     ) : (
                       <p className="mt-2 text-sm text-mirai-text-muted">
                         委員の選出などの手続き
