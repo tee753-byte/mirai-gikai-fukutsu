@@ -72,6 +72,10 @@ export function CommitteeArchiveView({ meetings }: Props) {
                       </li>
                     ))}
                   </ol>
+                ) : m.summary ? (
+                  <p className="mt-3 text-sm text-mirai-text-secondary leading-relaxed line-clamp-3">
+                    {m.summary}
+                  </p>
                 ) : (
                   <p className="mt-3 text-sm text-mirai-text-muted">
                     委員の選出などの手続きが行われた会議です。
