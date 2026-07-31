@@ -70,18 +70,18 @@ export function PastSessionsSection({
         </div>
       </div>
 
-      {/* 過去の予算 */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-[22px] font-bold text-black leading-[1.48]">
-            過去の予算
-          </h2>
-          <p className="text-xs text-mirai-text-secondary">
-            各局の重点施策・方向性をわかりやすく解説しています
-          </p>
-        </div>
+      {/* 過去の予算（予算データが無いときはセクションごと表示しない） */}
+      {visibleBudgetSessions.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-[22px] font-bold text-black leading-[1.48]">
+              過去の予算
+            </h2>
+            <p className="text-xs text-mirai-text-secondary">
+              各局の重点施策・方向性をわかりやすく解説しています
+            </p>
+          </div>
 
-        {visibleBudgetSessions.length > 0 && (
           <ul className="flex flex-col divide-y divide-mirai-border">
             {visibleBudgetSessions.map((session) => {
               if (!session.slug) return null;
@@ -100,14 +100,19 @@ export function PastSessionsSection({
               );
             })}
           </ul>
-        )}
 
-        <div className="flex justify-center">
-          <Button variant="outline" size="lg" asChild className="rounded-full">
-            <Link href="/budget">過去の予算を一覧で表示</Link>
-          </Button>
+          <div className="flex justify-center">
+            <Button
+              variant="outline"
+              size="lg"
+              asChild
+              className="rounded-full"
+            >
+              <Link href="/budget">過去の予算を一覧で表示</Link>
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

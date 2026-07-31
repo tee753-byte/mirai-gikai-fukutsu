@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { siteConfig } from "@/config/site.config";
 import { usePathname } from "next/navigation";
+import { siteConfig } from "@/config/site.config";
 import { isInterviewPage } from "@/lib/page-layout-utils";
 import { policyLinks, primaryLinks } from "./footer.config";
 
@@ -95,6 +95,8 @@ function FooterDisclaimer() {
   return (
     <p className="text-[11px] text-slate-500 text-center mt-1 mb-3">
       このサービスは政党チームみらいが運営しているものではありません
+      <br />
+      {siteConfig.cityName}・{siteConfig.councilName}の公式サイトでもありません
     </p>
   );
 }

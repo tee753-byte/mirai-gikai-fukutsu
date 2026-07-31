@@ -15,3 +15,8 @@ docs/fukuoka/sample/
 
 # local claude permissions
 .claude/settings.local.json
+
+# 議案書PDFから抽出した中間データ。人事議案などで個人名・住所を含みうるため、
+# 目視確認して安全と分かった内容だけを bills-r8-3.ts 等のコードに反映し、
+# この生データ自体はコミットしない（CLAUDE.md「個人情報の取り扱い」参照）
+packages/seed/fukutsu/data/*-bill-documents.json

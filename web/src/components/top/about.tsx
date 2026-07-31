@@ -91,17 +91,26 @@ export function About() {
                 <p>
                   このサイトは「チームみらい」の公式ではない、非公式のサイトです。
                   <br />
-                  ご意見や不具合等がございましたら党公式への連絡ではなく、
+                  また、{siteConfig.cityName}および{siteConfig.councilName}が
+                  運営する公式サイトでもありません。
+                </p>
+                <p>
+                  ご意見や不具合等がございましたら、党公式や
+                  {siteConfig.councilName}へのご連絡ではなく、
                   <br />
-                  開発者の
-                  <Link
-                    href={siteConfig.operator.contactUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline underline-offset-2 hover:opacity-70 transition-opacity"
-                  >
-                    {siteConfig.operator.name}
-                  </Link>
+                  運営者の
+                  {siteConfig.operator.contactUrl ? (
+                    <Link
+                      href={siteConfig.operator.contactUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline underline-offset-2 hover:opacity-70 transition-opacity"
+                    >
+                      {siteConfig.operator.name}
+                    </Link>
+                  ) : (
+                    <span>{siteConfig.operator.name}</span>
+                  )}
                   にご連絡お願いします。
                 </p>
               </div>

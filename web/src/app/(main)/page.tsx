@@ -12,12 +12,12 @@ import { BillsByTagSection } from "@/features/bills/server/components/bills-by-t
 import { FeaturedBillSection } from "@/features/bills/server/components/featured-bill-section";
 import { loadHomeData } from "@/features/bills/server/loaders/load-home-data";
 import type { BillWithContent } from "@/features/bills/shared/types";
+import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { HomeChatClient } from "@/features/chat/client/components/home-chat-client";
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
 import { getActiveCouncilSession } from "@/features/council-sessions/server/loaders/get-active-council-session";
 import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
-import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { getLatestSessionWithQuestions } from "@/features/general-questions/server/loaders/get-latest-session-with-questions";
 import { getJapanTime } from "@/lib/utils/date";
 
@@ -58,7 +58,7 @@ export default async function Home() {
       <CurrentCouncilSession session={currentSession} />
 
       {/* 予算概要バナー */}
-      {activeSession?.slug && (
+      {siteConfig.features.showBudget && activeSession?.slug && (
         <Container className="pt-6">
           <BudgetOverviewBanner sessionSlug={activeSession.slug} />
         </Container>
@@ -89,7 +89,9 @@ export default async function Home() {
         <Container>
           <PastSessionsSection
             sessions={pastSessions}
-            budgetSessions={budgetSessions}
+            budgetSessions={
+              siteConfig.features.showBudget ? budgetSessions : []
+            }
           />
         </Container>
       </div>

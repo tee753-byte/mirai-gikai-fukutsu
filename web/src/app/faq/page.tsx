@@ -35,15 +35,24 @@ const faqs: FaqItem[] = [
         いいえ、{siteConfig.siteName}
         はチームみらいの公式サービスではありません。「チームみらい」が開発・公開した「みらい議会」をベースに、有志が独自に運営している非公式サービスです。
         <br />
-        ご意見・不具合等は、チームみらい公式ではなく、開発者（
-        <Link
-          href={siteConfig.operator.contactUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="underline underline-offset-2"
-        >
-          {siteConfig.operator.name}
-        </Link>
+        また、{siteConfig.cityName}および{siteConfig.councilName}
+        が運営する公式サイトでもありません。掲載内容について
+        {siteConfig.councilName}へお問い合わせいただいてもお答えできません。
+        <br />
+        ご意見・不具合等は、チームみらい公式や{siteConfig.councilName}
+        ではなく、運営者（
+        {siteConfig.operator.contactUrl ? (
+          <Link
+            href={siteConfig.operator.contactUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="underline underline-offset-2"
+          >
+            {siteConfig.operator.name}
+          </Link>
+        ) : (
+          <span>{siteConfig.operator.name}</span>
+        )}
         ）にご連絡ください。
       </>
     ),
@@ -85,16 +94,23 @@ const faqs: FaqItem[] = [
     question: "不具合や意見はどこに連絡すればいいですか？",
     answer: (
       <>
-        開発者（
-        <Link
-          href={siteConfig.operator.contactUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="underline underline-offset-2"
-        >
-          {siteConfig.operator.name}
-        </Link>
-        ）までご連絡ください。なお、チームみらいの公式窓口への連絡はご遠慮ください。
+        運営者（
+        {siteConfig.operator.contactUrl ? (
+          <Link
+            href={siteConfig.operator.contactUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="underline underline-offset-2"
+          >
+            {siteConfig.operator.name}
+          </Link>
+        ) : (
+          <span>{siteConfig.operator.name}</span>
+        )}
+        ）までご連絡ください。なお、チームみらいの公式窓口や
+        {siteConfig.councilName}への連絡はご遠慮ください。
+        <br />
+        掲載内容はAIによる要約を含みます。誤りを見つけられた場合も、この窓口までお知らせください。
       </>
     ),
   },
