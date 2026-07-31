@@ -103,6 +103,25 @@
   /* Gradient endpoints */
   --color-mirai-gradient-start: #dbd3f9;
   --color-mirai-gradient-end: #ede9fd;
+
+  /* 議案ステータス
+     可決・否決が一目で見分けられるよう、結果ごとに色相を変えている。
+     背景色はどれも淡くして、カード全体の落ち着いた見た目を壊さない */
+  --color-bill-approved-bg: #e4eee6; /* セージグリーン */
+  --color-bill-approved-border: #c3dbc9;
+  --color-bill-approved-text: #3d6349;
+  --color-bill-rejected-bg: #fae3de; /* サーモン／ローズ */
+  --color-bill-rejected-border: #eec7bd;
+  --color-bill-rejected-text: #96473a;
+  --color-bill-reviewing-bg: #fbeed6; /* アンバー */
+  --color-bill-reviewing-border: #f0dcb0;
+  --color-bill-reviewing-text: #855f1e;
+  --color-bill-submitted-bg: #e5ebf3; /* ライトブルー */
+  --color-bill-submitted-border: #cbd8e7;
+  --color-bill-submitted-text: #3f5670;
+  --color-bill-neutral-bg: #ececea; /* グレー（上程前・撤回など） */
+  --color-bill-neutral-border: #d8d8d4;
+  --color-bill-neutral-text: #67675f;
 }
 
 :root {

@@ -18,22 +18,32 @@ export function getCardStatusLabel(status: BillStatusEnum): string {
   }
 }
 
+/** バッジの色。可決＝セージグリーン／否決＝サーモンのように、議決結果を色で見分けられるようにする */
+export type BillStatusVariant =
+  | "billApproved"
+  | "billRejected"
+  | "billReviewing"
+  | "billSubmitted"
+  | "billNeutral";
+
 /** ステータスに対応するBadgeのvariantを取得 */
-export function getStatusVariant(
-  status: BillStatusEnum
-): "light" | "default" | "dark" | "muted" {
+export function getStatusVariant(status: BillStatusEnum): BillStatusVariant {
   switch (status) {
-    case "submitted":
+    case "approved":
+    case "adopted":
+    case "reported":
+      return "billApproved";
+    case "partially_adopted":
+      // 一部採択は「通った」とも「通らなかった」とも言い切れないため中間色にする
+      return "billReviewing";
+    case "rejected":
+      return "billRejected";
     case "in_committee":
     case "plenary_session":
-      return "light";
-    case "approved":
-      return "default";
-    case "rejected":
-      return "dark";
-    case "reported":
-      return "default";
+      return "billReviewing";
+    case "submitted":
+      return "billSubmitted";
     default:
-      return "muted";
+      return "billNeutral";
   }
 }

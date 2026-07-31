@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { BillStatusEnum } from "../../../shared/types";
+import { getStatusVariant } from "../../../shared/utils/bill-status";
 
 interface BillStatusBadgeProps {
   status: BillStatusEnum;
@@ -16,6 +17,10 @@ function getCardStatusLabel(status: BillStatusEnum): string {
       return "本会議採決中";
     case "approved":
       return "可決";
+    case "adopted":
+      return "採択";
+    case "partially_adopted":
+      return "一部採択";
     case "rejected":
       return "否決";
     case "reported":
@@ -26,22 +31,6 @@ function getCardStatusLabel(status: BillStatusEnum): string {
 }
 
 export function BillStatusBadge({ status, className }: BillStatusBadgeProps) {
-  const getStatusVariant = (s: BillStatusEnum) => {
-    switch (s) {
-      case "submitted":
-      case "in_committee":
-      case "plenary_session":
-        return "light";
-      case "approved":
-      case "reported":
-        return "default";
-      case "rejected":
-        return "dark";
-      default:
-        return "muted";
-    }
-  };
-
   return (
     <Badge variant={getStatusVariant(status)} className={className}>
       {getCardStatusLabel(status)}

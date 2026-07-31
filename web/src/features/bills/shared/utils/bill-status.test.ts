@@ -25,22 +25,38 @@ describe("getCardStatusLabel", () => {
 
 describe("getStatusVariant", () => {
   it.each([
-    ["submitted", "light"],
-    ["in_committee", "light"],
-    ["plenary_session", "light"],
+    ["in_committee", "billReviewing"],
+    ["plenary_session", "billReviewing"],
   ] as const)("審議中ステータス %s → %s", (status, expected) => {
     expect(getStatusVariant(status)).toBe(expected);
   });
 
-  it("approved → default", () => {
-    expect(getStatusVariant("approved")).toBe("default");
+  it("submitted → billSubmitted", () => {
+    expect(getStatusVariant("submitted")).toBe("billSubmitted");
   });
 
-  it("rejected → dark", () => {
-    expect(getStatusVariant("rejected")).toBe("dark");
+  // 可決・採択・専決処分報告はどれも「議会を通った」結果なので同じ色にする
+  it.each([
+    "approved",
+    "adopted",
+    "reported",
+  ] as const)("可決系 %s → billApproved", (status) => {
+    expect(getStatusVariant(status)).toBe("billApproved");
   });
 
-  it("preparing → muted", () => {
-    expect(getStatusVariant("preparing")).toBe("muted");
+  it("rejected → billRejected", () => {
+    expect(getStatusVariant("rejected")).toBe("billRejected");
+  });
+
+  it("partially_adopted → billReviewing", () => {
+    expect(getStatusVariant("partially_adopted")).toBe("billReviewing");
+  });
+
+  it("preparing → billNeutral", () => {
+    expect(getStatusVariant("preparing")).toBe("billNeutral");
+  });
+
+  it("可決と否決は別の色になる", () => {
+    expect(getStatusVariant("approved")).not.toBe(getStatusVariant("rejected"));
   });
 });

@@ -1,6 +1,6 @@
-import type { ComponentProps } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import type { ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -22,6 +22,17 @@ const badgeVariants = cva(
         dark: "border-transparent bg-gray-300 text-black [a&]:hover:bg-gray-400",
         light:
           "border-primary bg-transparent text-primary [a&]:hover:opacity-90",
+        // 議案の議決結果。可決・否決を色で見分けられるようにする
+        billApproved:
+          "border-bill-approved-border bg-bill-approved-bg text-bill-approved-text",
+        billRejected:
+          "border-bill-rejected-border bg-bill-rejected-bg text-bill-rejected-text",
+        billReviewing:
+          "border-bill-reviewing-border bg-bill-reviewing-bg text-bill-reviewing-text",
+        billSubmitted:
+          "border-bill-submitted-border bg-bill-submitted-bg text-bill-submitted-text",
+        billNeutral:
+          "border-bill-neutral-border bg-bill-neutral-bg text-bill-neutral-text",
       },
     },
     defaultVariants: {
