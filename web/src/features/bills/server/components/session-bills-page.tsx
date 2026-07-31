@@ -5,21 +5,30 @@ import { BillListWithStatusFilter } from "@/features/council-sessions/client/com
 import type { CouncilSession } from "@/features/council-sessions/shared/types";
 import type { BillWithContent } from "../../shared/types";
 import { groupBillsByTag } from "../../shared/utils/group-bills-by-tag";
+import { summarizeSessionBills } from "../../shared/utils/summarize-session-bills";
 import { BillsByTagSection } from "./bills-by-tag-section";
 import { FeaturedBillSection } from "./featured-bill-section";
+import { SessionStatTiles } from "./session-stat-tiles";
+import { SplitVoteBillsSection } from "./split-vote-bills-section";
 
 interface SessionBillsPageProps {
   session: CouncilSession;
   bills: BillWithContent[];
+  generalQuestionsCount: number;
 }
 
-export function SessionBillsPage({ session, bills }: SessionBillsPageProps) {
+export function SessionBillsPage({
+  session,
+  bills,
+  generalQuestionsCount,
+}: SessionBillsPageProps) {
   const startDate = new Date(session.start_date);
   const endDate = new Date(session.end_date ?? session.start_date);
   const sessionDescription = `${startDate.getFullYear()}.${startDate.getMonth() + 1}月〜${endDate.getMonth() + 1}月に実施された${session.name}`;
 
   const featuredBills = bills.filter((b) => b.is_featured);
   const billsByTag = groupBillsByTag(bills);
+  const summary = summarizeSessionBills(bills);
 
   return (
     <div className="flex flex-col gap-16">
@@ -49,7 +58,19 @@ export function SessionBillsPage({ session, bills }: SessionBillsPageProps) {
             {sessionDescription}
           </p>
         </div>
+
+        {/* 数字でみるこの会期 */}
+        <SessionStatTiles
+          total={summary.total}
+          approved={summary.approved}
+          rejected={summary.rejected}
+          splitVotes={summary.splitVoteBills.length}
+          generalQuestionsCount={generalQuestionsCount}
+        />
       </div>
+
+      {/* 賛否が分かれた案件 */}
+      <SplitVoteBillsSection bills={summary.splitVoteBills} />
 
       {/* 注目の議案 */}
       <FeaturedBillSection bills={featuredBills} />

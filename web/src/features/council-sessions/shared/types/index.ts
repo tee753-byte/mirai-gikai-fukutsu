@@ -9,3 +9,10 @@ export type CouncilSession = {
   created_at: string;
   updated_at: string;
 };
+
+/** 会期一覧カードに出す簡易集計（議会ごとのまとめページ用） */
+export type SessionSummary = {
+  billCount: number;
+  splitVoteCount: number;
+  generalQuestionsCount: number;
+};

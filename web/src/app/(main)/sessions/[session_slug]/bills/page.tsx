@@ -5,6 +5,7 @@ import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/ge
 import { SessionBillsPage } from "@/features/bills/server/components/session-bills-page";
 import { getSessionBills } from "@/features/bills/server/loaders/get-session-bills";
 import { getCouncilSessionBySlug } from "@/features/council-sessions/server/loaders/get-council-session-by-slug";
+import { getGeneralQuestionsBySession } from "@/features/general-questions/server/loaders/get-general-questions-by-session";
 
 interface SessionBillsRouteProps {
   params: Promise<{
@@ -42,11 +43,18 @@ export default async function SessionBillsRoute({
     notFound();
   }
 
-  const bills = await getSessionBills(session.id, difficultyLevel);
+  const [bills, generalQuestions] = await Promise.all([
+    getSessionBills(session.id, difficultyLevel),
+    getGeneralQuestionsBySession(session.id),
+  ]);
 
   return (
     <Container className="py-10">
-      <SessionBillsPage session={session} bills={bills} />
+      <SessionBillsPage
+        session={session}
+        bills={bills}
+        generalQuestionsCount={generalQuestions.length}
+      />
     </Container>
   );
 }
