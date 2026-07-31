@@ -1,3 +1,5 @@
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
 import { siteConfig } from "@/config/site.config";
@@ -19,7 +21,7 @@ export async function generateMetadata({ params }: Props) {
 
   return {
     title: `${session.name}の一般質問 | ${siteConfig.siteName}`,
-    description: `${session.name}で行われた一般質問の一覧です。議員が市長・局長に直接質問した内容をわかりやすく解説します。`,
+    description: `${session.name}で行われた一般質問の一覧です。議員が市長や市の担当部長に直接質問した内容をわかりやすく解説します。`,
   };
 }
 
@@ -42,6 +44,13 @@ export default async function SessionQuestionsPage({ params }: Props) {
         <p className="mt-2 text-sm text-mirai-text-secondary">
           議員が問い、市が答えた。あなたの暮らしに関わる取り組みをテーマ別にまとめました。
         </p>
+        <Link
+          href="/questions/members"
+          className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+        >
+          議員から見る
+          <ArrowRight className="h-3 w-3" />
+        </Link>
       </div>
       <SessionTopicsView questions={questions} />
     </Container>

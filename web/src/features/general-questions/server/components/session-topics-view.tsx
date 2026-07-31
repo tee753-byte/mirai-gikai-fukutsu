@@ -1,22 +1,23 @@
 import {
+  ArrowRight,
   Baby,
-  Shield,
+  Building2,
+  Circle,
+  Clock,
+  Globe,
   Heart,
   Leaf,
-  Circle,
-  ArrowRight,
+  Shield,
   Stethoscope,
-  Building2,
   Trophy,
-  Globe,
 } from "lucide-react";
 import Link from "next/link";
 import type { GeneralQuestion } from "../../shared/types";
-import { buildTopicGroups } from "../../shared/utils/build-topic-groups";
 import type {
   TopicEntry,
   TopicGroup,
 } from "../../shared/utils/build-topic-groups";
+import { buildTopicGroups } from "../../shared/utils/build-topic-groups";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Baby,
@@ -113,9 +114,23 @@ function TopicCard({
             </span>
           )}
         </div>
-        <p className="text-sm text-mirai-text leading-relaxed">
-          {entry.answerSummary}
-        </p>
+        {entry.answerSummary ? (
+          <p className="text-sm text-mirai-text leading-relaxed">
+            {entry.answerSummary}
+          </p>
+        ) : (
+          <>
+            <p className="text-sm text-mirai-text leading-relaxed">
+              {entry.questionSummary}
+            </p>
+            <p className="mt-2 inline-flex items-start gap-1 rounded-md bg-white/70 px-2 py-1 text-[11px] leading-relaxed text-mirai-text-secondary">
+              <Clock className="mt-0.5 h-3 w-3 shrink-0" />
+              <span>
+                答弁は議事録の公開後に追加します（正式公開までおよそ3か月）。それまでは質問の要旨のみを掲載しています。
+              </span>
+            </p>
+          </>
+        )}
       </div>
       <div
         className={`px-4 py-2.5 border-t ${style.header} flex items-center justify-between gap-2`}

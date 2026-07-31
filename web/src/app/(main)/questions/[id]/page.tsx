@@ -1,12 +1,12 @@
-import { ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
 import { siteConfig } from "@/config/site.config";
-import { RawTranscriptView } from "@/features/general-questions/server/components/raw-transcript-view";
-import { QuestionChatView } from "@/features/general-questions/client/components/question-chat-view";
+import { QuestionDetailView } from "@/features/general-questions/client/components/question-detail-view";
 import { getGeneralQuestionById } from "@/features/general-questions/server/loaders/get-general-question-by-id";
+import { toQuestionerSlug } from "@/features/general-questions/shared/utils/build-questioner-groups";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -48,7 +48,15 @@ export default async function GeneralQuestionDetailPage({ params }: Props) {
 
   return (
     <Container className="py-8 max-w-2xl">
-      <div className="mb-6">
+      <Link
+        href={`/questions/members/${encodeURIComponent(toQuestionerSlug(question.questioner_name))}`}
+        className="inline-flex items-center gap-1 text-sm text-mirai-text-secondary hover:underline"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        {question.questioner_name} 議員の一覧に戻る
+      </Link>
+
+      <div className="mt-4 mb-6">
         <h1 className="text-2xl font-bold text-mirai-text">
           {question.questioner_name} 議員
         </h1>
@@ -66,11 +74,14 @@ export default async function GeneralQuestionDetailPage({ params }: Props) {
         </p>
       )}
 
-      {question.raw_text ? (
-        <RawTranscriptView rawText={question.raw_text} />
-      ) : (
-        <QuestionChatView topics={question.topics} />
-      )}
+      <QuestionDetailView
+        topics={question.topics}
+        rawText={question.raw_text}
+      />
+
+      <p className="mt-6 text-xs leading-relaxed text-mirai-text-secondary">
+        要約はAIを活用して作成し、公式会議録と照合しています。正確な内容は必ず原文または公式会議録をご確認ください。
+      </p>
 
       {question.source_url && (
         <div className="mt-8 pt-6 border-t border-border">

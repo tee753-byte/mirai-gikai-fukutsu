@@ -21,6 +21,7 @@ const TABLES_TO_CLEAR = [
   "bill_contents",
   "bills_tags",
   "bills",
+  "general_questions",
   "tags",
   "factions",
   "committees",
