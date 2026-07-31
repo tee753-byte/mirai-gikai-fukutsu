@@ -427,13 +427,26 @@ async function seedDatabase() {
 
     console.log(`✅ Inserted ${insertedBillsTags.length} bills-tags relations`);
 
-    // Insert interview config (for first bill)
-    console.log("💬 Inserting interview config...");
-    const interviewConfigData = createInterviewConfig(insertedBills);
+    // AIチャット機能（インタビュー）のデータ。CLAUDE.mdの方針で
+    // フェーズ1では実装しないため、本番投入時は環境変数
+    // SEED_INCLUDE_DEMO_DATA=false を指定してスキップする。
+    // スキップしないと、実在する議案にダミーの市民意見（デモデータ）が
+    // 公開状態で紐付き、/report/[id]/chat-log から閲覧できてしまう。
+    const includeDemoData = process.env.SEED_INCLUDE_DEMO_DATA !== "false";
+    let interviewConfigData: ReturnType<typeof createInterviewConfig> = null;
     let insertedQuestionsCount = 0;
     let insertedSessionsCount = 0;
     let insertedMessagesCount = 0;
     let insertedReportsCount = 0;
+
+    if (!includeDemoData) {
+      console.log(
+        "⏭️  Skipped AI interview/demo data (SEED_INCLUDE_DEMO_DATA=false)"
+      );
+    } else {
+    // Insert interview config (for first bill)
+    console.log("💬 Inserting interview config...");
+    interviewConfigData = createInterviewConfig(insertedBills);
 
     if (interviewConfigData) {
       const { data: insertedConfig, error: configError } = await supabase
@@ -733,6 +746,7 @@ async function seedDatabase() {
           `✅ Shipping bill: ${shippingSessionsCount} sessions, ${shippingReportsCount} reports (each with 3 opinions)`
         );
       }
+    }
     }
 
     console.log("🎉 Database seeding completed successfully!");
