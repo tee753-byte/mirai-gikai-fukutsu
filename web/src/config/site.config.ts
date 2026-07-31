@@ -33,8 +33,7 @@ export const siteConfig = {
    */
   heroImage: "/img/hero_miyajidake.jpg",
   externalLinks: {
-    // TODO(公開前必須): 誤りの修正依頼を受けるGoogleフォームを作成してURLを設定する
-    report: "",
+    report: "https://forms.gle/aJuYZxKqtrRHtVwH9",
     aboutNote: "",
     donation: "https://team-mir.ai/support/donation",
     teamAbout: "https://team-mir.ai/about",
@@ -53,8 +52,7 @@ export const siteConfig = {
    */
   operator: {
     name: "tee" as string,
-    // TODO(公開前必須): 問い合わせ窓口（Googleフォーム）のURLを設定する
-    contactUrl: "" as string,
+    contactUrl: "https://forms.gle/aJuYZxKqtrRHtVwH9" as string,
     /** 利用規約の準拠法・管轄裁判所（第一審の専属的合意管轄） */
     jurisdiction: "福岡地方裁判所" as string,
   },

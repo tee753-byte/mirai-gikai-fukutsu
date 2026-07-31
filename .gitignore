@@ -20,3 +20,5 @@ docs/fukuoka/sample/
 # 目視確認して安全と分かった内容だけを bills-r8-3.ts 等のコードに反映し、
 # この生データ自体はコミットしない（CLAUDE.md「個人情報の取り扱い」参照）
 packages/seed/fukutsu/data/*-bill-documents.json
+.vercel
+.env*
