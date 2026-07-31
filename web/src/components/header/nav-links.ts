@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Home, Info, Landmark, Users } from "lucide-react";
+import { Home, Landmark, Users } from "lucide-react";
 
 export type NavLink = {
   label: string;
@@ -14,7 +14,6 @@ export type NavLink = {
 export const NAV_LINKS: NavLink[] = [
   { label: "議会ごとのまとめ", href: "/sessions", icon: Landmark },
   { label: "議員・提出者から見る", href: "/questions/members", icon: Users },
-  { label: "みらい議会とは", href: "/#about", icon: Info },
 ];
 
 /** ハンバーガーメニューではホームへの導線も併せて出す */

@@ -2,13 +2,14 @@ import { ArrowRight, Clock } from "lucide-react";
 import Link from "next/link";
 import {
   DEFERRED_MAYOR_PLEDGES,
+  MAYOR_PLEDGES_ANSWERED_DATE,
   MAYOR_PLEDGES_SOURCE,
 } from "./mayor-pledges-topic.data";
 
 /**
  * TOPページの特集枠プロトタイプ。「市長公約の先送り」を扱う。
- * 主語は市長（執行部）にし、質問した議員個人を目立たせない。評価コメントは書かず、
- * 答弁で言及された事実（見送る公約と想定額）だけを並べる。
+ * 主語は市長（執行部）にし、質問した議員個人を目立たせない（質問者名は掲載しない）。
+ * 評価コメントは書かず、答弁で言及された事実（見送る公約と答弁日）だけを並べる。
  */
 export function MayorPledgesTopic() {
   return (
@@ -22,20 +23,16 @@ export function MayorPledgesTopic() {
         市長選挙時の公約のうち、当面見送られているもの
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-mirai-text-secondary">
-        市の財政状況を踏まえた今後2年間の臨時行財政運営方針の中で、市長は下記の公約について実施を見送ると答弁しています（2年後に状況を見て優先順位を判断するとしています）。
+        市の財政状況を踏まえた今後2年間の臨時行財政運営方針の中で、市長は
+        {MAYOR_PLEDGES_ANSWERED_DATE}
+        の一般質問で、下記の公約について実施を見送ると答弁しています（2年後に状況を見て優先順位を判断するとしています）。
       </p>
 
       <ul className="mt-4 flex flex-col gap-2">
         {DEFERRED_MAYOR_PLEDGES.map((pledge) => (
-          <li
-            key={pledge.label}
-            className="flex items-center justify-between gap-3 rounded-lg bg-white/70 px-4 py-3"
-          >
+          <li key={pledge.label} className="rounded-lg bg-white/70 px-4 py-3">
             <span className="text-sm font-bold text-mirai-text">
               {pledge.label}
-            </span>
-            <span className="text-xs text-mirai-text-secondary shrink-0">
-              {pledge.costNote}
             </span>
           </li>
         ))}
