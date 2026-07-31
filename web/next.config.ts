@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
     root: "../",
   },
   images: {
+    // トップの風景写真のような情報量の多い画像はAVIFのほうが大幅に軽い。
+    // 対応していないブラウザにはWebPが返る。
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",

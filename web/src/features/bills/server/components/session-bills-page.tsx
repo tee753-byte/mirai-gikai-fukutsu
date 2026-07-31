@@ -1,11 +1,12 @@
-import Image from "next/image";
 import { ExternalLink } from "lucide-react";
-import type { CouncilSession } from "@/features/council-sessions/shared/types";
+import Image from "next/image";
+import { siteConfig } from "@/config/site.config";
 import { BillListWithStatusFilter } from "@/features/council-sessions/client/components/bill-list-with-status-filter";
-import { groupBillsByTag } from "../../shared/utils/group-bills-by-tag";
+import type { CouncilSession } from "@/features/council-sessions/shared/types";
 import type { BillWithContent } from "../../shared/types";
-import { FeaturedBillSection } from "./featured-bill-section";
+import { groupBillsByTag } from "../../shared/utils/group-bills-by-tag";
 import { BillsByTagSection } from "./bills-by-tag-section";
+import { FeaturedBillSection } from "./featured-bill-section";
 
 interface SessionBillsPageProps {
   session: CouncilSession;
@@ -80,7 +81,7 @@ export function SessionBillsPage({ session, bills }: SessionBillsPageProps) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1"
           >
-            福岡市議会情報へ
+            {siteConfig.councilName}情報へ
             <ExternalLink className="h-3 w-3" />
           </a>
         </div>

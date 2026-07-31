@@ -55,14 +55,10 @@ function FactionStanceRow({ stance }: FactionStanceRowProps) {
   );
 }
 
-// 無所属議員の個人名一覧（福岡市議会）
-const MUSHOZOKU_MEMBERS = [
-  "あべ ひでき",
-  "新開 ゆうじ",
-  "木村 てつあき",
-  "森 あやこ",
-  "川口 浩",
-];
+// 無所属議員の個人名一覧（福津市議会・2026年7月時点）
+// 出典: https://www.city.fukutsu.lg.jp/gikai/kosei/2352.html
+// 掲載基準は全議員で統一する（特定の議員を強調しない）
+const MUSHOZOKU_MEMBERS = ["中村 恵輔", "山本 祐平", "中村 清隆"];
 
 function expandStances(stances: FactionStance[]): FactionStance[] {
   return stances.flatMap((stance) => {

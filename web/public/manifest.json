@@ -1,7 +1,7 @@
 {
-  "name": "みらい議会＠福岡市",
-  "short_name": "みらい議会＠福岡市",
-  "description": "福岡市議会で今どんな議案が検討されているか、わかりやすく伝えるプラットフォーム",
+  "name": "みらい議会＠福津市",
+  "short_name": "みらい議会＠福津市",
+  "description": "福津市議会で今どんな議案が検討されているか、わかりやすく伝えるプラットフォーム",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F7F4F0",
@@ -9,7 +9,7 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icons/pwa/icon_fukuoka.svg",
+      "src": "/icons/pwa/icon_app.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"

@@ -1,6 +1,7 @@
 import "server-only";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { ExternalLink, ArrowLeft } from "lucide-react";
+import { siteConfig } from "@/config/site.config";
 import type { BudgetOverviewWithThemes } from "../../shared/types";
 
 type BudgetOverviewDetailProps = {
@@ -46,7 +47,7 @@ export function BudgetOverviewDetail({
             className="inline-flex items-center gap-1 mt-4 text-xs text-mirai-text-muted hover:text-mirai-text"
           >
             <ExternalLink className="w-3 h-3" />
-            予算書PDF（福岡市公式サイト）
+            予算書PDF（{siteConfig.cityName}公式サイト）
           </Link>
         )}
       </div>

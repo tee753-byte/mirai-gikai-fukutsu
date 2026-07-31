@@ -3,16 +3,33 @@ import { Container } from "@/components/layouts/container";
 import { siteConfig } from "@/config/site.config";
 
 export function Hero() {
+  // SVGはnext/imageの最適化対象外（変換すると400になる）。拡大しても粗くならないのでそのまま出す
+  const isVector = siteConfig.heroImage.endsWith(".svg");
+
   return (
     <div className="relative w-full h-[80vh] min-h-[400px] md:h-[70vh]">
       <Image
-        src="/img/hero_background.png"
-        alt={siteConfig.councilName}
+        src={siteConfig.heroImage}
+        alt={`${siteConfig.cityName}の風景`}
         fill
         priority
         className="object-cover"
         sizes="100vw"
         quality={85}
+        unoptimized={isVector}
+      />
+
+      {/*
+        見出しは黒文字なので、写真の暗い部分に重なると読めなくなる。
+        下側だけ白をうすく重ねて、写真の印象は残したまま文字を読めるようにする。
+      */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.58) 42%, rgba(255,255,255,0.18) 72%, rgba(255,255,255,0) 100%)",
+        }}
       />
       <div className="absolute bottom-[30vh] left-0 right-0 py-4">
         <Container>

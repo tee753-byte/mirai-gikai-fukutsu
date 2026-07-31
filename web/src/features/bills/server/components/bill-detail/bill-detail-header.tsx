@@ -73,7 +73,9 @@ export async function BillDetailHeader({
             className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            議案原文（PDF）
+            {/* 福津市は議案書を公開しておらず、リンク先は市の定例会ページなので
+                「原文（PDF）」とは書かない */}
+            市の公式ページで確認する
           </a>
         )}
 

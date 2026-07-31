@@ -1,4 +1,5 @@
 import "server-only";
+import { siteConfig } from "@/config/site.config";
 
 // ---- 型定義 ----
 
@@ -36,13 +37,13 @@ export function buildEvalPrompt(bills: BillForEval[]): string {
     )
     .join("\n\n---\n\n");
 
-  return `あなたは福岡市議会の議案を市民目線で評価する専門家です。
+  return `あなたは${siteConfig.councilName}の議案を市民目線で評価する専門家です。
 以下の議案それぞれについて、市民への影響度を評価してください。
 
 ## 評価基準（100点満点）
 
 ### 1. 市民への直接影響範囲（45点満点）
-- 45点: 福岡市民全体に広く影響する（医療・福祉・教育・交通・税など）
+- 45点: ${siteConfig.cityName}民全体に広く影響する（医療・福祉・教育・交通・税など）
 - 30点: 特定の世代や状況の市民に影響する（子育て世代、高齢者、障害者など）
 - 15点: 一部の市民・事業者に影響する
 - 0点:  市役所内部や特定業者のみ、一般市民への影響がほぼない
