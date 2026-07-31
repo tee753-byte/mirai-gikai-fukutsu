@@ -1,0 +1,167 @@
+import { describe, expect, it } from "vitest";
+import {
+  parseBillDocument,
+  stripLayoutSpaces,
+  trimTitle,
+} from "./parse-bill-document";
+
+/** pdftotext の出力を模したもの。\f は改ページ */
+const DOC = [
+  "福津市議会議員 各位",
+  "",
+  "\f議案第４号 令和７年度福津市一般会計補正予算（第７号）について",
+  "地方自治法（昭和２２年法律第６７号）第２１８条の規定により、令和７年 度福津市一般会計補正予算（第７号）を別案のとおり提出する。",
+  "令和８年２月２７日提出 福津市長 福 井 崇 郎",
+  "11",
+  "",
+  "\f議案第１９号 福津市武道館条例を改正することについて",
+  "平成１７年１月２４日公布、福津市条例第７１号福津市武道館条例は、次の理 由により改正する必要があるので、別案のとおり改正する。",
+  "令和８年２月２７日提出 福津市長 福 井 崇 郎",
+  "理 由 公共施設の使用料について、算定方法の統一と受益者に応分の負担を求める ことを目的に、「公共施設使用料設定に係る基本方針」を策定した。",
+  "50",
+  "",
+].join("\n");
+
+describe("stripLayoutSpaces", () => {
+  it("折り返しで入った空白を落として1文につなげる", () => {
+    expect(stripLayoutSpaces("受益者に応分の負担を求める ことを目的に")).toBe(
+      "受益者に応分の負担を求めることを目的に"
+    );
+  });
+
+  it("数字のまわりの空白も落とす", () => {
+    expect(stripLayoutSpaces("令和 6 年 11 月 22 日")).toBe("令和6年11月22日");
+  });
+});
+
+describe("trimTitle", () => {
+  it("件名の後ろにつながった本文を切り落とす", () => {
+    expect(
+      trimTitle(
+        "令和６年度福津市国民健康保険事業特別会計補正予算（第５号）について地方自治法（昭和２２年法律第６７号）第２１８条の規定により、"
+      )
+    ).toBe("令和６年度福津市国民健康保険事業特別会計補正予算（第５号）について");
+  });
+
+  it("「について」が途中にあるだけの長い件名は切らない", () => {
+    const long =
+      "情報通信技術の活用による行政手続等に係る関係者の利便性の向上を図るための関係条例の整理に関する条例の制定について";
+
+    expect(trimTitle(long)).toBe(long);
+  });
+
+  it("「について」が無い件名はそのまま", () => {
+    expect(trimTitle("福津市議会基本条例")).toBe("福津市議会基本条例");
+  });
+});
+
+describe("parseBillDocument", () => {
+  it("議案番号を半角に直して取り出す", () => {
+    const entries = parseBillDocument(DOC);
+
+    expect(entries.map((e) => e.billNumber)).toEqual([
+      "議案第4号",
+      "議案第19号",
+    ]);
+  });
+
+  it("見出しと同じ行にある件名を取り出す", () => {
+    const entry = parseBillDocument(DOC).find(
+      (e) => e.billNumber === "議案第19号"
+    );
+
+    expect(entry?.title).toBe("福津市武道館条例を改正することについて");
+  });
+
+  it("「理 由」の本文を取り出す", () => {
+    const entry = parseBillDocument(DOC).find(
+      (e) => e.billNumber === "議案第19号"
+    );
+
+    expect(entry?.reason).toBe(
+      "公共施設の使用料について、算定方法の統一と受益者に応分の負担を求めることを目的に、「公共施設使用料設定に係る基本方針」を策定した。"
+    );
+  });
+
+  it("理由欄が無い予算議案は reason が null になる", () => {
+    const entry = parseBillDocument(DOC).find(
+      (e) => e.billNumber === "議案第4号"
+    );
+
+    // 本文に「次の理由により」のような語が出てきても、理由欄と取り違えない
+    expect(entry?.reason).toBeNull();
+  });
+
+  it("目次の行を見出しと誤認しない", () => {
+    const toc = "議案第１７号 議案第１８号 議案第１９号 議案第２０号";
+
+    expect(parseBillDocument(toc)).toEqual([]);
+  });
+
+  it("複数行に折り返した理由をつなげる", () => {
+    const text = [
+      "\f議案第４６号 福津市何とか条例を改正することについて",
+      "理 由 令和８年４月１日より民間企業のノウハウを活用することとし、指定管理者",
+      "制度を導入するため所要の改正を行う。",
+      "150",
+    ].join("\n");
+
+    // 理由の本文は議案書の表記どおりに残す（全角数字を半角にはしない）
+    expect(parseBillDocument(text)[0].reason).toBe(
+      "令和８年４月１日より民間企業のノウハウを活用することとし、指定管理者制度を導入するため所要の改正を行う。"
+    );
+  });
+
+  it("発議の「設置理由」も理由として取り出す", () => {
+    const text = [
+      "\f発議第１号",
+      "基金運用における債券の含み損問題に関する調査のため特別委員会を設置する 決議の提出について",
+      "８．設置理由 令和 6 年 11 月 22 日に行われた一般質問において、含み損が発覚した。",
+    ].join("\n");
+
+    const entry = parseBillDocument(text)[0];
+
+    expect(entry.billNumber).toBe("発議第1号");
+    expect(entry.title).toBe(
+      "基金運用における債券の含み損問題に関する調査のため特別委員会を設置する決議の提出について"
+    );
+    expect(entry.reason).toBe(
+      "令和6年11月22日に行われた一般質問において、含み損が発覚した。"
+    );
+  });
+
+  it("「発議第 5 号」のように字間が空いた見出しも読む", () => {
+    const text = [
+      "発議第 5 号",
+      "物価高騰から国民生活を守るため、緊急に消費税減税を行うよう求める意見書の 提出について",
+    ].join("\n");
+
+    const entry = parseBillDocument(text)[0];
+
+    expect(entry.billNumber).toBe("発議第5号");
+    expect(entry.title).toBe(
+      "物価高騰から国民生活を守るため、緊急に消費税減税を行うよう求める意見書の提出について"
+    );
+  });
+
+  it("報告も案件として拾う", () => {
+    const text = "\f報告第４号 専決処分の報告について";
+
+    expect(parseBillDocument(text)[0].billNumber).toBe("報告第4号");
+  });
+
+  it("同じ議案が再出現しても、理由が取れているほうを残す", () => {
+    const text = [
+      "\f議案第１９号 福津市武道館条例を改正することについて",
+      "理 由 使用料を見直すもの。",
+      "50",
+      "\f議案第１９号 福津市武道館条例の一部を改正する条例（案）",
+      "別表を次のように改める。",
+    ].join("\n");
+
+    const entries = parseBillDocument(text);
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].reason).toBe("使用料を見直すもの。");
+  });
+});

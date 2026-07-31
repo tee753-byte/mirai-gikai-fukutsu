@@ -57,7 +57,7 @@ export const policyLinks: FooterPolicyLink[] = [
   },
   {
     label: "ソースコード（GitHub）",
-    href: "https://github.com/bakumon1107/mirai-gikai-fukuoka-city",
+    href: siteConfig.githubUrl,
     external: true,
   },
 ];

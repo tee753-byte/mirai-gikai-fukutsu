@@ -20,177 +20,265 @@ type InterviewMessageInsert =
 type InterviewReportInsert =
   Database["public"]["Tables"]["interview_report"]["Insert"];
 
-// 定例会データ
+// 定例会データ（福津市議会）
+// 出典: https://www.city.fukutsu.lg.jp/gikai/nittei/index.html
 export const councilSessions: CouncilSessionInsert[] = [
   {
-    name: "令和8年 第1回定例会（2・3月）",
-    slug: "r8-1",
-    council_url: "https://gikai.city.fukuoka.lg.jp/schedule/regular/",
-    start_date: "2026-02-17",
-    end_date: "2026-03-27",
+    name: "令和8年 6月定例会",
+    slug: "r8-6",
+    council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19863.html",
+    start_date: "2026-06-08",
+    end_date: "2026-06-23",
     is_active: true,
   },
   {
-    name: "令和7年 第4回定例会（12月）",
-    slug: "r7-4",
-    council_url: "https://gikai.city.fukuoka.lg.jp/schedule/regular/",
-    start_date: "2025-12-01",
-    end_date: "2025-12-19",
+    name: "令和8年 3月定例会",
+    slug: "r8-3",
+    council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19269.html",
+    start_date: "2026-02-27",
+    end_date: "2026-03-24",
     is_active: false,
   },
 ];
 
-// 会派データ（福岡市議会 2026年3月時点）
+// 会派データ（福津市議会 2026年7月時点）
+// 出典: https://www.city.fukutsu.lg.jp/gikai/kosei/2352.html
+// 掲載基準は全会派で統一する（特定の会派・議員を強調しない）
 export const factions: FactionInsert[] = [
   {
-    name: "mirai",
-    display_name: "みらい",
+    name: "mimoza",
+    display_name: "ミモザの会",
     sort_order: 1,
     is_active: true,
   },
   {
-    name: "jimin-fukuoka",
-    display_name: "自由民主党福岡市議団",
+    name: "komei",
+    display_name: "公明党",
     sort_order: 2,
     is_active: true,
   },
   {
-    name: "komei",
-    display_name: "公明党福岡市議団",
+    name: "kyosan",
+    display_name: "日本共産党",
     sort_order: 3,
     is_active: true,
   },
   {
-    name: "fukuoka-shimin",
-    display_name: "福岡市民クラブ",
+    name: "shinseikai",
+    display_name: "新政会",
     sort_order: 4,
     is_active: true,
   },
   {
-    name: "kyosan",
-    display_name: "日本共産党福岡市議団",
+    name: "seiwakai",
+    display_name: "福津誠和会",
     sort_order: 5,
     is_active: true,
   },
   {
-    name: "atarashii-kaze",
-    display_name: "新しい風ふくおか",
+    name: "minna-no-koe",
+    display_name: "みんなの声によるみんなの会",
     sort_order: 6,
-    is_active: true,
-  },
-  {
-    name: "ishin",
-    display_name: "日本維新の会福岡市議団",
-    sort_order: 7,
-    is_active: true,
-  },
-  {
-    name: "jimin-shin-fukuoka",
-    display_name: "自民党新福岡",
-    sort_order: 8,
     is_active: true,
   },
   {
     name: "mushozoku",
     display_name: "無所属",
-    sort_order: 9,
+    sort_order: 7,
     is_active: true,
   },
 ];
 
-// 委員会データ（福岡市議会 常任委員会）
+// 委員会データ（福津市議会 常任委員会）
+// 出典: https://www.city.fukutsu.lg.jp/gikai/kosei/2351.html
+// 議会運営委員会・議会広報調査特別委員会は議案審査を行わないため含めない
 export const committees: CommitteeInsert[] = [
   {
-    name: "総務財政委員会",
-    description: "総務、財政、企画、税務などについての審査",
+    name: "総務文教委員会",
+    description:
+      "総務部、経営企画部、教育部、会計課、監査事務局などについての審査",
     sort_order: 1,
     is_active: true,
   },
   {
-    name: "教育こども委員会",
-    description: "教育、こども、保育、学校などについての審査",
+    name: "市民福祉委員会",
+    description: "市民生活部、健康福祉部、こども家庭部についての審査",
     sort_order: 2,
     is_active: true,
   },
   {
-    name: "経済振興委員会",
-    description: "産業、観光、農業、商工業などについての審査",
+    name: "建設環境委員会",
+    description:
+      "市民共働部、経済産業部、都市整備部、農業委員会事務局についての審査",
     sort_order: 3,
-    is_active: true,
-  },
-  {
-    name: "福祉都市委員会",
-    description: "福祉、保健、医療、都市整備などについての審査",
-    sort_order: 4,
-    is_active: true,
-  },
-  {
-    name: "生活環境委員会",
-    description: "環境、ごみ、水道、交通などについての審査",
-    sort_order: 5,
     is_active: true,
   },
 ];
 
-// タグデータ
+// タグデータ（福津市議会の議案構成に合わせた分類）
 export const tags: TagInsert[] = [
   {
-    label: "まちづくり・環境",
-    description: "まちづくり、環境保護、都市計画に関する議案",
+    label: "予算・財政",
+    description: "予算、決算、税、財産の取得や処分に関する議案",
     featured_priority: 1,
   },
   {
     label: "子育て・教育",
-    description: "子育て支援、教育政策、若者支援に関する議案",
+    description: "子育て支援、学童保育、学校教育に関する議案",
     featured_priority: 2,
   },
   {
-    label: "福祉・医療",
-    description: "福祉、医療、高齢者支援に関する議案",
+    label: "くらし・まちづくり",
+    description: "福祉、医療、防災、都市整備、環境に関する議案",
     featured_priority: 3,
+  },
+  {
+    label: "議会・行政のしくみ",
+    description: "議会の制度、職員の給与、行政組織に関する議案",
+    featured_priority: 4,
+  },
+  {
+    label: "意見書・決議",
+    description: "国や県などに対して議会の意思を伝える意見書・決議",
+    featured_priority: 5,
   },
 ];
 
+// 議案データ（令和8年6月定例会・全11件）
+// 出典: 会期日程表 https://www.city.fukutsu.lg.jp/material/files/group/20/kaikinitteihyo080616.pdf
+//       議決結果 https://www.city.fukutsu.lg.jp/material/files/group/20/giketukekka0806.pdf
+// いずれも議決年月日は令和8年6月23日（status_noteに記載）。
+// published_at は画面上「提出」として表示されるため、議決日ではなく上程日を入れる。
+// 議案第47〜52号は初日（6/8）に一括上程。発議第2〜6号は最終日（6/23）に追加議案として上程された。
+// ※福津市は議案書そのものを公開していないため、原本リンクは定例会ページ（議決結果PDFを含む）を指す。
+const SESSION_R8_6_URL =
+  "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19863.html";
+const SUBMITTED_AT_INITIAL = "2026-06-08T00:00:00+09:00";
+const SUBMITTED_AT_ADDITIONAL = "2026-06-23T00:00:00+09:00";
+// 注目の議案は「議会の判断が分かれたもの（否決）」で機械的に決める。
+// 特定の議員や政策分野を目立たせないため、人が選ぶ運用にはしない（fukutsu/seed-bills-r8-3.ts と同じ方針）。
+
 export const bills: BillInsert[] = [
   {
-    name: "福岡市子ども医療費助成条例の一部改正",
-    status: "in_committee",
-    status_note: "文教委員会で審査中",
-    published_at: "2025-11-25T09:00:00+09:00",
+    name: "令和8年度福津市一般会計補正予算（第1号）について",
+    bill_number: "議案第47号",
+    bill_type: "bill",
+    status: "approved",
+    status_note: "本会議で可決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_INITIAL,
+    publish_status: "published",
+    is_featured: false,
+    source_url: SESSION_R8_6_URL,
+  },
+  {
+    name: "令和8年度福津市介護保険事業特別会計補正予算（第1号）について",
+    bill_number: "議案第48号",
+    bill_type: "bill",
+    status: "approved",
+    status_note: "本会議で可決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_INITIAL,
+    publish_status: "published",
+    is_featured: false,
+    source_url: SESSION_R8_6_URL,
+  },
+  {
+    name: "福津市特別職の職員で常勤のものの給与及び旅費に関する条例を改正することについて",
+    bill_number: "議案第49号",
+    bill_type: "bill",
+    status: "rejected",
+    status_note: "本会議で否決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_INITIAL,
     publish_status: "published",
     is_featured: true,
+    source_url: SESSION_R8_6_URL,
   },
   {
-    name: "福岡市地域包括ケアシステム推進条例",
+    name: "福津市税条例を改正することについて",
+    bill_number: "議案第50号",
+    bill_type: "bill",
     status: "approved",
-    status_note: "本会議で可決",
-    published_at: "2025-09-15T10:00:00+09:00",
-    publish_status: "published",
-    is_featured: true,
-  },
-  {
-    name: "福岡市公園条例の一部改正",
-    status: "rejected",
-    status_note: "本会議で否決",
-    published_at: "2025-10-01T09:00:00+09:00",
+    status_note: "本会議で可決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_INITIAL,
     publish_status: "published",
     is_featured: false,
+    source_url: SESSION_R8_6_URL,
   },
   {
-    name: "福岡市学校給食費の無償化に関する条例",
+    name: "福津市学童保育所条例を改正することについて",
+    bill_number: "議案第51号",
+    bill_type: "bill",
     status: "approved",
-    status_note: "本会議で可決、来年度から実施",
-    published_at: "2025-09-10T09:00:00+09:00",
+    status_note: "本会議で可決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_INITIAL,
     publish_status: "published",
     is_featured: false,
+    source_url: SESSION_R8_6_URL,
   },
   {
-    name: "福岡市防災対策基本条例の一部改正",
-    status: "rejected",
-    status_note: "本会議で否決",
-    published_at: "2025-09-20T10:00:00+09:00",
+    name: "財産の取得について",
+    bill_number: "議案第52号",
+    bill_type: "bill",
+    status: "approved",
+    status_note: "本会議で可決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_INITIAL,
     publish_status: "published",
     is_featured: false,
+    source_url: SESSION_R8_6_URL,
+  },
+  {
+    name: "福津市議会基本条例の制定について",
+    bill_number: "発議第2号",
+    bill_type: "member_bill",
+    status: "approved",
+    status_note: "本会議で可決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_ADDITIONAL,
+    publish_status: "published",
+    is_featured: false,
+    source_url: SESSION_R8_6_URL,
+  },
+  {
+    name: "福津市議会会議規則を改正することについて",
+    bill_number: "発議第3号",
+    bill_type: "member_bill",
+    status: "approved",
+    status_note: "本会議で可決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_ADDITIONAL,
+    publish_status: "published",
+    is_featured: false,
+    source_url: SESSION_R8_6_URL,
+  },
+  {
+    name: "非核三原則の堅持を求める意見書の提出について",
+    bill_number: "発議第4号",
+    bill_type: "opinion",
+    status: "approved",
+    status_note: "本会議で可決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_ADDITIONAL,
+    publish_status: "published",
+    is_featured: false,
+    source_url: SESSION_R8_6_URL,
+  },
+  {
+    name: "ホルムズ海峡情勢の影響から市民生活と地域経済を守るための対策を求める意見書の提出について",
+    bill_number: "発議第5号",
+    bill_type: "opinion",
+    status: "approved",
+    status_note: "本会議で可決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_ADDITIONAL,
+    publish_status: "published",
+    is_featured: false,
+    source_url: SESSION_R8_6_URL,
+  },
+  {
+    name: "ゆたかな学びの実現・教職員定数改善をはかるための、令和9年度政府予算に係る意見書の提出について",
+    bill_number: "発議第6号",
+    bill_type: "opinion",
+    status: "approved",
+    status_note: "本会議で可決（令和8年6月23日）",
+    published_at: SUBMITTED_AT_ADDITIONAL,
+    publish_status: "published",
+    is_featured: false,
+    source_url: SESSION_R8_6_URL,
   },
 ];
 
@@ -200,11 +288,23 @@ export function createBillsTags(
   insertedTags: { id: string; label: string }[]
 ): Omit<BillsTagsInsert, "id" | "created_at">[] {
   const billTagMap: { [billName: string]: string[] } = {
-    "福岡市子ども医療費助成条例の一部改正": ["子育て・教育"],
-    "福岡市地域包括ケアシステム推進条例": ["福祉・医療"],
-    "福岡市公園条例の一部改正": ["まちづくり・環境"],
-    "福岡市学校給食費の無償化に関する条例": ["子育て・教育"],
-    "福岡市防災対策基本条例の一部改正": ["まちづくり・環境"],
+    "令和8年度福津市一般会計補正予算（第1号）について": ["予算・財政"],
+    "令和8年度福津市介護保険事業特別会計補正予算（第1号）について": [
+      "予算・財政",
+      "くらし・まちづくり",
+    ],
+    "福津市特別職の職員で常勤のものの給与及び旅費に関する条例を改正することについて":
+      ["議会・行政のしくみ"],
+    "福津市税条例を改正することについて": ["予算・財政"],
+    "福津市学童保育所条例を改正することについて": ["子育て・教育"],
+    "財産の取得について": ["予算・財政"],
+    "福津市議会基本条例の制定について": ["議会・行政のしくみ"],
+    "福津市議会会議規則を改正することについて": ["議会・行政のしくみ"],
+    "非核三原則の堅持を求める意見書の提出について": ["意見書・決議"],
+    "ホルムズ海峡情勢の影響から市民生活と地域経済を守るための対策を求める意見書の提出について":
+      ["意見書・決議"],
+    "ゆたかな学びの実現・教職員定数改善をはかるための、令和9年度政府予算に係る意見書の提出について":
+      ["意見書・決議", "子育て・教育"],
   };
 
   const billsTags: Omit<BillsTagsInsert, "id" | "created_at">[] = [];
@@ -226,41 +326,15 @@ export function createBillsTags(
 }
 
 // 会派見解データ
+//
+// 福津市議会は議決結果を「可決／否決」のみ公表しており、会派ごとの賛否は公開されていない。
+// 推測で賛否を書くことは中立性を損なうため、福津版では会派見解を登録しない。
+// （run.ts 側は name が "mirai" の会派が存在するときだけ登録する実装のため、
+//   福津版の会派構成では自動的にスキップされる）
 const factionStancesData: Omit<
   FactionStanceInsert,
   "bill_id" | "faction_id"
->[] = [
-  {
-    type: "for",
-    comment: `子どもの医療費助成の拡充は、子育て世代の経済的負担を軽減する重要な施策です。
-
-福岡市の子育て環境をより良くし、安心して子育てできるまちづくりに貢献すると考えます。`,
-  },
-  {
-    type: "for",
-    comment: `高齢化が進む中、地域包括ケアシステムの推進は福岡市にとって重要な課題です。
-
-医療・介護・予防・住まい・生活支援を一体的に提供する体制の整備は、市民の安心につながります。`,
-  },
-  {
-    type: "for",
-    comment: `公園は市民の憩いの場であり、防災拠点としても重要です。
-
-この条例改正により、公園の利活用が促進され、地域コミュニティの活性化が期待できます。`,
-  },
-  {
-    type: "for",
-    comment: `学校給食の無償化は、子育て支援と教育の充実を同時に実現する重要な政策です。
-
-全ての子どもが質の高い食事を平等に受けられることは、健康格差の解消にもつながります。福岡市の地元食材を活用した食育の推進も期待できます。`,
-  },
-  {
-    type: "against",
-    comment: `防災対策の強化は重要ですが、現行条例の運用改善で対応できる部分も多いと考えます。
-
-条例改正よりも先に、現場レベルでの防災訓練の充実や地域防災力の向上に注力すべきです。`,
-  },
-];
+>[] = [];
 
 export function createFactionStances(
   insertedBills: { id: string; name: string }[],

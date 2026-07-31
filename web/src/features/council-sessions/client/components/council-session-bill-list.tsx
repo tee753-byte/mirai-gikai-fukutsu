@@ -1,5 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import Image from "next/image";
+import { siteConfig } from "@/config/site.config";
 import type { BillWithContent } from "@/features/bills/shared/types";
 import type { CouncilSession } from "../../shared/types";
 import { BillListWithStatusFilter } from "./bill-list-with-status-filter";
@@ -62,7 +63,7 @@ export function CouncilSessionBillList({ session, bills }: Props) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1"
           >
-            川崎市議会情報へ
+            {siteConfig.councilName}情報へ
             <ExternalLink className="h-3 w-3" />
           </a>
         </div>

@@ -2,12 +2,13 @@ import { openai } from "@ai-sdk/openai";
 import type { Database } from "@mirai-gikai/supabase";
 import {
   convertToModelMessages,
+  type LanguageModel,
   streamText,
   tool,
-  type LanguageModel,
   type UIMessage,
 } from "ai";
 import { z } from "zod";
+import { siteConfig } from "@/config/site.config";
 import type { DifficultyLevelEnum } from "@/features/bill-difficulty/shared/types";
 import type { BillWithContent } from "@/features/bills/shared/types";
 import {
@@ -17,13 +18,13 @@ import {
 import { ChatError, ChatErrorCode } from "@/features/chat/shared/types/errors";
 import { findPublicInterviewConfigByBillId } from "@/features/interview-config/server/repositories/interview-config-repository";
 import { findLatestNonArchivedSession } from "@/features/interview-session/server/repositories/interview-session-repository";
+import { AI_MODELS } from "@/lib/ai/models";
 import { env } from "@/lib/env";
 import {
   type CompiledPrompt,
   createPromptProvider,
   type PromptProvider,
 } from "@/lib/prompt";
-import { AI_MODELS } from "@/lib/ai/models";
 import { getUsageCostUsd, recordChatUsage } from "./cost-tracker";
 
 export type BudgetChatContext = {
@@ -251,7 +252,7 @@ function buildBudgetPrompt(context: ChatMessageMetadata) {
       })
       .join("\n\n") ?? "";
 
-  const content = `あなたは福岡市の予算概要を市民にわかりやすく説明するAIアシスタントです。
+  const content = `あなたは${siteConfig.cityName}の予算概要を市民にわかりやすく説明するAIアシスタントです。
 
 ## 対象局の情報
 - 局名: ${budget?.departmentName ?? ""}

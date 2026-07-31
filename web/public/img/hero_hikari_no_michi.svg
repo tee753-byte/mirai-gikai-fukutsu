@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="宮地嶽神社の参道から海へ夕日がのびる「光の道」をイメージしたイラスト">
+  <title>福津の「光の道」をイメージしたイラスト</title>
+  <desc>写真ではなく、このサイトのために描いたイラストです。著作権の確認が取れた写真が用意できたら差し替えてください。</desc>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d7d2f4"/>
+      <stop offset="38%" stop-color="#e8dcf3"/>
+      <stop offset="68%" stop-color="#ffdcc9"/>
+      <stop offset="100%" stop-color="#ffeccb"/>
+    </linearGradient>
+
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe3c4"/>
+      <stop offset="45%" stop-color="#cfe4ee"/>
+      <stop offset="100%" stop-color="#bcdae9"/>
+    </linearGradient>
+
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff8e2" stop-opacity="1"/>
+      <stop offset="42%" stop-color="#ffe6ae" stop-opacity="0.72"/>
+      <stop offset="100%" stop-color="#ffd9b0" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff6de" stop-opacity="0.98"/>
+      <stop offset="55%" stop-color="#ffeed0" stop-opacity="0.82"/>
+      <stop offset="100%" stop-color="#fdf6ec" stop-opacity="0.6"/>
+    </linearGradient>
+
+    <linearGradient id="hillLeft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b4b8d8"/>
+      <stop offset="100%" stop-color="#cdd0e5"/>
+    </linearGradient>
+
+    <linearGradient id="hillRight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bcbfdc"/>
+      <stop offset="100%" stop-color="#d4d6e8"/>
+    </linearGradient>
+
+    <!-- 画面下側は本文の黒文字が乗るので、白っぽく落ち着かせる -->
+    <linearGradient id="bottomWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#fdfbf7" stop-opacity="0.72"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 空 -->
+  <rect width="1600" height="600" fill="url(#sky)"/>
+
+  <!-- うすい雲 -->
+  <g fill="#ffffff" opacity="0.45">
+    <ellipse cx="330" cy="150" rx="210" ry="26"/>
+    <ellipse cx="450" cy="196" rx="140" ry="17"/>
+    <ellipse cx="1240" cy="120" rx="240" ry="24"/>
+    <ellipse cx="1090" cy="172" rx="130" ry="15"/>
+    <ellipse cx="800" cy="252" rx="300" ry="18"/>
+  </g>
+
+  <!-- 夕日のひかり -->
+  <circle cx="800" cy="600" r="330" fill="url(#sunGlow)"/>
+  <circle cx="800" cy="600" r="86" fill="#fff6da" opacity="0.95"/>
+
+  <!-- 海 -->
+  <rect y="600" width="1600" height="150" fill="url(#sea)"/>
+
+  <!-- 海面のきらめき -->
+  <g fill="#ffffff" opacity="0.55">
+    <rect x="300" y="632" width="120" height="3" rx="1.5"/>
+    <rect x="1180" y="648" width="150" height="3" rx="1.5"/>
+    <rect x="180" y="676" width="90" height="3" rx="1.5"/>
+    <rect x="1320" y="690" width="130" height="3" rx="1.5"/>
+    <rect x="430" y="706" width="110" height="3" rx="1.5"/>
+    <rect x="1040" y="716" width="120" height="3" rx="1.5"/>
+  </g>
+
+  <!-- 参道の両側の丘と松林 -->
+  <path d="M0 560 C 180 548, 330 596, 470 664 L 600 1000 L 0 1000 Z" fill="url(#hillLeft)"/>
+  <path d="M1600 552 C 1420 544, 1272 592, 1130 664 L 1000 1000 L 1600 1000 Z" fill="url(#hillRight)"/>
+
+  <g fill="#a7abcd" opacity="0.85">
+    <path d="M250 612 l30 -58 30 58 -18 0 20 40 -64 0 20 -40 z"/>
+    <path d="M370 646 l26 -50 26 50 -15 0 17 34 -56 0 17 -34 z"/>
+    <path d="M110 664 l34 -64 34 64 -20 0 22 44 -72 0 22 -44 z"/>
+    <path d="M1290 606 l30 -58 30 58 -18 0 20 40 -64 0 20 -40 z"/>
+    <path d="M1170 644 l26 -50 26 50 -15 0 17 34 -56 0 17 -34 z"/>
+    <path d="M1420 660 l34 -64 34 64 -20 0 22 44 -72 0 22 -44 z"/>
+  </g>
+
+  <!-- 光の道（参道が夕日と一直線に重なる） -->
+  <path d="M770 604 L 830 604 L 1010 1000 L 590 1000 Z" fill="url(#road)"/>
+
+  <!-- 参道の石段 -->
+  <g stroke="#e9dcc6" stroke-opacity="0.85" stroke-width="3">
+    <line x1="757" y1="632" x2="843" y2="632"/>
+    <line x1="742" y1="668" x2="858" y2="668"/>
+    <line x1="724" y1="712" x2="876" y2="712"/>
+    <line x1="703" y1="764" x2="897" y2="764"/>
+    <line x1="678" y1="824" x2="922" y2="824"/>
+    <line x1="650" y1="892" x2="950" y2="892"/>
+    <line x1="618" y1="968" x2="982" y2="968"/>
+  </g>
+
+  <!-- 鳥居のシルエット -->
+  <g fill="#9fa3c6" opacity="0.9">
+    <rect x="672" y="612" width="14" height="132" rx="3"/>
+    <rect x="914" y="612" width="14" height="132" rx="3"/>
+    <path d="M646 606 h308 v15 h-308 z"/>
+    <rect x="664" y="640" width="272" height="11" rx="3"/>
+  </g>
+
+  <!-- 下側を明るく整えて、上に乗る文字を読みやすくする -->
+  <rect y="620" width="1600" height="380" fill="url(#bottomWash)"/>
+</svg>

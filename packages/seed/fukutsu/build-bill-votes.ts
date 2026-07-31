@@ -1,0 +1,100 @@
+/**
+ * 会議録テキストから、議案の議決結果・討論・提案理由説明をまとめたJSONを作る。
+ *
+ * 使い方:
+ *   npx tsx fukutsu/build-bill-votes.ts "C:/Users/Work/Desktop/AIwork/会議録" r8-3
+ *
+ * 会議録テキスト本体はリポジトリに入れない（著作権の扱いが未確認）。
+ * ここで作った生成物だけをコミットする。
+ */
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  type BillVote,
+  extractProposalReasons,
+  extractSponsors,
+  parseBillVotes,
+  type Sponsor,
+} from "./parse-bill-votes";
+
+type BillVoteRecord = BillVote & {
+  /** 初日の提案理由説明（会議録からの引用） */
+  proposalReason: string | null;
+  /** 付託された委員会の委員長報告（主な質疑と答弁） */
+  committeeReport: string | null;
+  /** 発議の提出者・賛成者（会議録に氏名が読み上げられている） */
+  sponsors: Sponsor[];
+  sourceFile: string;
+};
+
+/** 委員長報告かどうかの見分け。委員長報告には必ず質疑と答弁の要約が入る */
+function isCommitteeReport(body: string): boolean {
+  return /主な質疑及び答弁|審査結果|審査経過/.test(body);
+}
+
+function main() {
+  const [dir, slug] = process.argv.slice(2);
+  if (!dir || !slug) {
+    console.error(
+      'usage: npx tsx fukutsu/build-bill-votes.ts "<会議録フォルダ>" <session_slug>'
+    );
+    process.exit(1);
+  }
+
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".txt") && !f.includes("日程一覧"))
+    .sort();
+
+  // 提案理由説明と委員長報告は会議録上おなじ書式で読み上げられるため、
+  // 日付順に見て「先に出たほう＝提案理由説明」「質疑応答が入るほう＝委員長報告」で振り分ける。
+  const reasons = new Map<string, string>();
+  const committeeReports = new Map<string, string>();
+  for (const file of files) {
+    const text = fs.readFileSync(path.join(dir, file), "utf8");
+    for (const [billNumber, body] of extractProposalReasons(text)) {
+      if (isCommitteeReport(body)) {
+        const prev = committeeReports.get(billNumber);
+        if (!prev || body.length > prev.length) {
+          committeeReports.set(billNumber, body);
+        }
+        continue;
+      }
+      // 提案理由説明は最初に出たものを採る（後日の再掲より初日の説明が正確）
+      if (!reasons.has(billNumber)) reasons.set(billNumber, body);
+    }
+  }
+
+  const records: BillVoteRecord[] = [];
+  files.forEach((file, i) => {
+    const text = fs.readFileSync(path.join(dir, file), "utf8");
+    for (const vote of parseBillVotes(text, i + 1)) {
+      const reason = reasons.get(vote.billNumber) ?? null;
+      records.push({
+        ...vote,
+        proposalReason: reason,
+        committeeReport: committeeReports.get(vote.billNumber) ?? null,
+        sponsors: reason ? extractSponsors(reason) : [],
+        sourceFile: file,
+      });
+    }
+  });
+
+  const outDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "data");
+  fs.mkdirSync(outDir, { recursive: true });
+  const outPath = path.join(outDir, `${slug}-bill-votes.json`);
+  fs.writeFileSync(outPath, `${JSON.stringify(records, null, 2)}\n`, "utf8");
+
+  const withoutReason = records.filter((r) => !r.proposalReason);
+  console.log(`${records.length}件を ${outPath} に書き出しました`);
+  console.log(`  討論あり: ${records.filter((r) => r.debates.length).length}件`);
+  console.log(`  否決: ${records.filter((r) => r.outcome === "rejected").length}件`);
+  if (withoutReason.length > 0) {
+    console.log(
+      `  提案理由説明が取れなかった議案: ${withoutReason.map((r) => r.billNumber).join(", ")}`
+    );
+  }
+}
+
+main();

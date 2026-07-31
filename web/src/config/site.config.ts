@@ -2,28 +2,39 @@
  * サイト設定ファイル
  * Fork して別の地方議会向けに使用する場合はこのファイルを変更してください。
  * @see docs/kawasaki/20260304_1000_別地域向けfork手順.md
+ * @see docs/fukutsu/20260730_1200_福津版立ち上げ設計書.md
  */
 export const siteConfig = {
-  siteName: "みらい議会＠福岡市",
+  siteName: "みらい議会＠福津市",
   siteDescription:
-    "福岡市議会で今どんな議案が検討されているか、わかりやすく伝えるプラットフォームです",
-  cityName: "福岡市",
-  councilName: "福岡市議会",
+    "福津市議会で今どんな議案が検討されているか、わかりやすく伝えるプラットフォームです",
+  cityName: "福津市",
+  councilName: "福津市議会",
   keywords: [
-    "みらい議会ー福岡市版",
+    "みらい議会＠福津市",
     "議案",
-    "福岡市",
+    "福津市",
     "市議会",
     "地方政治",
     "政策",
     "解説",
   ],
-  councilBaseUrl: "https://gikai.city.fukuoka.lg.jp/",
-  /** 議案・議決結果の一覧ページ */
-  councilBillsDetailUrl: "https://gikai.city.fukuoka.lg.jp/result/result/",
-  twitterHashtag: "みらい議会福岡市版", // # なし
+  councilBaseUrl: "https://www.city.fukutsu.lg.jp/",
+  /** このサイトのソースコード（フッター等からリンク） */
+  githubUrl: "https://github.com/tee753-byte/mirai-gikai-fukutsu",
+  /** 議案・議決結果の一覧ページ（福津市議会「議会の日程と議決結果」） */
+  councilBillsDetailUrl:
+    "https://www.city.fukutsu.lg.jp/gikai/nittei/index.html",
+  twitterHashtag: "みらい議会福津市版", // # なし
+  /**
+   * トップページ最上部の背景画像。
+   * 地域の風景に差し替えるときはこのパスだけを変える。
+   * 写真を使う場合は、必ず利用許諾を確認したものを web/public/img/ に置くこと。
+   */
+  heroImage: "/img/hero_miyajidake.jpg",
   externalLinks: {
-    report: "https://forms.gle/PbZdpdRzTrsAuDST7",
+    // TODO(公開前必須): 誤りの修正依頼を受けるGoogleフォームを作成してURLを設定する
+    report: "",
     aboutNote: "",
     donation: "https://team-mir.ai/support/donation",
     teamAbout: "https://team-mir.ai/about",
@@ -41,8 +52,9 @@ export const siteConfig = {
    * 利用規約や問い合わせ先に使用します。
    */
   operator: {
-    name: "バクモン" as string,
-    contactUrl: "https://x.com/bakumon0907" as string,
+    name: "tee" as string,
+    // TODO(公開前必須): 問い合わせ窓口（Googleフォーム）のURLを設定する
+    contactUrl: "" as string,
     /** 利用規約の準拠法・管轄裁判所（第一審の専属的合意管轄） */
     jurisdiction: "福岡地方裁判所" as string,
   },
@@ -60,5 +72,26 @@ export const siteConfig = {
      * 非公式運営など、党の公式サービスとして出さない場合は false にする。
      */
     showTeamMiraiSection: false as boolean,
+    /**
+     * 予算の見える化（トップページのバナー・予算ページへの導線）
+     * 予算データを整備していない間は false にする。
+     * ※バナーは予算データの有無を見ないため、false にしないと空のページへ誘導してしまう。
+     */
+    showBudget: false as boolean,
   },
 } as const;
+
+// 公開前に値を入れ忘れると気づきにくい項目のガード。
+// 本番ビルド時にだけ検査し、ローカル開発中は未設定のままでも動かせるようにする。
+if (process.env.NODE_ENV === "production") {
+  const missingFields: string[] = [];
+  if (!siteConfig.externalLinks.report)
+    missingFields.push("externalLinks.report");
+  if (!siteConfig.operator.contactUrl)
+    missingFields.push("operator.contactUrl");
+  if (missingFields.length > 0) {
+    throw new Error(
+      `公開前必須の設定が未設定です: ${missingFields.join(", ")}（web/src/config/site.config.ts）`
+    );
+  }
+}
