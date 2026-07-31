@@ -14,6 +14,7 @@ import type {
 } from "./general-questions-types";
 import { digestR8_3 } from "./digest-r8-3";
 import { digestR8_3Thick } from "./general-questions-digest-r8-3-thick";
+import { digestR7_12 } from "./digest-r7-12";
 import { mergeDigest } from "./merge-digest";
 import r8_3Transcripts from "./data/r8-3-transcripts.json" with { type: "json" };
 import r7_12Transcripts from "./data/r7-12-transcripts.json" with { type: "json" };
@@ -37,6 +38,13 @@ const r8_3Merged = mergeDigest(
 if (r8_3Merged.unmatched.length > 0) {
   console.log(
     `⚠️ やり取りダイジェストの突き合わせに失敗しました: ${r8_3Merged.unmatched.join(", ")}`
+  );
+}
+
+const r7_12Merged = mergeDigest(generalQuestionsR7_12, digestR7_12);
+if (r7_12Merged.unmatched.length > 0) {
+  console.log(
+    `⚠️ やり取りダイジェストの突き合わせに失敗しました: ${r7_12Merged.unmatched.join(", ")}`
   );
 }
 
@@ -64,7 +72,7 @@ export const generalQuestionsBySession: SeedSessionQuestions[] = [
   {
     session_slug: R7_12_SESSION_SLUG,
     source_url: R7_12_SOURCE_URL,
-    questions: generalQuestionsR7_12,
+    questions: r7_12Merged.questions,
     transcripts: r7_12Transcripts as SeedTranscript[],
   },
 ];
