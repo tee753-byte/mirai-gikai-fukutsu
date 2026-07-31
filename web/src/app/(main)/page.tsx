@@ -3,6 +3,7 @@ import { About } from "@/components/top/about";
 import { BudgetOverviewBanner } from "@/components/top/budget-overview-banner";
 import { GeneralQuestionsBanner } from "@/components/top/general-questions-banner";
 import { Hero } from "@/components/top/hero";
+import { MayorPledgesTopic } from "@/components/top/mayor-pledges-topic";
 import { PastSessionsSection } from "@/components/top/past-sessions-section";
 import { TeamMirai } from "@/components/top/team-mirai";
 import { siteConfig } from "@/config/site.config";
@@ -70,6 +71,11 @@ export default async function Home() {
           <GeneralQuestionsBanner sessionSlug={latestQuestionsSlug} />
         </Container>
       )}
+
+      {/* 特集: 市長公約の先送り（プロトタイプ） */}
+      <Container className="pt-3">
+        <MayorPledgesTopic />
+      </Container>
 
       {/* 議案一覧セクション */}
       <Container className="">
