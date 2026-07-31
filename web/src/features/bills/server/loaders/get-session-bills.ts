@@ -6,6 +6,7 @@ import {
   findPublishedBillsByDietSession,
   findTagsByBillIds,
 } from "../repositories/bill-repository";
+import { attachVoteCounts } from "../repositories/bill-vote-repository";
 
 /**
  * 会期IDに紐づく公開済み議案を BillWithContent の配列で取得
@@ -34,7 +35,7 @@ const _getCachedSessionBills = unstable_cache(
     const billIds = data.map((item) => item.id);
     const tagsByBillId = await findTagsByBillIds(billIds);
 
-    return data.map((item) => {
+    const billsWithContent: BillWithContent[] = data.map((item) => {
       const { bill_contents, ...bill } = item;
       return {
         ...bill,
@@ -44,6 +45,8 @@ const _getCachedSessionBills = unstable_cache(
         tags: tagsByBillId.get(item.id) ?? [],
       };
     });
+
+    return attachVoteCounts(billsWithContent);
   },
   ["session-bills"],
   {

@@ -15,6 +15,7 @@ import { getBillDiscussions } from "../../loaders/get-bill-discussions";
 import { BillContent } from "./bill-content";
 import { BillDetailHeader } from "./bill-detail-header";
 import { BillDiscussionsSection } from "./bill-discussions-section";
+import { BillVoteSection } from "./bill-vote-section";
 
 interface BillDetailLayoutProps {
   bill: BillWithContent;
@@ -76,6 +77,11 @@ export async function BillDetailLayout({
       </BillDetailClient>
 
       <Container>
+        {/* 誰が賛成し、誰が反対したか（討論・提出者・議員別賛否） */}
+        <div className="my-8">
+          <BillVoteSection billId={bill.id} voteMethod={bill.vote_method} />
+        </div>
+
         {siteConfig.features.aiInterview && interviewConfig != null && (
           <div className="my-8">
             <InterviewLandingSection

@@ -100,6 +100,32 @@ export default function BillCardPreview() {
       </ComponentShowcase>
 
       <ComponentShowcase
+        title="With Vote Counts"
+        description="議員別の賛否データがある議案（議会だよりから人数を読み取れた場合）のみ、賛成・反対の人数バッジが付く"
+      >
+        <PreviewSection label="voteCounts あり（賛否が割れた場合）">
+          <BillCard
+            bill={createMockBill({
+              id: "mock-vote-counts",
+              status: "approved",
+              thumbnail_url: SAMPLE_THUMBNAIL,
+              voteCounts: { for: 9, against: 5 },
+            })}
+          />
+        </PreviewSection>
+        <PreviewSection label="voteCounts あり（全会一致の場合）">
+          <BillCard
+            bill={createMockBill({
+              id: "mock-vote-counts-unanimous",
+              status: "approved",
+              thumbnail_url: SAMPLE_THUMBNAIL,
+              voteCounts: { for: 16, against: 0 },
+            })}
+          />
+        </PreviewSection>
+      </ComponentShowcase>
+
+      <ComponentShowcase
         title="All Statuses"
         description="全法案ステータスの表示"
       >

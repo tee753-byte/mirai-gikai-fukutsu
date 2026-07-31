@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.4"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -48,6 +68,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "bill_contents_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bill_debates: {
+        Row: {
+          bill_id: string
+          created_at: string
+          id: string
+          raw_text: string | null
+          speaker_name: string
+          speaker_number: string | null
+          speaker_party: string | null
+          speech_order: number
+          stance: string
+          summary: string | null
+        }
+        Insert: {
+          bill_id: string
+          created_at?: string
+          id?: string
+          raw_text?: string | null
+          speaker_name: string
+          speaker_number?: string | null
+          speaker_party?: string | null
+          speech_order?: number
+          stance: string
+          summary?: string | null
+        }
+        Update: {
+          bill_id?: string
+          created_at?: string
+          id?: string
+          raw_text?: string | null
+          speaker_name?: string
+          speaker_number?: string | null
+          speaker_party?: string | null
+          speech_order?: number
+          stance?: string
+          summary?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_debates_bill_id_fkey"
             columns: ["bill_id"]
             isOneToOne: false
             referencedRelation: "bills"
@@ -114,6 +181,82 @@ export type Database = {
           },
         ]
       }
+      bill_member_votes: {
+        Row: {
+          bill_id: string
+          created_at: string
+          id: string
+          member_name: string
+          member_party: string | null
+          source_note: string
+          vote: string
+        }
+        Insert: {
+          bill_id: string
+          created_at?: string
+          id?: string
+          member_name: string
+          member_party?: string | null
+          source_note: string
+          vote: string
+        }
+        Update: {
+          bill_id?: string
+          created_at?: string
+          id?: string
+          member_name?: string
+          member_party?: string | null
+          source_note?: string
+          vote?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_member_votes_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bill_sponsors: {
+        Row: {
+          bill_id: string
+          created_at: string
+          id: string
+          member_name: string
+          member_party: string | null
+          role: string
+          sort_order: number
+        }
+        Insert: {
+          bill_id: string
+          created_at?: string
+          id?: string
+          member_name: string
+          member_party?: string | null
+          role: string
+          sort_order?: number
+        }
+        Update: {
+          bill_id?: string
+          created_at?: string
+          id?: string
+          member_name?: string
+          member_party?: string | null
+          role?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_sponsors_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bills: {
         Row: {
           bill_number: string
@@ -135,6 +278,7 @@ export type Database = {
           status_order: number | null
           thumbnail_url: string | null
           updated_at: string
+          vote_method: string | null
         }
         Insert: {
           bill_number?: string
@@ -156,6 +300,7 @@ export type Database = {
           status_order?: number | null
           thumbnail_url?: string | null
           updated_at?: string
+          vote_method?: string | null
         }
         Update: {
           bill_number?: string
@@ -177,6 +322,7 @@ export type Database = {
           status_order?: number | null
           thumbnail_url?: string | null
           updated_at?: string
+          vote_method?: string | null
         }
         Relationships: [
           {
@@ -629,51 +775,51 @@ export type Database = {
       general_questions: {
         Row: {
           council_session_id: string
-          created_at: string
+          created_at: string | null
           id: string
           publish_status: string
           question_order: number
           questioner_name: string
           questioner_number: number | null
           questioner_party: string | null
-          raw_text: string
+          raw_text: string | null
           session_day: number
           source_url: string | null
-          summary: string
+          summary: string | null
           topics: Json
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
           council_session_id: string
-          created_at?: string
+          created_at?: string | null
           id?: string
           publish_status?: string
-          question_order: number
+          question_order?: number
           questioner_name: string
           questioner_number?: number | null
           questioner_party?: string | null
-          raw_text: string
-          session_day: number
+          raw_text?: string | null
+          session_day?: number
           source_url?: string | null
-          summary: string
+          summary?: string | null
           topics?: Json
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
           council_session_id?: string
-          created_at?: string
+          created_at?: string | null
           id?: string
           publish_status?: string
           question_order?: number
           questioner_name?: string
           questioner_number?: number | null
           questioner_party?: string | null
-          raw_text?: string
+          raw_text?: string | null
           session_day?: number
           source_url?: string | null
-          summary?: string
+          summary?: string | null
           topics?: Json
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1342,6 +1488,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       bill_publish_status: ["draft", "published", "coming_soon"],

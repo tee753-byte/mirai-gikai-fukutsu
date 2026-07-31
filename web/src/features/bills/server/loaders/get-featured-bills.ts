@@ -8,6 +8,7 @@ import {
   findFeaturedBillsWithContents,
   findTagsByBillIds,
 } from "../repositories/bill-repository";
+import { attachVoteCounts } from "../repositories/bill-vote-repository";
 
 /**
  * 注目の議案を取得する
@@ -41,7 +42,7 @@ const _getCachedFeaturedBills = unstable_cache(
     const tagsByBillId = await findTagsByBillIds(billIds);
 
     // データ構造を整形
-    return data.map((item) => {
+    const billsWithContent = data.map((item) => {
       const { bill_contents, ...bill } = item;
       return {
         ...bill,
@@ -51,6 +52,8 @@ const _getCachedFeaturedBills = unstable_cache(
         tags: tagsByBillId.get(item.id) || [],
       };
     }) as BillWithContent[];
+
+    return attachVoteCounts(billsWithContent);
   },
   ["featured-bills-list"],
   {

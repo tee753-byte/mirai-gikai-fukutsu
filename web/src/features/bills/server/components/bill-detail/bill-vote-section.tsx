@@ -2,6 +2,7 @@ import "server-only";
 import { Info } from "lucide-react";
 import { DebateSpeech } from "../../../client/components/bill-detail/debate-speech";
 import { collectVoteSources } from "../../../shared/utils/collect-vote-sources";
+import { isUnanimousVote } from "../../../shared/utils/vote-counts";
 import { getBillVotes } from "../../loaders/get-bill-votes";
 
 /** 採決のとり方を市民向けの一文にする。seed 側の describeVoteMethod と同じ表現 */
@@ -160,7 +161,6 @@ const VOTE_LABELS: Record<string, string> = {
   for: "賛成",
   against: "反対",
   absent: "欠席・退席",
-  chair: "議長（採決に加わらない）",
 };
 
 function MemberVotes({
@@ -174,11 +174,22 @@ function MemberVotes({
     source_note: string;
   }[];
 }) {
-  const groups = ["for", "against", "absent", "chair"] as const;
+  // 議長は採決に加わらないため通常は一覧に出さない。可否同数で議長裁決になった場合のみ、
+  // 下に注記として表示する（表決に混ぜると「議長も賛成/反対した」と誤解されるため）。
+  const groups = ["for", "against", "absent"] as const;
   const sources = collectVoteSources(votes);
+  const forCount = votes.filter((v) => v.vote === "for").length;
+  const againstCount = votes.filter((v) => v.vote === "against").length;
+  const chairMembers = votes.filter((v) => v.vote === "chair");
+  const isTie = chairMembers.length > 0 && forCount === againstCount;
 
   return (
     <div className="flex flex-col gap-3">
+      <p className="text-xs text-mirai-text-secondary">
+        {isUnanimousVote({ for: forCount, against: againstCount })
+          ? `全会一致（${forCount > 0 ? "賛成" : "反対"}${forCount + againstCount}人）`
+          : `賛成 ${forCount}人 ／ 反対 ${againstCount}人`}
+      </p>
       {groups.map((g) => {
         const members = votes.filter((v) => v.vote === g);
         if (members.length === 0) return null;
@@ -201,6 +212,16 @@ function MemberVotes({
           </div>
         );
       })}
+      {isTie && (
+        <p className="flex items-start gap-2 rounded-lg bg-mirai-surface-muted px-3 py-2.5 text-xs leading-relaxed text-mirai-text-secondary">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span>
+            賛成・反対が同数だったため、議長（
+            {chairMembers.map((m) => m.member_name).join("、")}
+            ）が採決に参加しました。
+          </span>
+        </p>
+      )}
       <div className="text-xs text-mirai-text-secondary">
         {sources.map((source) => (
           <p key={source}>出典: {source}</p>

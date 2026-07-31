@@ -10,6 +10,7 @@ import {
   findTagsByBillIds,
   countPublishedBillsByDietSession,
 } from "../repositories/bill-repository";
+import { attachVoteCounts } from "../repositories/bill-vote-repository";
 
 const MAX_PREVIEW_BILLS = 5;
 
@@ -72,7 +73,7 @@ const _getCachedPreviousSessionBills = unstable_cache(
       };
     });
 
-    return billsWithContent;
+    return attachVoteCounts(billsWithContent);
   },
   ["previous-session-bills"],
   {

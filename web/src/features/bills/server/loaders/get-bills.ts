@@ -7,6 +7,7 @@ import {
   findPublishedBillsWithContents,
   findTagsByBillIds,
 } from "../repositories/bill-repository";
+import { attachVoteCounts } from "../repositories/bill-vote-repository";
 
 export async function getBills(): Promise<BillWithContent[]> {
   // キャッシュ外でcookiesにアクセス
@@ -33,7 +34,7 @@ const _getCachedBills = unstable_cache(
       };
     });
 
-    return billsWithContent;
+    return attachVoteCounts(billsWithContent);
   },
   ["bills-list"],
   {

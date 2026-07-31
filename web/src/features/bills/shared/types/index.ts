@@ -71,6 +71,8 @@ export type BillWithContent = Bill & {
   committee_id: string | null;
   tags: BillTag[];
   featured_tag?: FeaturedTag;
+  /** 議員別の賛否データがある議案だけ入る（起立採決のため大半の議案は無い） */
+  voteCounts?: { for: number; against: number };
 };
 
 // タグごとにグループ化された議案

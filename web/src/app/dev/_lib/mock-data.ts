@@ -17,6 +17,7 @@ const baseBill: BillWithContent = {
   id: "mock-bill-001",
   bill_number: "",
   bill_type: "bill",
+  vote_method: null,
   discussion_overview_points: [],
   name: "サンプル議案",
   status: "submitted",

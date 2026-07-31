@@ -5,6 +5,7 @@ import { formatDateJST } from "@/lib/utils/date";
 import type { BillWithContent } from "../../../shared/types";
 import { BillStatusBadge } from "./bill-status-badge";
 import { BillTag } from "./bill-tag";
+import { VoteCountBadge } from "./vote-count-badge";
 
 interface BillCardProps {
   bill: BillWithContent;
@@ -53,8 +54,11 @@ export function BillCard({ bill }: BillCardProps) {
               <CardTitle className="text-2xl/8 tracking-normal">
                 {displayTitle}
               </CardTitle>
-              <div className="flex flex-row gap-4">
+              <div className="flex flex-row items-center gap-2">
                 <BillStatusBadge status={bill.status} className="w-fit" />
+                {bill.voteCounts && (
+                  <VoteCountBadge voteCounts={bill.voteCounts} />
+                )}
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   {bill.published_at && (
                     <time>{formatDateJST(bill.published_at)} 提出</time>

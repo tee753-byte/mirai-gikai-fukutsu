@@ -11,6 +11,7 @@ const makeBill = (
   id: "bill-1",
   bill_number: "",
   bill_type: "bill",
+  vote_method: null,
   discussion_overview_points: [],
   name: "テスト議案",
   is_featured: false,
