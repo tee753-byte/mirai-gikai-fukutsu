@@ -100,9 +100,9 @@
   --color-mirai-progress-track: #d9d9d9;
   --color-mirai-progress-fill: #a9e89d;
 
-  /* Gradient endpoints */
-  --color-mirai-gradient-start: #dbd3f9;
-  --color-mirai-gradient-end: #ede9fd;
+  /* Gradient endpoints（海・自然系: 空/海の青→松林・入り江の緑） */
+  --color-mirai-gradient-start: #cdeef0;
+  --color-mirai-gradient-end: #e3f5e8;
 
   /* 議案ステータス
      可決・否決が一目で見分けられるよう、結果ごとに色相を変えている。
@@ -132,8 +132,9 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: #a495d6;
-  --primary-accent: #7a6cc0;
+  /* 海・自然系（福津市の海岸・松林をイメージしたオーシャンティール） */
+  --primary: #2f8f9d;
+  --primary-accent: #1f6b76;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
