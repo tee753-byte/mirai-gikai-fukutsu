@@ -31,6 +31,42 @@ import {
   createShippingBillReports,
 } from "./shipping-bill-data";
 import { createAdminClient, clearAllData } from "../shared/helper";
+import { generalQuestionsBySession } from "../fukutsu/general-questions-data";
+import { R8_3_SESSION_SLUG } from "../fukutsu/bills-r8-3";
+import { seedBillsR8_3 } from "../fukutsu/seed-bills-r8-3";
+import {
+  PLAIN_TEXTS as PLAIN_TEXTS_R7_12,
+  R7_12_SESSION_SLUG,
+  R7_12_SOURCE_URL,
+  decidedAt as decidedAtR7_12,
+  sanitizeR7_12Debates,
+  submittedAt as submittedAtR7_12,
+} from "../fukutsu/bills-r7-12";
+import {
+  PLAIN_TEXTS as PLAIN_TEXTS_R8_1,
+  R8_1_SESSION_SLUG,
+  R8_1_SOURCE_URL,
+  decidedAt as decidedAtR8_1,
+  submittedAt as submittedAtR8_1,
+} from "../fukutsu/bills-r8-1";
+import {
+  PLAIN_TEXTS as PLAIN_TEXTS_R8_2,
+  R8_2_SESSION_SLUG,
+  R8_2_SOURCE_URL,
+  decidedAt as decidedAtR8_2,
+  submittedAt as submittedAtR8_2,
+} from "../fukutsu/bills-r8-2";
+import { seedBillsForSession } from "../fukutsu/seed-bills-common";
+import r7_12BillVotes from "../fukutsu/data/r7-12-bill-votes.json" with {
+  type: "json",
+};
+import r8_1BillVotes from "../fukutsu/data/r8-1-bill-votes.json" with {
+  type: "json",
+};
+import r8_2BillVotes from "../fukutsu/data/r8-2-bill-votes.json" with {
+  type: "json",
+};
+import { seedMemberVotes } from "../fukutsu/seed-member-votes";
 
 async function seedDatabase() {
   const supabase = createAdminClient();
@@ -62,7 +98,7 @@ async function seedDatabase() {
       await supabase
         .from("council_sessions")
         .insert(councilSessions)
-        .select("id");
+        .select("id, slug");
 
     if (councilSessionsError) {
       throw new Error(
@@ -133,35 +169,180 @@ async function seedDatabase() {
 
     console.log(`✅ Inserted ${insertedBills.length} bills`);
 
-    // Link first 3 bills to the current council session
+    // 議案を定例会に紐付ける
+    // 福津版の bills は全件が councilSessions[0]（令和8年6月定例会）のものなので、
+    // まとめて先頭の定例会に紐付ける。
+    // 会期をまたいで議案を入れる場合は、data.ts 側に会期を持たせる形に変更すること。
     const currentSessionId = insertedCouncilSessions[0]?.id;
     if (currentSessionId) {
-      const billsToLink = insertedBills.slice(0, 3);
-      for (const bill of billsToLink) {
+      for (const bill of insertedBills) {
         await supabase
           .from("bills")
           .update({ council_session_id: currentSessionId })
           .eq("id", bill.id);
       }
       console.log(
-        `🔗 Linked ${billsToLink.length} bills to current council session`
+        `🔗 Linked ${insertedBills.length} bills to the current council session`
       );
     }
 
-    // Link last 5 bills to the previous council session
-    const previousSessionId = insertedCouncilSessions[1]?.id;
-    if (previousSessionId) {
-      const previousBills = insertedBills.slice(-5);
-      for (const bill of previousBills) {
-        await supabase
-          .from("bills")
-          .update({ council_session_id: previousSessionId })
-          .eq("id", bill.id);
-      }
+    // 令和8年3月定例会の議案（会議録から作成）
+    // 議決結果・討論・提出者・賛成者まで入るため、上の6月定例会分とは別の流れで入れる。
+    const r8_3Session = insertedCouncilSessions.find(
+      (s) => s.slug === R8_3_SESSION_SLUG
+    );
+    if (r8_3Session) {
+      console.log("📄 Inserting r8-3 bills...");
+      await seedBillsR8_3(
+        supabase,
+        r8_3Session.id,
+        new Map(insertedTags.map((t) => [t.label, t.id])),
+        new Map(insertedCommittees.map((c) => [c.name, c.id]))
+      );
+    } else {
       console.log(
-        `🔗 Linked ${previousBills.length} bills to previous council session`
+        `⚠️ Council session "${R8_3_SESSION_SLUG}" not found. Skipped its bills.`
       );
     }
+
+    // 令和7年12月定例会・令和8年1月/2月臨時会の議案（会議録から作成）
+    const tagIdByLabel = new Map(insertedTags.map((t) => [t.label, t.id]));
+    const committeeIdByName = new Map(
+      insertedCommittees.map((c) => [c.name, c.id])
+    );
+
+    const sessionsToSeed = [
+      {
+        slug: R7_12_SESSION_SLUG,
+        label: "r7-12",
+        // biome-ignore lint/suspicious/noExplicitAny: JSON importの型をBillVoteRecord[]に合わせるための簡易キャスト
+        votes: sanitizeR7_12Debates(r7_12BillVotes as any),
+        plainTexts: PLAIN_TEXTS_R7_12,
+        sourceUrl: R7_12_SOURCE_URL,
+        decidedAt: decidedAtR7_12,
+        submittedAt: submittedAtR7_12,
+      },
+      {
+        slug: R8_1_SESSION_SLUG,
+        label: "r8-1",
+        votes: r8_1BillVotes,
+        plainTexts: PLAIN_TEXTS_R8_1,
+        sourceUrl: R8_1_SOURCE_URL,
+        decidedAt: decidedAtR8_1,
+        submittedAt: submittedAtR8_1,
+      },
+      {
+        slug: R8_2_SESSION_SLUG,
+        label: "r8-2",
+        votes: r8_2BillVotes,
+        plainTexts: PLAIN_TEXTS_R8_2,
+        sourceUrl: R8_2_SOURCE_URL,
+        decidedAt: decidedAtR8_2,
+        submittedAt: submittedAtR8_2,
+      },
+    ] as const;
+
+    for (const s of sessionsToSeed) {
+      const session = insertedCouncilSessions.find((cs) => cs.slug === s.slug);
+      if (!session) {
+        console.log(
+          `⚠️ Council session "${s.slug}" not found. Skipped its bills.`
+        );
+        continue;
+      }
+      console.log(`📄 Inserting ${s.label} bills...`);
+      await seedBillsForSession({
+        supabase,
+        sessionId: session.id,
+        tagIdByLabel,
+        committeeIdByName,
+        slugLabel: s.label,
+        // biome-ignore lint/suspicious/noExplicitAny: JSON importの型をBillVoteRecord[]に合わせるための簡易キャスト
+        votes: s.votes as any,
+        plainTexts: s.plainTexts,
+        sourceUrl: s.sourceUrl,
+        decidedAt: s.decidedAt,
+        submittedAt: s.submittedAt,
+      });
+    }
+
+    // 議員別の賛否（福津市議会だよりの賛否表から作成。r8-1・r8-2・r8-3が対象）
+    console.log("🗳️  Inserting member votes...");
+    const memberVoteSessionIds = [R8_1_SESSION_SLUG, R8_2_SESSION_SLUG, R8_3_SESSION_SLUG]
+      .map((slug) => insertedCouncilSessions.find((cs) => cs.slug === slug)?.id)
+      .filter((id): id is string => Boolean(id));
+    const memberVotesCount = await seedMemberVotes(supabase, memberVoteSessionIds);
+    console.log(`✅ Inserted ${memberVotesCount} bill member votes`);
+
+    // 一般質問（福津市議会）
+    // 令和8年6月定例会は一般質問PDFから作成しており、答弁は議事録の公開後に追加する。
+    // 令和8年3月定例会は会議録から質問・答弁の両方を作成している。
+    console.log("🙋 Inserting general questions...");
+    let insertedGeneralQuestionsCount = 0;
+
+    for (const session of generalQuestionsBySession) {
+      const questionsSession = insertedCouncilSessions.find(
+        (s) => s.slug === session.session_slug
+      );
+
+      if (!questionsSession) {
+        console.log(
+          `⚠️ Council session "${session.session_slug}" not found. Skipped its general questions.`
+        );
+        continue;
+      }
+
+      // 会議録から取り出したやり取り全文を氏名で突き合わせる。
+      // 会議録は「山本祐平」、シードは「山本 祐平」と全角スペースの有無が違うため、
+      // 空白を除いた形をキーにする。
+      const stripSpaces = (name: string) => name.replace(/[\s　]/g, "");
+      const transcriptByName = new Map(
+        (session.transcripts ?? []).map((t) => [
+          stripSpaces(t.questioner_name),
+          t,
+        ])
+      );
+
+      const rows = session.questions.map((q) => ({
+        council_session_id: questionsSession.id,
+        questioner_name: q.questioner_name,
+        questioner_party: q.questioner_party,
+        question_order: q.question_order,
+        session_day: q.session_day ?? 1,
+        summary: q.summary,
+        topics: q.topics,
+        raw_text:
+          transcriptByName.get(stripSpaces(q.questioner_name))?.raw_text ?? null,
+        source_url: session.source_url,
+        publish_status: "published",
+      }));
+
+      // 突き合わせできなかったやり取りがあれば、氏名の表記ゆれを疑う
+      const matched = rows.filter((r) => r.raw_text !== null).length;
+      const expected = transcriptByName.size;
+      if (matched !== expected) {
+        console.log(
+          `⚠️ "${session.session_slug}": やり取り全文 ${expected} 件のうち ${matched} 件しか議員に紐づきませんでした。氏名の表記を確認してください。`
+        );
+      }
+
+      const { data: insertedQuestions, error: questionsError } = await supabase
+        .from("general_questions")
+        .insert(rows)
+        .select("id");
+
+      if (questionsError) {
+        throw new Error(
+          `Failed to insert general questions for "${session.session_slug}": ${questionsError.message}`
+        );
+      }
+
+      insertedGeneralQuestionsCount += insertedQuestions?.length ?? 0;
+    }
+
+    console.log(
+      `✅ Inserted ${insertedGeneralQuestionsCount} general questions`
+    );
 
     // Insert bill_contents
     console.log("📚 Inserting bill contents...");

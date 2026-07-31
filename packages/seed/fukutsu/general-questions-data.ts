@@ -7,6 +7,7 @@
 
 import { generalQuestionsR8_3, R8_3_SESSION_SLUG, R8_3_SOURCE_URL } from "./general-questions-r8-3";
 import { generalQuestionsR8_6, R8_6_SESSION_SLUG, R8_6_SOURCE_URL } from "./general-questions-r8-6";
+import { generalQuestionsR7_12, R7_12_SESSION_SLUG, R7_12_SOURCE_URL } from "./general-questions-r7-12";
 import type {
   SeedSessionQuestions,
   SeedTranscript,
@@ -15,6 +16,7 @@ import { digestR8_3 } from "./digest-r8-3";
 import { digestR8_3Thick } from "./general-questions-digest-r8-3-thick";
 import { mergeDigest } from "./merge-digest";
 import r8_3Transcripts from "./data/r8-3-transcripts.json" with { type: "json" };
+import r7_12Transcripts from "./data/r7-12-transcripts.json" with { type: "json" };
 
 /**
  * 「やり取りを追う」の粒度。読みやすさを比べるために2種類持っている。
@@ -58,5 +60,11 @@ export const generalQuestionsBySession: SeedSessionQuestions[] = [
     source_url: R8_3_SOURCE_URL,
     questions: r8_3Merged.questions,
     transcripts: r8_3Transcripts as SeedTranscript[],
+  },
+  {
+    session_slug: R7_12_SESSION_SLUG,
+    source_url: R7_12_SOURCE_URL,
+    questions: generalQuestionsR7_12,
+    transcripts: r7_12Transcripts as SeedTranscript[],
   },
 ];

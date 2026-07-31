@@ -39,6 +39,30 @@ export const councilSessions: CouncilSessionInsert[] = [
     end_date: "2026-03-24",
     is_active: false,
   },
+  {
+    name: "令和8年 2月臨時会",
+    slug: "r8-2",
+    council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19232.html",
+    start_date: "2026-02-20",
+    end_date: "2026-02-20",
+    is_active: false,
+  },
+  {
+    name: "令和8年 1月臨時会",
+    slug: "r8-1",
+    council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/18960.html",
+    start_date: "2026-01-13",
+    end_date: "2026-01-13",
+    is_active: false,
+  },
+  {
+    name: "令和7年 12月定例会",
+    slug: "r7-12",
+    council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_6/18700.html",
+    start_date: "2025-11-26",
+    end_date: "2025-12-11",
+    is_active: false,
+  },
 ];
 
 // 会派データ（福津市議会 2026年7月時点）
