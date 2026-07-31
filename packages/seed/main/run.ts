@@ -67,6 +67,7 @@ import r8_2BillVotes from "../fukutsu/data/r8-2-bill-votes.json" with {
   type: "json",
 };
 import { seedMemberVotes } from "../fukutsu/seed-member-votes";
+import { seedMemberVotesR7_12 } from "../fukutsu/seed-member-votes-r7-12";
 
 async function seedDatabase() {
   const supabase = createAdminClient();
@@ -273,6 +274,17 @@ async function seedDatabase() {
       .filter((id): id is string => Boolean(id));
     const memberVotesCount = await seedMemberVotes(supabase, memberVoteSessionIds);
     console.log(`✅ Inserted ${memberVotesCount} bill member votes`);
+
+    // 議員別の賛否（福津市議会だより84号の賛否表から作成。r7-12が対象）
+    const r7_12SessionId = insertedCouncilSessions.find(
+      (cs) => cs.slug === R7_12_SESSION_SLUG
+    )?.id;
+    const memberVotesR7_12Count = r7_12SessionId
+      ? await seedMemberVotesR7_12(supabase, [r7_12SessionId])
+      : 0;
+    console.log(
+      `✅ Inserted ${memberVotesR7_12Count} bill member votes (r7-12)`
+    );
 
     // 一般質問（福津市議会）
     // 令和8年6月定例会は一般質問PDFから作成しており、答弁は議事録の公開後に追加する。
