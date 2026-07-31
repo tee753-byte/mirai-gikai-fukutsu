@@ -8,7 +8,6 @@ import {
 import {
   createUnauthorizedResponse,
   getBasicAuthConfig,
-  isPageSpeedInsights,
   validateBasicAuth,
 } from "./lib/basic-auth";
 
@@ -30,21 +29,19 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  // HTML ナビゲーションだけ認証（画像やJSON, css/js, fetch等は通す）
-  if (!_isHtmlRequest(request)) return response;
-
-  // PageSpeed Insightsからのアクセスは認証をスキップ
-  if (isPageSpeedInsights(request)) {
-    return response;
-  }
-
-  // Basic認証の検証
+  // 静的アセット（config.matcherで除外済み）以外は全リクエストを認証対象にする。
+  // HTML/API/RSC/sitemap等を問わず保護し、User-Agent偽装による回避を防ぐ。
   if (validateBasicAuth(request, authConfig)) {
     return response;
   }
 
   return createUnauthorizedResponse();
 }
+
+// _next の静的アセット・画像最適化・favicon以外は全て認証対象にする
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};
 
 /**
  * 有効な難易度レベルかチェック
@@ -75,13 +72,4 @@ function _handleDifficultyCookie(request: NextRequest): NextResponse {
   }
 
   return response;
-}
-
-export function isHtmlAcceptHeader(accept: string): boolean {
-  return accept.includes("text/html");
-}
-
-function _isHtmlRequest(request: NextRequest) {
-  const accept = request.headers.get("accept") || "";
-  return isHtmlAcceptHeader(accept);
 }

@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   description: `${siteConfig.siteName}の利用規約`,
 };
 
+const isAiChatEnabled =
+  siteConfig.features.aiChat || siteConfig.features.aiInterview;
+
 export default function TermsPage() {
   return (
     <LegalPageLayout
@@ -39,26 +42,30 @@ export default function TermsPage() {
               `${siteConfig.operator.name}（以下「当団体」といいます。）または第三者の権利・利益を侵害する行為`,
               "サーバへの過剰な負荷、システムへの妨害・改ざん・侵入行為",
               "自動化ツール、ボット等による操作",
-              "本サービスの提供するAIチャット機能に個人情報を入力する行為",
+              ...(isAiChatEnabled
+                ? ["本サービスの提供するAIチャット機能に個人情報を入力する行為"]
+                : []),
               "その他、当団体が不適切と判断する一切の行為",
             ]}
           />
 
-          <div className="space-y-3">
-            <LegalParagraph>
-              特に、ユーザーは、本サービスの提供するAIチャット機能を不正に利用してはならず、以下の行為を行ってはなりません。
-            </LegalParagraph>
-            <LegalList
-              items={[
-                "システムプロンプトその他の内部設定を改変、削除、またはこれを推測しようとする行為",
-                `AIに対して「${siteConfig.siteName}」や市議会議案等の関連テーマ以外の応答を生成させようとする行為`,
-                "プロンプトインジェクション等、AIモデルを意図的に誤動作させる行為",
-                "当団体が設けた利用制限、レートリミット、安全制御、規制回避ポリシー、フィルタリング機能、ログ取得・監視機構を不正に回避または無効化しようとする行為",
-                "出力させた応答を、あたかもユーザー自身が執筆したかのように偽装して表明する行為",
-                "出力内容を利用して、法令違反、詐欺、誹謗中傷、わいせつ、差別、暴力助長等の有害行為を行うこと",
-              ]}
-            />
-          </div>
+          {isAiChatEnabled && (
+            <div className="space-y-3">
+              <LegalParagraph>
+                特に、ユーザーは、本サービスの提供するAIチャット機能を不正に利用してはならず、以下の行為を行ってはなりません。
+              </LegalParagraph>
+              <LegalList
+                items={[
+                  "システムプロンプトその他の内部設定を改変、削除、またはこれを推測しようとする行為",
+                  `AIに対して「${siteConfig.siteName}」や市議会議案等の関連テーマ以外の応答を生成させようとする行為`,
+                  "プロンプトインジェクション等、AIモデルを意図的に誤動作させる行為",
+                  "当団体が設けた利用制限、レートリミット、安全制御、規制回避ポリシー、フィルタリング機能、ログ取得・監視機構を不正に回避または無効化しようとする行為",
+                  "出力させた応答を、あたかもユーザー自身が執筆したかのように偽装して表明する行為",
+                  "出力内容を利用して、法令違反、詐欺、誹謗中傷、わいせつ、差別、暴力助長等の有害行為を行うこと",
+                ]}
+              />
+            </div>
+          )}
         </section>
 
         <section className="space-y-4">

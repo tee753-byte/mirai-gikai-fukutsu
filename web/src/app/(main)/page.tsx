@@ -80,13 +80,13 @@ export default async function Home() {
       {/* 議案一覧セクション */}
       <Container className="">
         <div className="py-10">
-          <main className="flex flex-col gap-16">
+          <div className="flex flex-col gap-16">
             {/* 注目の議案セクション */}
             <FeaturedBillSection bills={featuredBills} />
 
             {/* タグ別議案一覧セクション */}
             <BillsByTagSection billsByTag={billsByTag} />
-          </main>
+          </div>
         </div>
       </Container>
 
