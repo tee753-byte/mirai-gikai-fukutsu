@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
-import { CACHE_TAGS } from "@/lib/cache-tags";
 import type { CouncilSession } from "@/features/council-sessions/shared/types";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { findAllSessionsWithBudget } from "../repositories/budget-repository";
 
 /**

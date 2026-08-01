@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
-import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
-import { getCouncilSessionBySlug } from "@/features/council-sessions/server/loaders/get-council-session-by-slug";
-import { getBudgetOverviewDetail } from "@/features/budget-overview/server/loaders/get-budget-overview-detail";
-import { BudgetOverviewDetail } from "@/features/budget-overview/server/components/budget-overview-detail";
-import { BudgetThemeAccordion } from "@/features/budget-overview/client/components/budget-theme-accordion";
-import { BudgetChatClient } from "@/features/budget-overview/client/components/budget-chat-client";
 import { siteConfig } from "@/config/site.config";
+import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
+import { BudgetChatClient } from "@/features/budget-overview/client/components/budget-chat-client";
+import { BudgetGroupingNote } from "@/features/budget-overview/client/components/budget-grouping-note";
+import { BudgetThemeAccordion } from "@/features/budget-overview/client/components/budget-theme-accordion";
+import { BudgetOverviewDetail } from "@/features/budget-overview/server/components/budget-overview-detail";
+import { getBudgetOverviewDetail } from "@/features/budget-overview/server/loaders/get-budget-overview-detail";
+import { getCouncilSessionBySlug } from "@/features/council-sessions/server/loaders/get-council-session-by-slug";
 
 interface BudgetDetailPageProps {
   params: Promise<{
@@ -58,9 +59,10 @@ export default async function BudgetDetailPage({
       <BudgetOverviewDetail overview={overview} sessionSlug={session_slug} />
 
       <div>
-        <h2 className="text-lg font-bold text-mirai-text mb-4">
+        <h2 className="text-lg font-bold text-mirai-text mb-2">
           重点施策・テーマ
         </h2>
+        <BudgetGroupingNote />
         <BudgetThemeAccordion themes={overview.themes} />
       </div>
 

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site.config";
 import { getBills } from "@/features/bills/server/loaders/get-bills";
+import { COMMITTEE_REPORT_SESSIONS } from "@/features/committee-reports/shared/data";
 import { env } from "@/lib/env";
 
 /**
@@ -55,6 +56,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // 会期ごとの委員会報告。掲載している会期だけを載せる
+  const committeeUrls = COMMITTEE_REPORT_SESSIONS.map((session) => ({
+    url: `${baseUrl}/committee-reports/${session.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
   const staticUrls = STATIC_PAGES.filter(
     // 予算ページは設定でオフにできるため、出していないときは載せない
     (page) => page.path !== "/budget" || siteConfig.features.showBudget
@@ -73,6 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     ...staticUrls,
+    ...committeeUrls,
     ...billUrls,
   ];
 }

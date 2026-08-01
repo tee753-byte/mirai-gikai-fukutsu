@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/layouts/container";
 import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";

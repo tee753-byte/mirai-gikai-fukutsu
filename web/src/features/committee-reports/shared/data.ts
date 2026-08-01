@@ -1,4 +1,4 @@
-import type { CommitteeReportGroup } from "./types";
+import type { CommitteeReportGroup, CommitteeReportSession } from "./types";
 
 /**
  * 委員会審査報告書のプロトタイプ用データ（令和8年6月定例会）。
@@ -136,3 +136,24 @@ export const COMMITTEE_REPORTS_R8_6: CommitteeReportGroup[] = [
     ],
   },
 ];
+
+/**
+ * 会期ごとの委員会報告。
+ *
+ * 新しい会期を足すときは、上と同じ形で COMMITTEE_REPORTS_XXX を作り、
+ * この配列に新しい順で追加する。画面側の変更は不要。
+ */
+export const COMMITTEE_REPORT_SESSIONS: CommitteeReportSession[] = [
+  {
+    slug: "r8-6",
+    name: "令和8年6月定例会",
+    periodLabel: "2026年6月",
+    groups: COMMITTEE_REPORTS_R8_6,
+  },
+];
+
+export function findCommitteeReportSession(
+  slug: string
+): CommitteeReportSession | undefined {
+  return COMMITTEE_REPORT_SESSIONS.find((s) => s.slug === slug);
+}
