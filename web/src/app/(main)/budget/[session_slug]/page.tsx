@@ -1,17 +1,18 @@
-import type { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
+import { siteConfig } from "@/config/site.config";
 import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
-import { getCouncilSessionBySlug } from "@/features/council-sessions/server/loaders/get-council-session-by-slug";
-import { findPreviousCouncilSession } from "@/features/council-sessions/server/repositories/council-session-repository";
+import { BudgetChatClient } from "@/features/budget-overview/client/components/budget-chat-client";
+import { ExpenditureComparison } from "@/features/budget-overview/client/components/expenditure-comparison";
+import { BudgetOverviewList } from "@/features/budget-overview/server/components/budget-overview-list";
 import { getBudgetOverviews } from "@/features/budget-overview/server/loaders/get-budget-overviews";
 import { hasPublishedOverviewsBySession } from "@/features/budget-overview/server/repositories/budget-repository";
-import { BudgetOverviewList } from "@/features/budget-overview/server/components/budget-overview-list";
-import { BudgetChatClient } from "@/features/budget-overview/client/components/budget-chat-client";
-import { siteConfig } from "@/config/site.config";
+import { getCouncilSessionBySlug } from "@/features/council-sessions/server/loaders/get-council-session-by-slug";
+import { findPreviousCouncilSession } from "@/features/council-sessions/server/repositories/council-session-repository";
 
 interface BudgetListPageProps {
   params: Promise<{
@@ -72,6 +73,13 @@ export default async function BudgetListPage({ params }: BudgetListPageProps) {
           の予算の方向性と主要事業をまとめています。
         </p>
       </div>
+
+      {/* 歳出の内訳と前年比（プロトタイプ。令和8年度の資料を転記した固定データ） */}
+      {session_slug === "r8-3" && (
+        <div className="mb-8">
+          <ExpenditureComparison />
+        </div>
+      )}
 
       <BudgetOverviewList overviews={overviews} sessionSlug={session_slug} />
 
