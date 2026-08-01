@@ -27,10 +27,9 @@ export function SessionList({ sessions, summaries }: SessionListProps) {
     <div className="flex flex-col gap-8">
       {grouped.map(({ year, sessions: yearSessions }) => (
         <section key={year}>
-          <h2 className="text-lg font-bold text-mirai-text mb-3 pb-2 border-b border-mirai-border">
-            {year}年
-          </h2>
-          <ul className="flex flex-col divide-y divide-mirai-border">
+          <h2 className="text-lg font-bold text-mirai-text mb-3">{year}年</h2>
+          {/* 会期ごとに白いカードで区切る。ページ背景が生成り色なのでカードが浮いて見える */}
+          <ul className="flex flex-col gap-3">
             {yearSessions.map((session) => {
               if (!session.slug) return null;
               const period = formatSessionPeriod(session);
@@ -39,7 +38,7 @@ export function SessionList({ sessions, summaries }: SessionListProps) {
                 <li key={session.id}>
                   <Link
                     href={`/sessions/${session.slug}/bills`}
-                    className="flex items-center justify-between py-4 px-2 hover:bg-mirai-surface-grouped rounded-lg transition-colors group"
+                    className="flex items-center justify-between gap-4 bg-card border border-border rounded-lg px-5 py-4 hover:border-primary transition-colors group"
                   >
                     <div className="flex flex-col gap-0.5">
                       <span className="font-bold text-mirai-text text-base">

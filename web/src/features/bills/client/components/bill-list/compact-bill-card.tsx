@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { formatDateJST } from "@/lib/utils/date";
 import type { BillWithContent } from "../../../shared/types";
 import { BillStatusBadge } from "./bill-status-badge";
+import { BillTypeBand } from "./bill-type-band";
 import { VoteCountBadge } from "./vote-count-badge";
 
 interface CompactBillCardProps {
@@ -22,6 +23,9 @@ export function CompactBillCard({ bill, className }: CompactBillCardProps) {
     <Card
       className={`border-[0.5px] border-mirai-text-placeholder rounded-2xl shadow-none hover:bg-muted/50 transition-colors overflow-hidden ${className ?? ""}`}
     >
+      {/* 種別の色帯。カードの左端から右端までいっぱいに引く */}
+      <BillTypeBand billType={bill.bill_type} billNumber={bill.bill_number} />
+
       <div className="flex">
         {/* コンテンツエリア */}
         <div className="flex-1 p-4 flex flex-col gap-2">
@@ -29,7 +33,11 @@ export function CompactBillCard({ bill, className }: CompactBillCardProps) {
             {displayTitle}
           </h3>
           <div className="flex flex-wrap items-center gap-2">
-            <BillStatusBadge status={bill.status} className="w-fit" />
+            <BillStatusBadge
+              status={bill.status}
+              billType={bill.bill_type}
+              className="w-fit"
+            />
             {bill.voteCounts && <VoteCountBadge voteCounts={bill.voteCounts} />}
             {bill.published_at && (
               <span className="text-xs text-muted-foreground">

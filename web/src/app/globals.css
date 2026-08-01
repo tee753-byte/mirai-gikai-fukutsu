@@ -122,6 +122,27 @@
   --color-bill-neutral-bg: #ececea; /* グレー（上程前・撤回など） */
   --color-bill-neutral-border: #d8d8d4;
   --color-bill-neutral-text: #67675f;
+
+  /* 議案の種別（誰が出したか）
+     サイト全体の淡い色調に合わせ、パステルの地色＋同系の濃い文字にする。
+     色相をはっきり離して（青緑・紫・橙・緑）、並んだときに見分けやすくしている。
+     掲載の9割近くを占める「議案」だけは彩度を抑え、数の少ない種別が目に留まるようにした。
+     文字色と地色のコントラスト比はどれも4.5:1以上。 */
+  --color-bill-type-bill-bg: #d9e7f5; /* 議案＝市長（市）が提出。青 210° */
+  --color-bill-type-bill-border: #9fc3e6;
+  --color-bill-type-bill-text: #2c527d;
+  --color-bill-type-member-bg: #e7dcf8; /* 発議＝議員が提出。紫 264° */
+  --color-bill-type-member-border: #c1a8ea;
+  --color-bill-type-member-text: #57388f;
+  --color-bill-type-petition-bg: #fbe1c8; /* 請願＝市民が提出。橙 29° */
+  --color-bill-type-petition-border: #eebb8b;
+  --color-bill-type-petition-text: #94501a;
+  --color-bill-type-opinion-bg: #d9ebd5; /* 意見書＝議会から国・県などへ。緑 109° */
+  --color-bill-type-opinion-border: #a5cd9f;
+  --color-bill-type-opinion-text: #37672f;
+  --color-bill-type-other-bg: #e8e8ec; /* 決議など、上のどれにも入らないもの */
+  --color-bill-type-other-border: #c9c9d2;
+  --color-bill-type-other-text: #52525c;
 }
 
 :root {

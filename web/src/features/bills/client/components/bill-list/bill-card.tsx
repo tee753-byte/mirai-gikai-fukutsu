@@ -5,6 +5,7 @@ import { formatDateJST } from "@/lib/utils/date";
 import type { BillWithContent } from "../../../shared/types";
 import { BillStatusBadge } from "./bill-status-badge";
 import { BillTag } from "./bill-tag";
+import { BillTypeBand } from "./bill-type-band";
 import { VoteCountBadge } from "./vote-count-badge";
 
 interface BillCardProps {
@@ -18,6 +19,9 @@ export function BillCard({ bill }: BillCardProps) {
   return (
     <Card className="border border-black hover:bg-muted/50 transition-colors relative overflow-hidden max-w-[634px]">
       <div className="flex flex-col">
+        {/* 種別の色帯。カードの左端から右端までいっぱいに引く */}
+        <BillTypeBand billType={bill.bill_type} billNumber={bill.bill_number} />
+
         {/* 注目バッジエリア */}
         {bill.is_featured && (
           <div
@@ -46,16 +50,15 @@ export function BillCard({ bill }: BillCardProps) {
         <div className="flex-1">
           <CardHeader>
             <div className="flex flex-col gap-3">
-              {bill.bill_number && (
-                <span className="text-xs font-medium text-muted-foreground">
-                  {bill.bill_number}
-                </span>
-              )}
               <CardTitle className="text-2xl/8 tracking-normal">
                 {displayTitle}
               </CardTitle>
               <div className="flex flex-row items-center gap-2">
-                <BillStatusBadge status={bill.status} className="w-fit" />
+                <BillStatusBadge
+                  status={bill.status}
+                  billType={bill.bill_type}
+                  className="w-fit"
+                />
                 {bill.voteCounts && (
                   <VoteCountBadge voteCounts={bill.voteCounts} />
                 )}

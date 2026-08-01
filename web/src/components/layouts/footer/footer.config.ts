@@ -1,3 +1,4 @@
+import { NAV_LINKS } from "@/components/header/nav-links";
 import { siteConfig } from "@/config/site.config";
 
 export type FooterLink = {
@@ -17,6 +18,9 @@ export const primaryLinks: FooterLink[] = [
     label: "TOP",
     href: "/",
   },
+  // ヘッダー（ハンバーガーメニュー）と同じ導線をフッターにも置く。
+  // 定義を共有しているので、どちらか一方だけ増えることがない
+  ...NAV_LINKS.map(({ label, href }) => ({ label, href })),
   ...(siteConfig.externalLinks.aboutNote
     ? [
         {
