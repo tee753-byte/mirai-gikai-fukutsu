@@ -20,5 +20,11 @@ docs/fukuoka/sample/
 # 目視確認して安全と分かった内容だけを bills-r8-3.ts 等のコードに反映し、
 # この生データ自体はコミットしない（CLAUDE.md「個人情報の取り扱い」参照）
 packages/seed/fukutsu/data/*-bill-documents.json
+
+# 福津版の打ち合わせメモ・設計書・運用手順書。
+# 協力者の氏名や、Basic認証の運用など公開に適さない情報を含むため、
+# リポジトリ（公開）には置かずローカルのみで管理する。
+docs/fukutsu/
+
 .vercel
 .env*
