@@ -72,10 +72,10 @@ export const siteConfig = {
     showTeamMiraiSection: false as boolean,
     /**
      * 予算の見える化（トップページのバナー・予算ページへの導線）
-     * 予算データを整備していない間は false にする。
-     * ※バナーは予算データの有無を見ないため、false にしないと空のページへ誘導してしまう。
+     * 令和8年3月定例会分は防災関連5事業のみのプロトタイプ（全40事業中）。
+     * ※バナーは予算データの有無を見ないため、データが無い間は false にする。
      */
-    showBudget: false as boolean,
+    showBudget: true as boolean,
   },
 } as const;
 

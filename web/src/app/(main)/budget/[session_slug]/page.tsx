@@ -30,8 +30,8 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${session.name} 各局の重点施策`,
-    description: `${session.name}の各局予算の重点施策・方向性をわかりやすく解説します。`,
+    title: `${session.name} 予算の重点施策`,
+    description: `${session.name}の予算の重点施策・方向性をわかりやすく解説します。`,
   };
 }
 
@@ -66,10 +66,10 @@ export default async function BudgetListPage({ params }: BudgetListPageProps) {
   return (
     <Container className="py-10 pb-28">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-mirai-text">各局の重点施策</h1>
+        <h1 className="text-2xl font-bold text-mirai-text">予算の重点施策</h1>
         <p className="mt-2 text-sm text-mirai-text-secondary">
           {toFiscalYearLabel(session.name)}{" "}
-          の各局予算の方向性と主要施策をまとめています。
+          の予算の方向性と主要事業をまとめています。
         </p>
       </div>
 

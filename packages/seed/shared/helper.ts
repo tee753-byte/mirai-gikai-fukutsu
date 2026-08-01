@@ -25,6 +25,7 @@ const TABLES_TO_CLEAR = [
   "tags",
   "factions",
   "committees",
+  "budget_overviews",
   "council_sessions",
 ] as const;
 

@@ -34,6 +34,7 @@ import { createAdminClient, clearAllData } from "../shared/helper";
 import { generalQuestionsBySession } from "../fukutsu/general-questions-data";
 import { R8_3_SESSION_SLUG } from "../fukutsu/bills-r8-3";
 import { seedBillsR8_3 } from "../fukutsu/seed-bills-r8-3";
+import { seedBudgetR8_3 } from "../fukutsu/seed-budget-r8-3";
 import {
   PLAIN_TEXTS as PLAIN_TEXTS_R7_12,
   R7_12_SESSION_SLUG,
@@ -199,6 +200,12 @@ async function seedDatabase() {
         r8_3Session.id,
         new Map(insertedTags.map((t) => [t.label, t.id])),
         new Map(insertedCommittees.map((c) => [c.name, c.id]))
+      );
+
+      console.log("💰 Inserting r8-3 budget (prototype)...");
+      const budgetResult = await seedBudgetR8_3(supabase, r8_3Session.id);
+      console.log(
+        `✅ Inserted budget: ${budgetResult.overviewCount} overview, ${budgetResult.themeCount} theme, ${budgetResult.initiativeCount} initiatives`
       );
     } else {
       console.log(

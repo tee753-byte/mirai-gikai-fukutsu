@@ -377,6 +377,7 @@ export type Database = {
       budget_initiatives: {
         Row: {
           badge: string | null
+          basic_plan_theme: string | null
           budget_amount: number | null
           created_at: string
           description: string | null
@@ -388,6 +389,7 @@ export type Database = {
         }
         Insert: {
           badge?: string | null
+          basic_plan_theme?: string | null
           budget_amount?: number | null
           created_at?: string
           description?: string | null
@@ -399,6 +401,7 @@ export type Database = {
         }
         Update: {
           badge?: string | null
+          basic_plan_theme?: string | null
           budget_amount?: number | null
           created_at?: string
           description?: string | null
@@ -1528,3 +1531,4 @@ export const Constants = {
     },
   },
 } as const
+

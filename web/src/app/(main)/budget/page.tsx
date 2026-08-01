@@ -17,7 +17,7 @@ export default async function BudgetIndexPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-mirai-text">過去の予算一覧</h1>
         <p className="mt-2 text-sm text-mirai-text-secondary">
-          各定例会の各局予算の方向性と主要施策をご覧いただけます。
+          各定例会の予算の方向性と主要事業をご覧いただけます。
         </p>
       </div>
 
