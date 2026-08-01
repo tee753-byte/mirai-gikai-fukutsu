@@ -56,6 +56,15 @@ function isPetition(billNumber: string): boolean {
   return billNumber.startsWith("請願");
 }
 
+/**
+ * 専決処分の承認案件かどうか。
+ * 市長が議会を待たずに決めた事柄を、あとから議会が認めるかどうかを議決するもので、
+ * 結果の言い方は可決／否決ではなく承認／不承認になる。
+ */
+function isApprovalItem(billNumber: string): boolean {
+  return billNumber.startsWith("承認");
+}
+
 /** 議案番号の頭文字から bills.bill_type を決める */
 function toBillType(billNumber: string): string {
   if (isPetition(billNumber)) return "petition";
@@ -75,21 +84,27 @@ function toBillStatus(
 /** 議決結果を市民向けの一文にする */
 function buildStatusNote(
   outcome: string,
-  voteMethod: VoteMethod,
+  voteMethod: VoteMethod | null,
   decided: string,
   billNumber: string
 ): string {
   const rejected = outcome === "rejected";
-  const result = isPetition(billNumber)
-    ? rejected
-      ? "不採択"
-      : "採択"
-    : rejected
-      ? "否決"
-      : "可決";
+  let result: string;
+  if (isPetition(billNumber)) {
+    result = rejected ? "不採択" : "採択";
+  } else if (isApprovalItem(billNumber)) {
+    result = rejected ? "不承認" : "承認";
+  } else {
+    result = rejected ? "否決" : "可決";
+  }
+
   const [y, m, d] = decided.split("-").map(Number);
   const wareki = y - 2018; // 2019年が令和元年
-  return `令和${wareki}年${m}月${d}日の本会議で${result}／${describeVoteMethod(voteMethod)}`;
+  const base = `令和${wareki}年${m}月${d}日の本会議で${result}`;
+
+  // 採決の方法は会議録にしか残らない。会議録が未公開の会期では分からないので、
+  // 分かっている場合だけ添える（推測で書かない）
+  return voteMethod ? `${base}／${describeVoteMethod(voteMethod)}` : base;
 }
 
 /** 引用として表示するための記法。改行のある文章でも引用ブロックが途切れないようにする */
@@ -169,7 +184,7 @@ export async function seedBillsForSession({
       status: toBillStatus(v.outcome, v.billNumber),
       status_note: buildStatusNote(
         v.outcome,
-        v.voteMethod as VoteMethod,
+        (v.voteMethod as VoteMethod | null) ?? null,
         decided,
         v.billNumber
       ),
@@ -214,7 +229,7 @@ export async function seedBillsForSession({
     const plain = plainTexts[v.billNumber];
     const statusNote = buildStatusNote(
       v.outcome,
-      v.voteMethod as VoteMethod,
+      (v.voteMethod as VoteMethod | null) ?? null,
       decidedAt(v.sessionDay),
       v.billNumber
     );

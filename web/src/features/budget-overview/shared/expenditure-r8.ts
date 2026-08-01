@@ -39,6 +39,14 @@ export const PREV_FISCAL_YEAR_LABEL = "令和7年度";
 export const EXPENDITURE_SOURCE_URL =
   "https://www.city.fukutsu.lg.jp/soshiki/zaisei/zaisei/1/1/19279.html";
 
+/**
+ * 「令和8年度 市政運営の方針・予算の編成」PDFへの直リンク。
+ * 3つの柱の説明はこのPDFの中にあり、上の一覧ページを開いただけでは辿り着けないため、
+ * 根拠を確かめてもらう用途ではPDFに直接飛ばす。
+ */
+export const BUDGET_POLICY_PDF_URL =
+  "https://www.city.fukutsu.lg.jp/material/files/group/13/R8_yosanhennsei_sesakunotorikumi.pdf";
+
 export const EXPENDITURES_R8: ExpenditureItem[] = [
   {
     no: 1,

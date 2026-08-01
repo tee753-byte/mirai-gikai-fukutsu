@@ -32,6 +32,14 @@ export const councilSessions: CouncilSessionInsert[] = [
     is_active: true,
   },
   {
+    name: "令和8年 4月臨時会",
+    slug: "r8-4",
+    council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19631.html",
+    start_date: "2026-04-24",
+    end_date: "2026-04-24",
+    is_active: false,
+  },
+  {
     name: "令和8年 3月定例会",
     slug: "r8-3",
     council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19269.html",

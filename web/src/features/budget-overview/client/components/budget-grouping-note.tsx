@@ -1,6 +1,6 @@
 import { ExternalLink, Info } from "lucide-react";
 import Link from "next/link";
-import { EXPENDITURE_SOURCE_URL } from "../../shared/expenditure-r8";
+import { BUDGET_POLICY_PDF_URL } from "../../shared/expenditure-r8";
 
 /**
  * 主要事業の4分類が何なのかを説明する注記。
@@ -27,13 +27,13 @@ export function BudgetGroupingNote() {
         </span>
       </p>
       <Link
-        href={EXPENDITURE_SOURCE_URL}
+        href={BUDGET_POLICY_PDF_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="mt-2 inline-flex items-center gap-1 text-xs text-mirai-text-muted hover:text-mirai-text"
       >
         <ExternalLink className="h-3 w-3 shrink-0" />
-        出典：福津市「令和8年度 市政運営の指針・予算の編成」
+        出典：福津市「令和8年度 市政運営の方針・予算の編成」（PDF）
       </Link>
     </div>
   );

@@ -24,15 +24,17 @@ export function CommitteeReportCard({
 
   return (
     <div className="bg-card rounded-lg border border-border p-4">
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <p className="text-xs text-mirai-text-muted">{review.billNumber}</p>
-          <h3 className="font-bold text-mirai-text leading-snug mt-0.5">
-            {review.billTitle}
-          </h3>
-        </div>
+      {/*
+        議案番号とバッジを必ず同じ行に置く。以前はタイトルと横並びにしていたが、
+        タイトルの長さによってバッジが下に回り込み、カードごとに位置が変わっていた
+      */}
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-mirai-text-muted">{review.billNumber}</p>
         <BillStatusBadge status={review.outcome} className="shrink-0" />
       </div>
+      <h3 className="font-bold text-mirai-text leading-snug mt-1">
+        {review.billTitle}
+      </h3>
 
       <p className="mt-2 text-sm text-mirai-text-secondary">
         審査結果: {review.result}

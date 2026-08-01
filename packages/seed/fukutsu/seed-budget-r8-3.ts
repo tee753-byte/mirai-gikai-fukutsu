@@ -52,7 +52,7 @@ type SeedTheme = {
 /** 原本の目次と同じ4グループ */
 const BUDGET_THEMES: SeedTheme[] = [
   {
-    title: "災害に強く、安心して暮らせるまちづくり",
+    title: "1．災害に強く、安心して暮らせるまちづくり",
     initiatives: [
       {
         title: "災害救助事業",
@@ -174,7 +174,7 @@ const BUDGET_THEMES: SeedTheme[] = [
     ],
   },
   {
-    title: "次世代を育む教育環境の整備",
+    title: "2．次世代を育む教育環境の整備",
     initiatives: [
       {
         title: "新設小学校道路整備事業",
@@ -260,7 +260,7 @@ const BUDGET_THEMES: SeedTheme[] = [
     ],
   },
   {
-    title: "人も企業も行政も「稼ぐ」まちづくり",
+    title: "3．人も企業も行政も「稼ぐ」まちづくり",
     initiatives: [
       {
         title: "企業版ふるさとづくり寄附金促進事業",
@@ -301,7 +301,7 @@ const BUDGET_THEMES: SeedTheme[] = [
     ],
   },
   {
-    title: "その他",
+    title: "4．その他",
     initiatives: [
       {
         title: "こども誰でも通園制度実施事業",
