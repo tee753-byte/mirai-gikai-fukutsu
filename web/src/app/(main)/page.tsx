@@ -1,11 +1,12 @@
 import { Container } from "@/components/layouts/container";
 import { About } from "@/components/top/about";
 import { BudgetOverviewBanner } from "@/components/top/budget-overview-banner";
+import { CommitteeReportsBanner } from "@/components/top/committee-reports-banner";
 import { GeneralQuestionsBanner } from "@/components/top/general-questions-banner";
 import { Hero } from "@/components/top/hero";
-import { MayorPledgesTopic } from "@/components/top/mayor-pledges-topic";
 import { PastSessionsSection } from "@/components/top/past-sessions-section";
 import { TeamMirai } from "@/components/top/team-mirai";
+import { TopicsListCard } from "@/components/top/topics-list-card";
 import { siteConfig } from "@/config/site.config";
 import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
 import { BillDisclaimer } from "@/features/bills/client/components/bill-detail/bill-disclaimer";
@@ -16,7 +17,6 @@ import type { BillWithContent } from "@/features/bills/shared/types";
 import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { HomeChatClient } from "@/features/chat/client/components/home-chat-client";
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
-import { getActiveCouncilSession } from "@/features/council-sessions/server/loaders/get-active-council-session";
 import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
 import { getLatestSessionWithQuestions } from "@/features/general-questions/server/loaders/get-latest-session-with-questions";
@@ -28,14 +28,12 @@ export default async function Home() {
   // ゆくゆくタグ機能がマージされたらBFFに統合する
   const [
     currentSession,
-    activeSession,
     currentDifficulty,
     pastSessions,
     budgetSessions,
     latestQuestionsSlug,
   ] = await Promise.all([
     getCurrentCouncilSession(getJapanTime()),
-    getActiveCouncilSession(),
     getDifficultyLevel(),
     getAllPastSessions(),
     getSessionsWithBudget(),
@@ -58,23 +56,29 @@ export default async function Home() {
       {/* 本日の定例会セクション */}
       <CurrentCouncilSession session={currentSession} />
 
-      {/* 予算概要バナー */}
-      {siteConfig.features.showBudget && activeSession?.slug && (
-        <Container className="pt-6">
-          <BudgetOverviewBanner sessionSlug={activeSession.slug} />
-        </Container>
-      )}
-
       {/* 一般質問バナー */}
       {latestQuestionsSlug && (
-        <Container className="pt-3">
+        <Container className="pt-6">
           <GeneralQuestionsBanner sessionSlug={latestQuestionsSlug} />
         </Container>
       )}
 
-      {/* 特集: 市長公約の先送り（プロトタイプ） */}
+      {/* 予算概要バナー（予算データがある直近の会期にリンクする。開会中の会期とは限らない） */}
+      {siteConfig.features.showBudget && budgetSessions[0]?.slug && (
+        <Container className="pt-3">
+          <BudgetOverviewBanner sessionSlug={budgetSessions[0].slug} />
+        </Container>
+      )}
+
+      {/* 委員会報告バナー（プロトタイプ） */}
       <Container className="pt-3">
-        <MayorPledgesTopic />
+        <CommitteeReportsBanner />
+      </Container>
+
+      {/* トピックス（暮らしに関わりの大きいテーマ）
+          詳しい版に戻す場合は TopicsHighlight に差し替える */}
+      <Container className="pt-6">
+        <TopicsListCard />
       </Container>
 
       {/* 議案一覧セクション */}

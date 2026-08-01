@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Home, Landmark, Users } from "lucide-react";
+import { Clock, Home, Landmark, Users } from "lucide-react";
 
 export type NavLink = {
   label: string;
@@ -12,6 +12,7 @@ export type NavLink = {
  * 「議案を検索」は検索機能自体が未実装のため、作るまでは含めない。
  */
 export const NAV_LINKS: NavLink[] = [
+  { label: "トピックス", href: "/topics", icon: Clock },
   { label: "議会ごとのまとめ", href: "/sessions", icon: Landmark },
   { label: "議員・提出者から見る", href: "/questions/members", icon: Users },
 ];
