@@ -68,6 +68,10 @@ import r8_2BillVotes from "../fukutsu/data/r8-2-bill-votes.json" with {
   type: "json",
 };
 import { seedMemberVotes } from "../fukutsu/seed-member-votes";
+import {
+  buildPetitionsR7_12,
+  PETITION_PLAIN_TEXTS_R7_12,
+} from "../fukutsu/petitions-r7-12";
 import { seedMemberVotesR7_12 } from "../fukutsu/seed-member-votes-r7-12";
 
 async function seedDatabase() {
@@ -223,9 +227,17 @@ async function seedDatabase() {
       {
         slug: R7_12_SESSION_SLUG,
         label: "r7-12",
-        // biome-ignore lint/suspicious/noExplicitAny: JSON importの型をBillVoteRecord[]に合わせるための簡易キャスト
-        votes: sanitizeR7_12Debates(r7_12BillVotes as any),
-        plainTexts: PLAIN_TEXTS_R7_12,
+        // 議案・発議に加えて請願2件も同じ流れで投入する（bill_type = 'petition'）
+        votes: [
+          // biome-ignore lint/suspicious/noExplicitAny: JSON importの型をBillVoteRecord[]に合わせるための簡易キャスト
+          ...sanitizeR7_12Debates(r7_12BillVotes as any),
+          // biome-ignore lint/suspicious/noExplicitAny: 同上
+          ...buildPetitionsR7_12(r7_12BillVotes as any),
+        ],
+        plainTexts: {
+          ...PLAIN_TEXTS_R7_12,
+          ...PETITION_PLAIN_TEXTS_R7_12,
+        },
         sourceUrl: R7_12_SOURCE_URL,
         decidedAt: decidedAtR7_12,
         submittedAt: submittedAtR7_12,

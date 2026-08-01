@@ -8,6 +8,8 @@ import {
 interface BillStatusProgressProps {
   status: BillStatusEnum;
   statusNote?: string | null;
+  /** bills.bill_type。請願は議決の言い方が違うので渡す */
+  billType?: string | null;
 }
 
 interface StatusBadgeProps {
@@ -30,6 +32,14 @@ const BASE_STEPS = [
   { label: "可決\n/否決" },
 ] as const;
 
+// 請願は市民が提出するもので、議会は「可決／否決」ではなく「採択／不採択」で結論を出す
+const PETITION_STEPS = [
+  { label: "請願\n提出" },
+  { label: "委員会\n審査" },
+  { label: "本会議\n採決" },
+  { label: "採択\n/不採択" },
+] as const;
+
 // ステータスラベル
 const STATUS_LABELS: Record<BillStatusEnum, string> = {
   preparing: "議案上程前",
@@ -41,6 +51,13 @@ const STATUS_LABELS: Record<BillStatusEnum, string> = {
   adopted: "採択",
   partially_adopted: "趣旨採択",
   reported: "専決処分報告",
+};
+
+const PETITION_STATUS_LABELS: Partial<Record<BillStatusEnum, string>> = {
+  preparing: "提出前",
+  submitted: "提出済み",
+  approved: "採択",
+  rejected: "不採択",
 };
 
 // ステータスバッジコンポーネント
@@ -106,17 +123,24 @@ function ProgressStep({
 export function BillStatusProgress({
   status,
   statusNote,
+  billType,
 }: BillStatusProgressProps) {
+  const isPetition = billType === "petition";
   const isPreparing = status === "preparing";
   const currentStep = getCurrentStep(status);
-  const statusMessage = STATUS_LABELS[status] ?? "";
+  const statusMessage =
+    (isPetition ? PETITION_STATUS_LABELS[status] : null) ??
+    STATUS_LABELS[status] ??
+    "";
 
   const getStepState = (stepNumber: number): "active" | "inactive" => {
     if (isPreparing) return "inactive";
     return stepNumber <= currentStep ? "active" : "inactive";
   };
 
-  const orderedSteps = getOrderedSteps(BASE_STEPS);
+  const orderedSteps = getOrderedSteps(
+    isPetition ? PETITION_STEPS : BASE_STEPS
+  );
   const progressWidth = calculateProgressWidth(currentStep);
 
   return (

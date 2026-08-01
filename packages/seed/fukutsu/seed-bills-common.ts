@@ -51,18 +51,42 @@ export type SeedBillsForSessionInput = {
   submittedAt: (billNumber: string) => string;
 };
 
+/** 請願かどうか。請願は議案と議決の言い方が違う（可決／否決ではなく採択／不採択） */
+function isPetition(billNumber: string): boolean {
+  return billNumber.startsWith("請願");
+}
+
+/** 議案番号の頭文字から bills.bill_type を決める */
+function toBillType(billNumber: string): string {
+  if (isPetition(billNumber)) return "petition";
+  if (billNumber.startsWith("発議")) return "member_bill";
+  return "bill";
+}
+
 /** 会議録の結果を bills.status に置き換える */
-function toBillStatus(outcome: string): "approved" | "rejected" {
-  return outcome === "rejected" ? "rejected" : "approved";
+function toBillStatus(
+  outcome: string,
+  billNumber: string
+): "approved" | "rejected" | "adopted" {
+  if (outcome === "rejected") return "rejected";
+  return isPetition(billNumber) ? "adopted" : "approved";
 }
 
 /** 議決結果を市民向けの一文にする */
 function buildStatusNote(
   outcome: string,
   voteMethod: VoteMethod,
-  decided: string
+  decided: string,
+  billNumber: string
 ): string {
-  const result = outcome === "rejected" ? "否決" : "可決";
+  const rejected = outcome === "rejected";
+  const result = isPetition(billNumber)
+    ? rejected
+      ? "不採択"
+      : "採択"
+    : rejected
+      ? "否決"
+      : "可決";
   const [y, m, d] = decided.split("-").map(Number);
   const wareki = y - 2018; // 2019年が令和元年
   return `令和${wareki}年${m}月${d}日の本会議で${result}／${describeVoteMethod(voteMethod)}`;
@@ -78,8 +102,10 @@ function buildHardContent(
   billName: string,
   statusNote: string,
   proposalReason: string | null,
-  committeeReport: string | null
+  committeeReport: string | null,
+  billNumber: string
 ): string {
+  const petition = isPetition(billNumber);
   const parts = [`## 議決結果\n\n${statusNote}`];
 
   if (proposalReason) {
@@ -92,16 +118,28 @@ function buildHardContent(
       `## 委員会での審査\n\n以下は委員長報告の会議録からの引用です。\n\n${asQuote(committeeReport)}`
     );
   }
+  // 請願は市民が提出するものなので「市の説明」ではない。請願書そのものも
+  // 非公開資料のため、載せているのが会議録の記録だけであることを明示する
   parts.push(
-    `## 正式な件名\n\n${billName}\n\nここに載せているのは、会議録に記録された市の説明です。議案書そのものは、この非公式サイトでは再掲載していません。`
+    petition
+      ? `## 正式な件名\n\n${billName}\n\nここに載せているのは、会議録に記録された委員会での審査内容と議決結果です。請願書そのもの（請願の趣旨・請願人）は、この非公式サイトでは掲載していません。`
+      : `## 正式な件名\n\n${billName}\n\nここに載せているのは、会議録に記録された市の説明です。議案書そのものは、この非公式サイトでは再掲載していません。`
   );
 
   return parts.join("\n\n");
 }
 
 /** やさしい説明 */
-function buildNormalContent(summary: string, statusNote: string): string {
-  return `${summary}\n\n## この議案はどうなったか\n\n${statusNote}\n\nこの説明は、会議録に記録された市の説明をもとに、AIがわかりやすく書き直したものです。`;
+function buildNormalContent(
+  summary: string,
+  statusNote: string,
+  billNumber: string
+): string {
+  const subject = isPetition(billNumber) ? "請願" : "議案";
+  const note = isPetition(billNumber)
+    ? "この説明は、会議録に記録された委員会での審査内容をもとに、AIがわかりやすく書き直したものです。"
+    : "この説明は、会議録に記録された市の説明をもとに、AIがわかりやすく書き直したものです。";
+  return `${summary}\n\n## この${subject}はどうなったか\n\n${statusNote}\n\n${note}`;
 }
 
 /**
@@ -127,12 +165,13 @@ export async function seedBillsForSession({
     return {
       name: v.billName,
       bill_number: v.billNumber,
-      bill_type: v.billNumber.startsWith("発議") ? "member_bill" : "bill",
-      status: toBillStatus(v.outcome),
+      bill_type: toBillType(v.billNumber),
+      status: toBillStatus(v.outcome, v.billNumber),
       status_note: buildStatusNote(
         v.outcome,
         v.voteMethod as VoteMethod,
-        decided
+        decided,
+        v.billNumber
       ),
       vote_method: v.voteMethod,
       published_at: `${submittedAt(v.billNumber)}T00:00:00+09:00`,
@@ -176,7 +215,8 @@ export async function seedBillsForSession({
     const statusNote = buildStatusNote(
       v.outcome,
       v.voteMethod as VoteMethod,
-      decidedAt(v.sessionDay)
+      decidedAt(v.sessionDay),
+      v.billNumber
     );
 
     return [
@@ -185,7 +225,7 @@ export async function seedBillsForSession({
         difficulty_level: "normal" as const,
         title: plain.title,
         summary: plain.summary,
-        content: buildNormalContent(plain.summary, statusNote),
+        content: buildNormalContent(plain.summary, statusNote, v.billNumber),
       },
       {
         bill_id: billId,
@@ -196,7 +236,8 @@ export async function seedBillsForSession({
           v.billName,
           statusNote,
           v.proposalReason ?? null,
-          v.committeeReport ?? null
+          v.committeeReport ?? null,
+          v.billNumber
         ),
       },
     ];

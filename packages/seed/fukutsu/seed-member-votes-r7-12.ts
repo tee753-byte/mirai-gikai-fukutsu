@@ -8,9 +8,9 @@
  * 会議録には「賛成多数であります」としか残らず、起立採決のため議員個人の賛否は
  * 分からない（fukutsu/parse-bill-votes.ts 参照）。この賛否表が唯一の一次資料。
  *
- * 18件のうち2件（福間南小学校の教育環境整備を求める請願／在自土石流危険区域の被害軽減に
- * 関する請願）は請願であり、bills-r7-12.tsのPLAIN_TEXTSに対応する議案が無い（画面に
- * 議案として出ないので実害はない）。TITLE_TO_BILL_NUMBERに含めず自動的にスキップする。
+ * 18件のうち2件は請願（福間南小学校の教育環境整備を求める請願／在自土石流危険区域の
+ * 被害軽減に関する請願）。請願も petitions-r7-12.ts で bills に登録しているので、
+ * TITLE_TO_BILL_NUMBER に含めて議員別の賛否も表示する。
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { findMemberParty } from "./members";
@@ -21,7 +21,7 @@ type Client = SupabaseClient<any, "public", any>;
 
 const SOURCE_NOTE = "議会だより84号（令和8年2月1日発行）の賛否表より作成";
 
-/** 議会だよりの賛否表の見出し文言 → 実際の議案番号。請願は対象外なので含めない */
+/** 議会だよりの賛否表の見出し文言 → 実際の議案番号（請願番号を含む） */
 const TITLE_TO_BILL_NUMBER: Record<string, string> = {
   "市一般職の職員の給与に関する条例を改正（人事院勧告に伴う改正）": "議案第43号",
   "市議会の議員の議員報酬及び費用弁償等に関する条例を改正（国家公務員に準拠する改正）":
@@ -42,6 +42,9 @@ const TITLE_TO_BILL_NUMBER: Record<string, string> = {
   "自転車等駐車場・自動車駐車場の指定管理者を指定": "議案第57号",
   "市議会の議員の議員報酬及び費用弁償等に関する条例を改正（議会広報調査特別委員長の報酬を委員長の額とする改正）":
     "発議第8号",
+  // 請願2件（petitions-r7-12.ts で bills に登録している）
+  "在自土石流危険区域の被害軽減に関する請願": "請願第3号",
+  "福間南小学校の教育環境整備を求める請願": "請願第4号",
 };
 
 /** 議会だより84号の期における議長。表決に参加しないため常に "chair" 扱いにする */
@@ -64,7 +67,7 @@ type VoteRow = {
 
 /**
  * 対象セッション（r7-12）のbillを取得し、bill_member_votesを投入する。
- * 請願など議案一覧に無いものは対応するbillが見つからないため自動的にスキップされる。
+ * 対応するbillが見つからないものは自動的にスキップされる。
  */
 export async function seedMemberVotesR7_12(
   supabase: Client,
