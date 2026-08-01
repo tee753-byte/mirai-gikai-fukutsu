@@ -28,6 +28,26 @@ export function shareOnThreads(message: string, url: string) {
   window.open(shareUrl, "_blank", "noopener,noreferrer");
 }
 
+/**
+ * 記事のURLをクリップボードにコピーする。
+ *
+ * 市議会の情報はSNSより、メール・LINEのグループ・自治会の連絡などで
+ * 回ることが多い。そのときに必要なのは「URLをコピーする」だけなので、
+ * SNSの共有ボタンと並べて置いている。
+ *
+ * 本文は付けずURLだけをコピーする（ボタンの表記が「リンクをコピー」のため）。
+ * @returns コピーできたら true
+ */
+export async function copyShareUrl(url: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(url);
+    return true;
+  } catch (error) {
+    console.error("Failed to copy:", error);
+    return false;
+  }
+}
+
 export async function shareNative(message: string, url: string) {
   // Web Share API が利用可能な場合
   if (navigator.share) {

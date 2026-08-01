@@ -1,8 +1,11 @@
 "use client";
 
-import type { MouseEvent, KeyboardEvent } from "react";
+import { Check, Link2 } from "lucide-react";
 import Image from "next/image";
+import type { KeyboardEvent, MouseEvent } from "react";
+import { useEffect, useState } from "react";
 import {
+  copyShareUrl,
   shareNative,
   shareOnFacebook,
   shareOnLine,
@@ -25,7 +28,26 @@ export function BillShareModal({
   shareUrl,
   thumbnailUrl,
 }: BillShareModalProps) {
+  // コピーできたことを知らせる表示。数秒で元に戻す
+  const [isCopied, setIsCopied] = useState(false);
+
+  useEffect(() => {
+    if (!isCopied) return;
+    const timer = setTimeout(() => setIsCopied(false), 2500);
+    return () => clearTimeout(timer);
+  }, [isCopied]);
+
+  // モーダルを閉じたら次に開いたときのために状態を戻す
+  useEffect(() => {
+    if (!isOpen) setIsCopied(false);
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const handleCopy = async () => {
+    const ok = await copyShareUrl(shareUrl);
+    setIsCopied(ok);
+  };
 
   // 共有ボタンの設定
   const shareButtons = [
@@ -40,10 +62,11 @@ export function BillShareModal({
       onClick: () => shareOnFacebook(shareUrl),
     },
     {
+      // LINEにはパソコン版アプリがあり、共有リンクはブラウザからでも動く。
+      // 市民に広く届けるうえで有力な経路なので、パソコンでも隠さない
       name: "LINE",
       iconPath: "/icons/sns/icon_line.png",
       onClick: () => shareOnLine(shareMessage, shareUrl),
-      className: "md:hidden",
     },
     {
       name: "Threads",
@@ -105,6 +128,33 @@ export function BillShareModal({
           <p className="text-base font-bold text-gray-800 text-center">
             シェアして市議会の議論をオープンに
           </p>
+
+          {/*
+            リンクのコピー。メール・LINEのグループ・自治会の連絡など、
+            SNS以外で回すときに使うため、アイコンではなく文字のボタンにして
+            他より押しやすくしている
+          */}
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-800 px-6 py-3 text-base font-bold text-gray-800 hover:bg-mirai-surface-grouped"
+          >
+            {isCopied ? (
+              <>
+                <Check className="h-5 w-5" />
+                コピーしました
+              </>
+            ) : (
+              <>
+                <Link2 className="h-5 w-5" />
+                リンクをコピー
+              </>
+            )}
+          </button>
+          {/* 読み上げソフトにもコピーできたことを伝える */}
+          <span aria-live="polite" className="sr-only">
+            {isCopied ? "リンクをコピーしました" : ""}
+          </span>
 
           {/* SNSアイコン */}
           <div className="flex flex-wrap items-center justify-center gap-4">
