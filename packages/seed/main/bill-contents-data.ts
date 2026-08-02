@@ -33,19 +33,18 @@ import {
   buildHardContent,
   buildNormalContent,
 } from "../fukutsu/bill-content-format";
-import billDocuments from "../fukutsu/data/r8-6-bill-documents.json" with {
-  type: "json",
-};
+import {
+  loadBillDocuments,
+  toReasonMap,
+} from "../fukutsu/load-bill-documents";
 
 /**
  * 議案書に印刷されている理由。
  * 予算議案（議案第47・48号）や財産の取得（議案第52号）、意見書の提出（発議第4〜6号）は
  * 制度上そもそも理由欄が無いため null になる。
  */
-const DOCUMENT_REASONS = new Map(
-  (billDocuments as { billNumber: string; reason: string | null }[]).map(
-    (doc) => [doc.billNumber, doc.reason]
-  )
+const DOCUMENT_REASONS = toReasonMap(
+  loadBillDocuments("r8-6-bill-documents.json")
 );
 
 const SESSION_URL =

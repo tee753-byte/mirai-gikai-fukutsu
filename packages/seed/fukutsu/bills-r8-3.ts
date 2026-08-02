@@ -16,19 +16,15 @@
  * 会議録に一切記録されていないため、ここでは扱わない。
  * 氏名が分かるのは討論をした議員と、発議の提出者・賛成者だけ。
  */
-import billDocuments from "./data/r8-3-bill-documents.json" with {
-  type: "json",
-};
 import billVotes from "./data/r8-3-bill-votes.json" with { type: "json" };
+import { loadBillDocuments, toReasonMap } from "./load-bill-documents";
 
 /**
  * 議案書に印刷されている理由。
  * 予算議案（議案第4〜13号）や人事案件は制度上そもそも理由欄が無いため null になる。
  */
-const DOCUMENT_REASONS = new Map(
-  (billDocuments as { billNumber: string; reason: string | null }[]).map(
-    (doc) => [doc.billNumber, doc.reason]
-  )
+const DOCUMENT_REASONS = toReasonMap(
+  loadBillDocuments("r8-3-bill-documents.json")
 );
 
 export function documentReason(billNumber: string): string | null {
