@@ -1,6 +1,6 @@
 "use client";
 
-type BadgeType = "new" | "expanded" | "continued" | null;
+type BadgeType = "new" | "expanded" | "continued" | "reduced" | null;
 
 type BudgetInitiativeBadgeProps = {
   badge: BadgeType;
@@ -19,6 +19,12 @@ const BADGE_CONFIG: Record<
     label: "拡充",
     className:
       "bg-mirai-info-blue text-mirai-text text-xs font-semibold px-2 py-0.5 rounded",
+  },
+  // 減った事業も市民には重要な情報。増えたものだけを見せると偏るため必ず出す
+  reduced: {
+    label: "縮小",
+    className:
+      "bg-bill-rejected-bg text-bill-rejected-text text-xs font-semibold px-2 py-0.5 rounded",
   },
   continued: {
     label: "継続",

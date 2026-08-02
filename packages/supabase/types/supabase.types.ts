@@ -378,6 +378,7 @@ export type Database = {
         Row: {
           badge: string | null
           basic_plan_theme: string | null
+          prev_budget_amount: number | null
           budget_amount: number | null
           created_at: string
           description: string | null
@@ -390,6 +391,7 @@ export type Database = {
         Insert: {
           badge?: string | null
           basic_plan_theme?: string | null
+          prev_budget_amount?: number | null
           budget_amount?: number | null
           created_at?: string
           description?: string | null
@@ -402,6 +404,7 @@ export type Database = {
         Update: {
           badge?: string | null
           basic_plan_theme?: string | null
+          prev_budget_amount?: number | null
           budget_amount?: number | null
           created_at?: string
           description?: string | null

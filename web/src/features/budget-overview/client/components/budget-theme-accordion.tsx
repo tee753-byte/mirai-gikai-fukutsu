@@ -8,8 +8,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import type { BudgetInitiative, BudgetTheme } from "../../shared/types";
-import { BasicPlanThemeTag } from "./basic-plan-theme-tag";
-import { BudgetInitiativeBadge } from "./budget-initiative-badge";
+import { BudgetInitiativeCard, formatYen } from "./budget-initiative-card";
 
 type BudgetThemeWithInitiatives = BudgetTheme & {
   initiatives: BudgetInitiative[];
@@ -19,52 +18,17 @@ type BudgetThemeAccordionProps = {
   themes: BudgetThemeWithInitiatives[];
 };
 
-/** 説明文が長い事業は、初期状態では3行に折りたたんでおく */
-function InitiativeDescription({ text }: { text: string }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const isLong = text.length > 80;
-
-  return (
-    <div className="mt-1">
-      <p
-        className={`text-sm text-mirai-text-secondary ${
-          isLong && !isExpanded ? "line-clamp-3" : ""
-        }`}
-      >
-        {text}
-      </p>
-      {isLong && (
-        <button
-          type="button"
-          onClick={() => setIsExpanded((v) => !v)}
-          className="mt-1 text-xs font-semibold text-primary-accent hover:opacity-70"
-        >
-          {isExpanded ? "閉じる" : "続きを読む"}
-        </button>
-      )}
-    </div>
-  );
-}
-
-function formatYen(amount: number | null): string | null {
-  if (amount === null) return null;
-  // budget_initiatives.budget_amount は千円単位で保存する
-  const yen = amount * 1000;
-  if (yen >= 100000000) {
-    return `${(yen / 100000000).toFixed(1).replace(/\.0$/, "")}億円`;
-  }
-  if (yen >= 10000) {
-    return `${Math.round(yen / 10000).toLocaleString()}万円`;
-  }
-  return `${yen.toLocaleString()}円`;
-}
-
 function ThemeItem({ theme }: { theme: BudgetThemeWithInitiatives }) {
   const [isOpen, setIsOpen] = useState(true);
 
   // グループの合計額。事業を1件ずつ見なくても規模感が分かるようにする
   const total = theme.initiatives.reduce(
     (sum, i) => sum + (i.budget_amount ?? 0),
+    0
+  );
+  // 各カードの棒の長さは、同じグループの中で一番大きい事業を基準にする
+  const maxAmount = Math.max(
+    ...theme.initiatives.map((i) => i.budget_amount ?? 0),
     0
   );
 
@@ -93,44 +57,16 @@ function ThemeItem({ theme }: { theme: BudgetThemeWithInitiatives }) {
       </CollapsibleTrigger>
 
       <CollapsibleContent>
-        <ul className="mt-2 space-y-2 pl-2">
-          {theme.initiatives.map((initiative) => {
-            const amountLabel = formatYen(initiative.budget_amount);
-            return (
-              <li
-                key={initiative.id}
-                className="border-l-2 border-primary-accent pl-4 py-2"
-              >
-                <div className="flex items-start justify-between gap-2 flex-wrap">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-sm text-mirai-text">
-                      {initiative.title}
-                    </span>
-                    <BudgetInitiativeBadge
-                      badge={
-                        initiative.badge as
-                          | "new"
-                          | "expanded"
-                          | "continued"
-                          | null
-                      }
-                    />
-                    {initiative.basic_plan_theme && (
-                      <BasicPlanThemeTag label={initiative.basic_plan_theme} />
-                    )}
-                  </div>
-                  {amountLabel && (
-                    <span className="text-sm font-bold text-mirai-text shrink-0">
-                      {amountLabel}
-                    </span>
-                  )}
-                </div>
-                {initiative.description && (
-                  <InitiativeDescription text={initiative.description} />
-                )}
-              </li>
-            );
-          })}
+        {/* 事業数が多いので、画面に余裕がある幅では2列に並べて縦の長さを抑える */}
+        <ul className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+          {theme.initiatives.map((initiative) => (
+            <li key={initiative.id}>
+              <BudgetInitiativeCard
+                initiative={initiative}
+                maxAmount={maxAmount}
+              />
+            </li>
+          ))}
         </ul>
       </CollapsibleContent>
     </Collapsible>
@@ -204,6 +140,31 @@ function FilterChip({
   );
 }
 
+/**
+ * カードの棒が何を表しているかの説明。
+ *
+ * 棒だけを出しても基準が分からないと読み方を誤る。特に、棒の長さは
+ * グループごとの最大額を基準にしているため、グループをまたいだ比較はできない。
+ * その注意までを短く添える。
+ */
+function BarLegend() {
+  return (
+    <div className="mb-3 flex items-start gap-2 text-xs leading-relaxed text-mirai-text-muted">
+      <span
+        aria-hidden="true"
+        className="mt-1.5 h-1.5 w-8 shrink-0 rounded-full bg-primary"
+      />
+      <span>
+        カードの棒は事業費の大きさです。
+        <strong className="font-bold text-mirai-text-secondary">
+          同じグループの中で一番大きい事業
+        </strong>
+        を基準にしているため、グループをまたいだ長さの比較はできません。
+      </span>
+    </div>
+  );
+}
+
 export function BudgetThemeAccordion({ themes }: BudgetThemeAccordionProps) {
   const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
 
@@ -256,6 +217,8 @@ export function BudgetThemeAccordion({ themes }: BudgetThemeAccordionProps) {
           totalCount={totalCount}
         />
       )}
+
+      <BarLegend />
 
       {selectedTheme && (
         <p className="mb-3 text-sm text-mirai-text-secondary">

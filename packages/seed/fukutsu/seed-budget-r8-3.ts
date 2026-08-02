@@ -406,6 +406,24 @@ const BUDGET_THEMES: SeedTheme[] = [
   },
 ];
 
+/**
+ * 前年度と比べて事業がどう変わったかを、金額から機械的に判定する。
+ * 人が選ぶと恣意的になるため、判定はこの一箇所に閉じ込める。
+ *
+ * 5%以内の増減は「継続」とみなす。物価変動などで毎年わずかに動くため、
+ * それを「拡充」「縮小」と呼ぶと実態と合わないため。
+ */
+function toBadge(
+  amount: number,
+  prev: number
+): "new" | "expanded" | "reduced" | "continued" {
+  if (prev === 0) return "new";
+  const rate = (amount - prev) / prev;
+  if (rate > 0.05) return "expanded";
+  if (rate < -0.05) return "reduced";
+  return "continued";
+}
+
 export async function seedBudgetR8_3(
   supabase: AdminClient,
   councilSessionId: string
@@ -464,6 +482,8 @@ export async function seedBudgetR8_3(
           theme_id: theme.id,
           title: initiative.title,
           budget_amount: initiative.budgetAmount,
+          prev_budget_amount: initiative.prevBudgetAmount,
+          badge: toBadge(initiative.budgetAmount, initiative.prevBudgetAmount),
           basic_plan_theme: initiative.basicPlanTheme,
           description: initiative.description,
           sort_order: index,
