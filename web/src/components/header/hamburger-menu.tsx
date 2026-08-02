@@ -2,6 +2,7 @@
 
 import { Menu } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { policyLinks } from "@/components/layouts/footer/footer.config";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,8 +14,17 @@ import { RubyToggle } from "@/lib/rubyful";
 import { HAMBURGER_NAV_LINKS } from "./nav-links";
 
 export function HamburgerMenu() {
+  /*
+   * 開いているかを自分で持つ。
+   *
+   * ヘッダーはレイアウトに置かれていて画面を移動しても作り直されないため、
+   * メニュー内のリンクを押しても開いたままになり、移動先のページに
+   * かぶさり続けていた。リンクを押した時点で閉じる。
+   */
+  const [open, setOpen] = useState(false);
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -31,6 +41,7 @@ export function HamburgerMenu() {
             <Link
               key={href}
               href={href}
+              onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium text-mirai-text hover:bg-mirai-surface-muted"
             >
               <Icon className="h-4 w-4 text-mirai-text-secondary" />
@@ -57,6 +68,7 @@ export function HamburgerMenu() {
               <Link
                 key={policy.href}
                 href={policy.href}
+                onClick={() => setOpen(false)}
                 className="py-1 hover:text-mirai-text"
               >
                 {policy.label}
