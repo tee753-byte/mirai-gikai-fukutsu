@@ -11,21 +11,72 @@ interface BillContentWithBillName {
 /**
  * 議案コンテンツ（福津市議会 令和8年6月定例会）
  *
- * 【重要】福津市は議案書そのものを公開していない。
- * そのため、ここに入るのは「件名」と「議決結果」から確実に言えることだけで、
- * 議案書の中身にもとづく要約ではない。AIによる要約でもない。
- * 議案書の提供を受けたあとに、正式な要約へ差し替えること。
+ * 出どころ:
+ * - 議案の件名・議決結果 … 福津市が公開している議案一覧PDF・議決結果PDF
+ * - 議案書に印刷されている「理由」 … 市議会から提供を受けた議案書PDF
+ *   （fukutsu/build-bill-documents.ts で data/r8-6-bill-documents.json に書き出したもの）
+ * - やさしいタイトルと説明 … 上記をもとにAIが平易に書き直したもの
+ *
+ * 議案書PDFそのものは再配布の可否が未確認のため、リポジトリにもサイトにも載せない。
+ * 引用しているのは理由文だけ。
+ *
+ * 【まだ入っていないもの】6月定例会は会議録が未公開のため、本会議での質疑・討論と、
+ * 議員別の賛否が入っていない。fukutsu/bills-r8-3.ts と同じ手順で、
+ * 会議録（令和8年9月ごろ公開見込み）と市議会だより夏号が出たら差し替えること。
  *
  * 出典:
  * - 議案一覧   https://www.city.fukutsu.lg.jp/material/files/group/20/gian080616.pdf
  * - 議決結果   https://www.city.fukutsu.lg.jp/material/files/group/20/giketukekka0806.pdf
  * - 定例会ページ https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19863.html
  */
+import billDocuments from "../fukutsu/data/r8-6-bill-documents.json" with {
+  type: "json",
+};
+
+/**
+ * 議案書に印刷されている理由。
+ * 予算議案（議案第47・48号）や財産の取得（議案第52号）、意見書の提出（発議第4〜6号）は
+ * 制度上そもそも理由欄が無いため null になる。
+ */
+const DOCUMENT_REASONS = new Map(
+  (billDocuments as { billNumber: string; reason: string | null }[]).map(
+    (doc) => [doc.billNumber, doc.reason]
+  )
+);
 
 const SESSION_URL =
   "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19863.html";
 const KETSUGI_PDF_URL =
   "https://www.city.fukutsu.lg.jp/material/files/group/20/giketukekka0806.pdf";
+
+/**
+ * この会期の議決日。会期を変えるときはここだけ直せば、
+ * 記事中の議決年月日も、注記に出す会議録の公開見込みも追従する。
+ */
+const DECIDED_AT = "2026-06-23";
+
+/** 西暦の年を令和に直す。2019年が令和元年 */
+function toWareki(year: number): number {
+  return year - 2018;
+}
+
+const [DECIDED_YEAR, DECIDED_MONTH, DECIDED_DAY] = DECIDED_AT.split("-").map(
+  Number
+);
+
+/** 記事に出す議決年月日。例「令和8年6月23日」 */
+const DECIDED_LABEL = `令和${toWareki(DECIDED_YEAR)}年${DECIDED_MONTH}月${DECIDED_DAY}日`;
+
+/**
+ * 会議録の公開見込み。福津市議会の会議録は正式公開までおよそ3か月かかるため、
+ * 議決日から機械的に出す。会期ごとに手で書き換えないこと。
+ */
+const MINUTES_DUE_LABEL = (() => {
+  const months = DECIDED_YEAR * 12 + (DECIDED_MONTH - 1) + 3;
+  const year = Math.floor(months / 12);
+  const month = (months % 12) + 1;
+  return `令和${toWareki(year)}年${month}月ごろ`;
+})();
 
 type BillOutline = {
   billName: string;
@@ -67,36 +118,36 @@ const BILL_OUTLINES: BillOutline[] = [
     billName:
       "福津市特別職の職員で常勤のものの給与及び旅費に関する条例を改正することについて",
     billNumber: "議案第49号",
-    plainTitle: "市長・副市長などの給与や旅費のきまりを変える（否決）",
+    plainTitle: "市長の給料を公約にもとづいて減らす（否決）",
     formalTitle:
       "福津市特別職の職員で常勤のものの給与及び旅費に関する条例の改正",
     result: "否決",
     kindNormal:
-      "市長や副市長など、常勤の「特別職」と呼ばれる人たちの給与や出張費の決まりを変える議案です。この議案は本会議で否決されました。",
+      "市長の公約にもとづき、令和8年7月1日から任期の満了までの間、市長の給料月額と、期末手当（ボーナス）の計算のもとになる給料月額を減らすための議案です。市長や副市長など常勤の「特別職」の給与を定めた条例を改正するもので、今回減額の対象になるのは市長です。",
     kindHard:
-      "常勤特別職の給与・旅費に関する条例の改正案。特別職の給与は地方自治法第204条等に基づき条例で定めることとされている。本件は本会議において否決された。",
+      "常勤特別職の給与・旅費に関する条例の改正案。特別職の給与は地方自治法第204条第3項に基づき条例で定めることとされている。本件は市長の給料月額および期末手当の算定基礎となる給料月額について、令和8年7月1日から任期満了までの減額措置を講ずるもの。",
   },
   {
     billName: "福津市税条例を改正することについて",
     billNumber: "議案第50号",
-    plainTitle: "市の税金のきまりを変える（市税条例の改正）",
+    plainTitle: "国の地方税法の改正に合わせて市税のきまりを直す",
     formalTitle: "福津市税条例の改正",
     result: "可決",
     kindNormal:
-      "市が集める税金についての決まりを変える議案です。市税条例は、税の種類や納め方などを定めています。",
+      "国の「地方税法等の一部を改正する法律」（令和8年法律第2号）が公布されたことに伴い、それに合わせて市の税金の決まり（市税条例）を直すための議案です。市税条例は、税の種類や納め方などを定めています。",
     kindHard:
-      "市税条例の改正案。地方税法の改正等に伴い、市町村が条例で定める事項を整備する場合に提出されることが多い。",
+      "市税条例の改正案。地方税法等の一部を改正する法律（令和8年法律第2号）の公布に伴い、市町村が条例で定める事項について所要の整備を行うもの。",
   },
   {
     billName: "福津市学童保育所条例を改正することについて",
     billNumber: "議案第51号",
-    plainTitle: "学童保育所のきまりを変える（学童保育所条例の改正）",
+    plainTitle: "新設小学校の学童保育所を令和9年4月に開くためにきまりを直す",
     formalTitle: "福津市学童保育所条例の改正",
     result: "可決",
     kindNormal:
-      "放課後に子どもを預かる学童保育所についての決まりを変える議案です。学童保育所の設置や利用に関することを条例で定めています。",
+      "新しく建てる小学校の学童保育所を令和9年4月1日から開くことに伴い、放課後に子どもを預かる学童保育所の決まりを直すための議案です。学童保育所の設置や利用に関することを条例で定めています。",
     kindHard:
-      "学童保育所（放課後児童健全育成事業）に係る条例の改正案。児童福祉法に基づく事業で、設備・運営の基準は条例で定めることとされている。",
+      "学童保育所（放課後児童健全育成事業）に係る条例の改正案。児童福祉法に基づく事業で、設備・運営の基準は条例で定めることとされている。本件は新設小学校学童保育所の令和9年4月1日開所に伴う所要の改正。",
   },
   {
     billName: "財産の取得について",
@@ -116,20 +167,20 @@ const BILL_OUTLINES: BillOutline[] = [
     formalTitle: "福津市議会基本条例の制定",
     result: "可決",
     kindNormal:
-      "議会が自分たちの役割や進め方の基本ルールを定める条例を、新しくつくる議案です。市長ではなく議員が提出しました（発議）。",
+      "議会と議員の役割・責務に加えて、議会と市長、議会と市民の関係をはっきりさせ、市民に身近で開かれた議会をめざすための条例を、新しくつくる議案です。市長ではなく議員が提出しました（発議）。",
     kindHard:
-      "議会基本条例の新規制定。議会の役割、議員の責務、市民参加、市長等との関係などを定める議会運営の基本規範。議員提出議案（発議）である。",
+      "議会基本条例の新規制定。二元代表制のもとで議会・議員の役割と責務、議会と市長等および市民との関係を定める議会運営の基本規範。議員提出議案（発議）である。",
   },
   {
     billName: "福津市議会会議規則を改正することについて",
     billNumber: "発議第3号",
-    plainTitle: "議会の会議の進め方のきまりを変える",
+    plainTitle: "議会基本条例をつくったことに伴い会議の進め方のきまりを直す",
     formalTitle: "福津市議会会議規則の改正",
     result: "可決",
     kindNormal:
-      "議会の会議をどう進めるかを定めた規則を変える議案です。議員が提出しました（発議）。",
+      "同じ定例会で議会基本条例（発議第2号）をつくったことに伴い、議会の会議をどう進めるかを定めた規則を直す議案です。議員が提出しました（発議）。",
     kindHard:
-      "地方自治法第120条に基づき議会が定める会議規則の改正。議事手続、発言、表決等の運営細目を定める。議員提出議案（発議）である。",
+      "地方自治法第120条に基づき議会が定める会議規則の改正。議事手続、発言、表決等の運営細目を定める。本件は福津市議会基本条例の制定に伴う所要の改正で、議員提出議案（発議）である。",
   },
   {
     billName: "非核三原則の堅持を求める意見書の提出について",
@@ -173,39 +224,45 @@ const BILL_OUTLINES: BillOutline[] = [
 /** 掲載状態の注記。全議案で同じ文面を使う（要約基準を統一するため） */
 const NOTICE = `## この記事の情報について
 
-福津市は議案書そのものを公開していません。そのため、このページに掲載しているのは
-**議案の件名と議決結果から確実に言えることだけ**です。議案書の中身にもとづく要約ではなく、
-AIによる要約でもありません。
+この記事は、福津市が公開している議案一覧・議決結果一覧と、議案書に記載された「理由」をもとに書いています。
+やさしい言葉での説明は、これらの資料をもとにAIが書き直したものです。
 
-議案書の提供を受け次第、内容にもとづく解説に差し替えます。`;
+本会議での質疑や討論の内容は、会議録の公開後（${MINUTES_DUE_LABEL}の見込み）に追加します。
+どの議員が賛成・反対したかは、市議会だよりの賛否一覧表が公開されてから掲載します。`;
+
+/** 引用として表示するための記法。改行のある文章でも引用ブロックが途切れないようにする */
+function asQuote(text: string): string {
+  return `> ${text.replace(/\n/g, "\n> ")}`;
+}
 
 function buildContent(o: BillOutline, level: DifficultyLevel): string {
-  const heading = level === "normal" ? o.plainTitle : o.formalTitle;
   const kind = level === "normal" ? o.kindNormal : o.kindHard;
+  const reason = DOCUMENT_REASONS.get(o.billNumber) ?? null;
 
-  return `# ${heading}
+  // 本文の先頭に見出しを置かない。議案ページには既にタイトルが表示されており、
+  // ここにも同じ文字列を入れると、見出しも説明文も画面に2回並ぶことになる。
+  const parts = [`## この議案の内容\n\n${kind}`];
 
-## 議案の種類
+  // 議案書に印刷された正式な理由。要約すると意味が変わるので原文のまま引用する。
+  // やさしい版では上の説明に噛みくだいて入れてあるため、くわしい版だけに置く。
+  if (reason && level === "hard") {
+    parts.push(
+      `## 議案書に記載された理由\n\n以下は議案書からの引用です。\n\n${asQuote(reason)}`
+    );
+  }
 
-${kind}
+  parts.push(
+    `## 審議の結果\n\n- 議案番号: ${o.billNumber}\n- 議決年月日: ${DECIDED_LABEL}\n- 議決結果: **${o.result}**`,
+    `## 元の資料\n\n- [令和8年6月定例会のページ（福津市公式）](${SESSION_URL})\n- [議決結果一覧（PDF・福津市公式）](${KETSUGI_PDF_URL})`,
+    NOTICE
+  );
 
-## 審議の結果
-
-- 議案番号: ${o.billNumber}
-- 議決年月日: 令和8年6月23日
-- 議決結果: **${o.result}**
-
-## 元の資料
-
-- [令和8年6月定例会のページ（福津市公式）](${SESSION_URL})
-- [議決結果一覧（PDF・福津市公式）](${KETSUGI_PDF_URL})
-
-${NOTICE}`;
+  return parts.join("\n\n");
 }
 
 function buildSummary(o: BillOutline, level: DifficultyLevel): string {
   const kind = level === "normal" ? o.kindNormal : o.kindHard;
-  return `${kind}令和8年6月23日の本会議で${o.result}されました。議案書が公開されていないため、内容の要約は掲載していません。`;
+  return `${kind}${DECIDED_LABEL}の本会議で${o.result}されました。`;
 }
 
 export const billContentsWithBillName: BillContentWithBillName[] =
