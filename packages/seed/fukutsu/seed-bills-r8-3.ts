@@ -15,7 +15,11 @@ import {
   submittedAt,
 } from "./bills-r8-3";
 import { findMemberParty } from "./members";
-import { describeVoteMethod, type VoteMethod } from "./parse-bill-votes";
+import {
+  cutToOwnItem,
+  describeVoteMethod,
+  type VoteMethod,
+} from "./parse-bill-votes";
 
 // biome-ignore lint/suspicious/noExplicitAny: seedスクリプト内でのみ使う簡易クライアント型
 type Client = SupabaseClient<any, "public", any>;
@@ -39,8 +43,9 @@ function buildStatusNote(
 
 /** 本文の組み立てに渡す前提。この会期は会議録も市議会だよりも公開済み */
 function toContentInput(
+  billNumber: string,
   billName: string,
-  statusNote: string,
+  reasonPlain: string | undefined,
   docReason: string | null,
   proposalReason: string | null,
   committeeReport: string | null
@@ -48,17 +53,24 @@ function toContentInput(
   return {
     subject: "議案",
     billName,
-    statusNote,
+    reasonPlain,
+    // 提案理由を説明したのが市か提出議員かで見出しの主語が変わる
+    isMemberBill: billNumber.startsWith("発議"),
     documentReason: docReason,
     proposalReason,
-    committeeReport,
+    // 委員長は付託された案件を続けて読み上げる。他の案件の審査内容が
+    // このページに出ないよう、自分の案件のぶんだけに絞る
+    committeeReport: committeeReport ? cutToOwnItem(committeeReport) : null,
     sources: [
       { label: "この定例会のページ（福津市公式）", url: R8_3_SOURCE_URL },
     ],
     hasMinutes: true,
     hasMemberVotes: true,
     minutesDueLabel: null,
-    aiSourceLabel: "議案書と会議録に記録された市の説明",
+    // 発議は市ではなく議員が出したもの。「市の説明」と書くと出典を偽ることになる
+    aiSourceLabel: billNumber.startsWith("発議")
+      ? "議案書と会議録に記録された提出議員の説明"
+      : "議案書と会議録に記録された市の説明",
     originalDocumentNote:
       "ここに載せているのは、議案書と会議録に記録された市の説明です。議案書そのものは、この非公式サイトでは再掲載していません。",
   };
@@ -125,15 +137,11 @@ export async function seedBillsR8_3(
     const billId = billIdByNumber.get(v.billNumber);
     if (!billId) return [];
     const plain = PLAIN_TEXTS[v.billNumber];
-    const statusNote = buildStatusNote(
-      v.outcome,
-      v.voteMethod as VoteMethod,
-      decidedAt(v.sessionDay)
-    );
 
     const contentInput = toContentInput(
+      v.billNumber,
       v.billName,
-      statusNote,
+      plain.reasonPlain,
       documentReason(v.billNumber),
       v.proposalReason,
       v.committeeReport

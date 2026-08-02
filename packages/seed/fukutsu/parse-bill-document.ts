@@ -92,6 +92,46 @@ function isEndOfReason(line: string): boolean {
   );
 }
 
+/**
+ * 理由文がページの終わりで途切れている場合に、次のページの続きの位置を返す。
+ * 続きではないと判断したら null。
+ *
+ * 【なぜ要るか】
+ * 長い理由文はページをまたぐ。テキスト化すると
+ *   理 由 …指定管理者については、福津市公
+ *   （空行）
+ *   69            ← ページ番号
+ *   \fの施設における指定管理者の指定の手続等に関する条例…議決を求める。
+ * のようになり、空行で打ち切ると文の途中で切れる。
+ *
+ * 誤って関係のない文をつなげないよう、条件を絞る。
+ *   - 文が「。」で終わっていない（＝途中で切れている）ときだけ続きを探す
+ *   - 空行とページ番号だけを読み飛ばし、改ページを必ずまたぐ
+ *   - その先が次の議案の見出しなら、続きではないので打ち切る
+ */
+function findReasonContinuation(
+  lines: string[],
+  from: number,
+  sentence: string
+): number | null {
+  if (/[。．]$/.test(sentence)) return null;
+
+  let k = from;
+  let crossedPage = false;
+  while (k < lines.length) {
+    if (lines[k].startsWith("\f")) crossedPage = true;
+    const trimmed = lines[k].replace(/^\f/, "").trim();
+    if (trimmed === "" || PAGE_NUMBER_RE.test(trimmed)) {
+      k++;
+      continue;
+    }
+    break;
+  }
+
+  if (!crossedPage || k >= lines.length) return null;
+  return HEADING_RE.test(lines[k]) ? null : k;
+}
+
 /** 見出しの次の行にある件名を拾う。空行を挟むことがあるので少し先まで見る */
 function findTitleBelow(lines: string[], from: number): string {
   for (let i = from; i < Math.min(from + 3, lines.length); i++) {
@@ -146,9 +186,21 @@ export function parseBillDocument(text: string): BillDocumentEntry[] {
     if (reasonHead === undefined) continue;
 
     const body: string[] = [reasonHead];
-    for (let j = i + 1; j < lines.length; j++) {
-      if (isEndOfReason(lines[j])) break;
+    let j = i + 1;
+    while (j < lines.length) {
+      if (isEndOfReason(lines[j])) {
+        const next = findReasonContinuation(
+          lines,
+          j,
+          stripLayoutSpaces(body.join(""))
+        );
+        if (next === null) break;
+        body.push(lines[next]);
+        j = next + 1;
+        continue;
+      }
       body.push(lines[j]);
+      j++;
     }
 
     const reason = stripLayoutSpaces(body.join(""));

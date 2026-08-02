@@ -54,18 +54,29 @@ export function toHalfWidthDigits(text: string): string {
   );
 }
 
+/**
+ * 会議録に出てくる案件の種別。
+ *
+ * 「承認」は市長が議会を待たずに決めた事柄（専決処分）を、あとから議会が
+ * 認めるかどうかを議決するもの。市民の税金の使いみちに関わることが多く、
+ * 議決の対象なので必ず拾う。「認定」は決算の認定。
+ */
+const BILL_KIND = "議案|発議|同意|諮問|承認|認定";
+
 /** 「議案第33号福津市下水道条例を改正すること」を番号と件名に割る */
 export function splitBillTitle(
   title: string
 ): { billNumber: string; billName: string } | null {
-  const m = title.match(/^(議案|発議|同意|諮問)第([0-9０-９]+)号(.*)$/);
+  const m = title.match(new RegExp(`^(${BILL_KIND})第([0-9０-９]+)号(.*)$`));
   if (!m) return null;
 
   const name = m[3].trim();
   return {
     billNumber: `${m[1]}第${toHalfWidthDigits(m[2])}号`,
-    // 会議録は「…すること」で切れていることが多いので、議案名の形に整える
-    billName: name.endsWith("について") ? name : `${name}について`,
+    // 会議録は「…すること」で切れていることが多いので、議案名の形に整える。
+    // 専決処分の承認のように「…について（令和７年度…）」と括弧で終わるものは
+    // すでに整った形なので、そのまま残す
+    billName: /について(?:（.*）)?$/.test(name) ? name : `${name}について`,
   };
 }
 
@@ -74,10 +85,15 @@ export function splitBillTitle(
  *   例1: 賛成多数であります。したがいまして、議案第17号…については、委員会の報告どおり可決することに決定いたしました。
  *   例2: 可否同数であります。…議案第33号…については否決されました。
  *   例3: ご異議なしと認めます。したがいまして、…については、…決定いたしました。
+ *
+ * 件名の末尾に括弧が付くことがあり、その場合は「について」と「は」が離れる。
+ *   例4: 承認第１号専決処分した事件の承認について（令和７年度…補正予算（専決第２号））は、承認することに決定いたしました。
+ * 括弧を挟んでも拾えるようにする。括弧は入れ子になることがあるので、
+ * 「について」以降を貪欲でなく伸ばして「は」に行き着くところまで見る。
  */
 // 「については、可決…」と「については可決…」の両方が出てくるので読点は任意にする
 const MAJORITY_RE =
-  /賛成(多数|少数)であります。したがいまして、(.+?)については、?(.+?)。/g;
+  /賛成(多数|少数)であります。したがいまして、(.+?について(?:（.+?）)?)は、?(.+?)。/g;
 const CHAIR_DECISION_RE =
   /議長は(可決|否決)と裁決します。したがいまして、日程第[0-9０-９]+、(.+?)については(可決|否決)されました。/g;
 
@@ -111,11 +127,13 @@ function collectConclusions(text: string): Conclusion[] {
       index: m.index,
       endIndex: m.index + m[0].length,
       title: m[2],
-      outcome: decision.includes("否決")
-        ? "rejected"
-        : decision.includes("同意") || decision.includes("適任")
-          ? "agreed"
-          : "approved",
+      // 「不承認」は「承認」を含むので、否定のほうを先に見る
+      outcome:
+        decision.includes("否決") || decision.includes("不承認")
+          ? "rejected"
+          : decision.includes("同意") || decision.includes("適任")
+            ? "agreed"
+            : "approved",
       voteMethod: m[1] === "多数" ? "majority" : "minority",
     });
   }
@@ -218,9 +236,20 @@ export function parseBillVotes(text: string, sessionDay: number): BillVote[] {
   return votes;
 }
 
-/** 単独の見出し。「◯ページになります。議案第15号…についてです。」「…について。」 */
-const REASON_HEADING_RE =
-  /(議案|発議|同意|諮問)第([0-9０-９]+)号(?:.+?)について(?:です|でございます)?。/g;
+/**
+ * 単独の見出し。「◯ページになります。議案第15号…についてです。」「…について。」
+ * 承認は「…の承認について（令和７年度…）でございます。」と括弧が挟まる。
+ *
+ * 発議は市長ではなく提出議員が読み上げるため、言い回しが変わる。
+ *   議案: 「議案第15号…についてでございます。」
+ *   発議: 「発議第８号…について提案いたします。」
+ * 議長の「…についてを議題といたします。」は説明ではないので拾わない
+ * （「について」の直後が「を議題」なので、下の並びには当たらない）。
+ */
+const REASON_HEADING_RE = new RegExp(
+  `(${BILL_KIND})第([0-9０-９]+)号(?:.+?)について(?:（.+?）)?(?:です|でございます|提案いたします)?。`,
+  "g"
+);
 
 /** 一括説明のあと、件名だけ読み上げる部分の目印。ここから先は説明ではない */
 const ENUMERATION_MARKER = /(?:ページ番号、議案番号、議案名称についてのみ申し上げます。|については、?ページ番号)/;
@@ -231,6 +260,41 @@ const ENUMERATION_MARKER = /(?:ページ番号、議案番号、議案名称に�
  */
 const REASON_RANGE_HEADING_RE =
   /(議案|発議)第([0-9０-９]+)号から(?:議案)?第([0-9０-９]+)号(?:まで)?につきまし(?:ては|て)[、,]/g;
+
+/**
+ * 委員長報告の中で、次の案件の審査が始まる行。
+ *   例: 「　　　請願第４号　福間南小学校の教育環境整備を求める請願。」
+ *
+ * 委員長は付託された案件を続けて読み上げるため、ここで切らないと
+ * 前の議案のページに次の案件の審査内容がそのまま出てしまう。
+ */
+const NEXT_ITEM_LINE_RE =
+  /^[ \t　]*(?:議案|請願|発議|承認|認定)第[0-9０-９]+号[ \t　][^\n]*/gm;
+
+/**
+ * 次の案件が始まる位置で本文を打ち切る。
+ *
+ * ただし予算審査特別委員会のように複数の議案をまとめて報告するときは、
+ * 審査結果として「議案第４号　…については、賛成多数により…決定した。」と
+ * 議案番号が並ぶ。これは次の案件ではなく報告の一部なので切らない。
+ * 同じ行に議決の結果が書かれているかどうかで見分ける。
+ *
+ * 【どこで呼ぶか】会議録から作るJSONは塊のまま残し、サイトに載せる本文を
+ * 組み立てるときに呼ぶ。請願は会議録の議決文の書式が議案と違って独立した
+ * 案件として拾えないため、直前の議案に紐づいた塊から切り出している
+ * （petitions-r7-12.ts）。JSONの時点で切ると、その切り出し元が無くなる。
+ */
+export function cutToOwnItem(body: string): string {
+  NEXT_ITEM_LINE_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = NEXT_ITEM_LINE_RE.exec(body)) !== null) {
+    // 本文の先頭がその案件自身の見出しのことがある。切ると空になるので飛ばす
+    if (m.index === 0) continue;
+    if (m[0].includes("決定")) continue;
+    return body.slice(0, m.index);
+  }
+  return body;
+}
 
 type ReasonHeading = {
   index: number;
@@ -324,7 +388,10 @@ export type Sponsor = {
  */
 export function extractSponsors(proposalReason: string): Sponsor[] {
   const sponsors: Sponsor[] = [];
-  const RE = /(提出者|賛成者)、((?:福津市議会議員[^、。]+、?)+)/g;
+  // 会議録の書き方に揺れがある。役職名のあとに読点が入るものと入らないもの。
+  //   「提出者、福津市議会議員、中村清隆。」（令和7年12月定例会）
+  //   「提出者、福津市議会議員山本祐平、」（令和8年3月定例会）
+  const RE = /(提出者|賛成者)、((?:福津市議会議員、?[^、。]+[、。]?)+)/g;
 
   let m: RegExpExecArray | null;
   while ((m = RE.exec(proposalReason)) !== null) {

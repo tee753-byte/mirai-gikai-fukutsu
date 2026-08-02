@@ -10,9 +10,11 @@ import {
   buildHardContent,
   buildNormalContent,
 } from "./bill-content-format";
+import { loadBillDocuments, toReasonMap } from "./load-bill-documents";
 import { findMemberParty } from "./members";
 import {
   type BillVote,
+  cutToOwnItem,
   describeVoteMethod,
   type Sponsor,
   type VoteMethod,
@@ -34,6 +36,12 @@ export type PlainText = {
   title: string;
   /** 市民向けの要約。会議録の提案理由説明をもとに平易に書き直したもの */
   summary: string;
+  /**
+   * やさしい版の「なぜ出されたのか」に載せる本文。
+   * 議案書の理由と提案理由説明をもとに平易に書き直したもので、原文ではない。
+   * 理由がそもそも記録されていない議案（予算など）は省略する。
+   */
+  reasonPlain?: string;
   /** どの分野の議案か（タグ付けに使う） */
   tag: string;
   /** 付託された委員会。議員提出の発議など委員会付託が無いものはnull */
@@ -50,6 +58,14 @@ export type SeedBillsForSessionInput = {
   votes: BillVoteRecord[];
   plainTexts: Record<string, PlainText>;
   sourceUrl: string;
+  /**
+   * 議案書から抽出した理由のファイル名。例: "r7-12-bill-documents.json"
+   *
+   * このファイルはリポジトリに入れていない（個人情報を含みうるため）ので、
+   * 無い環境では警告を出したうえで理由なしとして扱われる。
+   * 請願は請願書そのものが非公開資料のため、このファイルには含めない。
+   */
+  documentsFile?: string;
   /** 本文の「元の資料」に並べるリンク。市が公開しているものだけを渡す */
   sources?: BillContentSource[];
   /**
@@ -127,39 +143,79 @@ function buildStatusNote(
 }
 
 /**
+ * 記事が何をもとに書かれたかの一文。議案ごとに実際にある資料から決める。
+ *
+ * 会議録が未公開の会期や、理由欄が無い予算議案では、もとにできる資料が
+ * 議案ごとに違う。一律の文言にすると、読み手に何を根拠に書かれた記事なのかを
+ * 誤って伝えることになる。
+ */
+function buildAiSourceLabel(o: {
+  petition: boolean;
+  memberBill: boolean;
+  hasDocumentReason: boolean;
+  hasProposalReason: boolean;
+}): string {
+  // 請願は市民が提出するもの。市の説明でも提出議員の説明でもない
+  if (o.petition) return "会議録に記録された委員会での審査内容";
+
+  const speaker = o.memberBill ? "提出議員" : "市";
+  if (o.hasDocumentReason && o.hasProposalReason) {
+    return `議案書と会議録に記録された${speaker}の説明`;
+  }
+  if (o.hasDocumentReason) return "議案書に記載された理由";
+  if (o.hasProposalReason) return `会議録に記録された${speaker}の説明`;
+
+  // 予算議案には理由欄が無く、会議録にも提案理由の説明が残っていないことがある
+  return "福津市が公開している議案一覧と議決結果";
+}
+
+/**
  * 本文の組み立てに渡す、会期と議案ごとの前提をまとめる。
  *
  * 請願は市民が提出するものなので「市の説明」ではない。請願書そのものも
  * 非公開資料のため、載せているのが会議録の記録だけであることを明示する。
  */
-function toContentInput(
-  billName: string,
-  billNumber: string,
-  statusNote: string,
-  proposalReason: string | null,
-  committeeReport: string | null,
-  sources: BillContentSource[],
-  hasMinutes: boolean,
-  hasMemberVotes: boolean,
-  minutesDueLabel: string | null
-) {
-  const petition = isPetition(billNumber);
+function toContentInput(o: {
+  billName: string;
+  billNumber: string;
+  reasonPlain: string | undefined;
+  documentReason: string | null;
+  proposalReason: string | null;
+  committeeReport: string | null;
+  sources: BillContentSource[];
+  hasMinutes: boolean;
+  hasMemberVotes: boolean;
+  minutesDueLabel: string | null;
+}) {
+  const petition = isPetition(o.billNumber);
+  const memberBill = o.billNumber.startsWith("発議");
+
   return {
     subject: petition ? "請願" : "議案",
-    billName,
-    statusNote,
-    proposalReason,
-    committeeReport,
-    sources,
-    hasMinutes,
-    hasMemberVotes,
-    minutesDueLabel,
-    aiSourceLabel: petition
-      ? "会議録に記録された委員会での審査内容"
-      : "会議録に記録された市の説明",
+    billName: o.billName,
+    reasonPlain: o.reasonPlain,
+    // 提案理由を説明したのが市か提出議員かで見出しの主語が変わる
+    isMemberBill: memberBill,
+    documentReason: o.documentReason,
+    proposalReason: o.proposalReason,
+    // 委員長は付託された案件を続けて読み上げる。他の案件の審査内容が
+    // このページに出ないよう、自分の案件のぶんだけに絞る
+    committeeReport: o.committeeReport
+      ? cutToOwnItem(o.committeeReport)
+      : o.committeeReport,
+    sources: o.sources,
+    hasMinutes: o.hasMinutes,
+    hasMemberVotes: o.hasMemberVotes,
+    minutesDueLabel: o.minutesDueLabel,
+    aiSourceLabel: buildAiSourceLabel({
+      petition,
+      memberBill,
+      hasDocumentReason: Boolean(o.documentReason),
+      hasProposalReason: Boolean(o.proposalReason),
+    }),
     originalDocumentNote: petition
       ? "ここに載せているのは、会議録に記録された委員会での審査内容と議決結果です。請願書そのもの（請願の趣旨・請願人）は、この非公式サイトでは掲載していません。"
-      : "ここに載せているのは、会議録に記録された市の説明です。議案書そのものは、この非公式サイトでは再掲載していません。",
+      : `ここに載せているのは、${o.documentReason ? "議案書と会議録に記録された" : "会議録に記録された"}${memberBill ? "提出議員" : "市"}の説明です。議案書そのものは、この非公式サイトでは再掲載していません。`,
   };
 }
 
@@ -176,6 +232,7 @@ export async function seedBillsForSession({
   votes,
   plainTexts,
   sourceUrl,
+  documentsFile,
   sources,
   hasMinutes = true,
   hasMemberVotes = true,
@@ -187,6 +244,10 @@ export async function seedBillsForSession({
   const contentSources: BillContentSource[] = sources ?? [
     { label: "この定例会のページ（福津市公式）", url: sourceUrl },
   ];
+  // 議案書に印刷されている理由。ファイルが無ければ空（load側が警告を出す）
+  const documentReasons = documentsFile
+    ? toReasonMap(loadBillDocuments(documentsFile))
+    : new Map<string, string | null>();
   // ── bills ──
   const billRows = votes.map((v) => {
     const plain = plainTexts[v.billNumber];
@@ -241,24 +302,20 @@ export async function seedBillsForSession({
     const billId = billIdByNumber.get(v.billNumber);
     if (!billId) return [];
     const plain = plainTexts[v.billNumber];
-    const statusNote = buildStatusNote(
-      v.outcome,
-      (v.voteMethod as VoteMethod | null) ?? null,
-      decidedAt(v.sessionDay),
-      v.billNumber
-    );
 
-    const contentInput = toContentInput(
-      v.billName,
-      v.billNumber,
-      statusNote,
-      v.proposalReason ?? null,
-      v.committeeReport ?? null,
-      contentSources,
+    const contentInput = toContentInput({
+      billName: v.billName,
+      billNumber: v.billNumber,
+      reasonPlain: plain.reasonPlain,
+      // 請願は請願書そのものが非公開資料なので、議案書の理由は持たない
+      documentReason: documentReasons.get(v.billNumber) ?? null,
+      proposalReason: v.proposalReason ?? null,
+      committeeReport: v.committeeReport ?? null,
+      sources: contentSources,
       hasMinutes,
       hasMemberVotes,
-      minutesDueLabel
-    );
+      minutesDueLabel,
+    });
 
     return [
       {

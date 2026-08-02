@@ -33,6 +33,31 @@ function isCommitteeReport(body: string): boolean {
   return /主な質疑及び答弁|審査結果|審査経過/.test(body);
 }
 
+/**
+ * 提出者の提案理由の説明を、討論から取り除く。
+ *
+ * 発議は提出議員が提案理由を説明したあと、質疑・討論に進む。会議録上、
+ * この説明が討論の区間に含まれてしまい、賛成討論として数えられていた
+ * （令和7年12月定例会 発議第8号）。提案説明は賛否を述べる発言ではないので、
+ * 討論の人数にも入れない。
+ *
+ * 提案理由説明と討論は同じ発言の書き起こしなので、提案理由の書き出しを
+ * そのまま含んでいるかで見分ける。反対討論が提案理由に触れることはあるが、
+ * 40字が一言一句そのままということはない。
+ */
+function withoutProposalSpeech<T extends { rawText: string }>(
+  debates: T[],
+  proposalReason: string | null
+): T[] {
+  if (!proposalReason) return debates;
+
+  const strip = (text: string) => text.replace(/[\s　]/g, "");
+  const key = strip(proposalReason).slice(0, 40);
+  if (key.length < 40) return debates;
+
+  return debates.filter((d) => !strip(d.rawText).includes(key));
+}
+
 function main() {
   const [dir, slug] = process.argv.slice(2);
   if (!dir || !slug) {
@@ -73,6 +98,8 @@ function main() {
       const reason = reasons.get(vote.billNumber) ?? null;
       records.push({
         ...vote,
+        // 提出者の提案理由の説明は討論ではない
+        debates: withoutProposalSpeech(vote.debates, reason),
         proposalReason: reason,
         committeeReport: committeeReports.get(vote.billNumber) ?? null,
         sponsors: reason ? extractSponsors(reason) : [],

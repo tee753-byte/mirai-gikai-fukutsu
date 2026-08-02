@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   describeVoteMethod,
   extractDebates,
+  cutToOwnItem,
+  extractProposalReasons,
   extractSponsors,
   parseBillVotes,
   splitBillTitle,
@@ -66,8 +68,46 @@ describe("splitBillTitle", () => {
     );
   });
 
+  it("専決処分の承認も案件として拾う", () => {
+    // 市長が議会を待たずに決めた事柄を、あとから議会が認めるかどうかの議決。
+    // 件名が括弧で終わるので「について」を足さない
+    expect(
+      splitBillTitle(
+        "承認第１号専決処分した事件の承認について（令和７年度福津市一般会計補正予算（専決第２号））"
+      )
+    ).toEqual({
+      billNumber: "承認第1号",
+      billName:
+        "専決処分した事件の承認について（令和７年度福津市一般会計補正予算（専決第２号））",
+    });
+  });
+
+  it("決算の認定も案件として拾う", () => {
+    expect(
+      splitBillTitle("認定第１号令和７年度福津市一般会計歳入歳出決算の認定について")
+        ?.billNumber
+    ).toBe("認定第1号");
+  });
+
   it("議案でない見出しはnullを返す", () => {
     expect(splitBillTitle("閉会中の所管事務調査")).toBeNull();
+  });
+});
+
+describe("parseBillVotes（専決処分の承認）", () => {
+  // 件名の末尾に括弧が付き、「について」と「は」が離れる書き方
+  const TEXT = [
+    "○議長（髙山賢二）　これより採決を行います。承認第１号を承認することに賛成の議員の起立を求めます。",
+    "○議長（髙山賢二）　賛成多数であります。したがいまして、承認第１号専決処分した事件の承認について（令和７年度福津市一般会計補正予算（専決第２号））は、承認することに決定いたしました。",
+  ].join("\n");
+
+  it("括弧で終わる件名でも議決結果を拾う", () => {
+    const votes = parseBillVotes(TEXT, 1);
+
+    expect(votes).toHaveLength(1);
+    expect(votes[0].billNumber).toBe("承認第1号");
+    expect(votes[0].outcome).toBe("approved");
+    expect(votes[0].voteMethod).toBe("majority");
   });
 });
 
@@ -104,6 +144,69 @@ describe("parseBillVotes", () => {
 
   it("会議録の何日目から取ったかを持つ", () => {
     expect(votes[0].sessionDay).toBe(8);
+  });
+});
+
+describe("cutToOwnItem", () => {
+  it("次の案件の審査が始まったら、そこで打ち切る", () => {
+    // 委員長は付託された案件を続けて読み上げる。切らないと議案第57号のページに
+    // 請願第4号の審査内容が出てしまう
+    const report = [
+      "審査内容。",
+      "　（１）主な質疑及び答弁。",
+      "　質疑。稼働率はどの程度か。",
+      "　（３）審査結果。",
+      "　本委員会では、賛成多数により原案のとおり可決すべきものと決定した。",
+      "　　　請願第４号　福間南小学校の教育環境整備を求める請願。",
+      "　（１）主な質疑及び答弁。",
+      "　質疑。請願項目１の文言について見解を伺う。",
+    ].join("\n");
+
+    const cut = cutToOwnItem(report);
+
+    expect(cut).toContain("稼働率はどの程度か");
+    // 自分の案件の審査結果までは残す
+    expect(cut).toContain("可決すべきものと決定した");
+    expect(cut).not.toContain("請願第４号");
+    expect(cut).not.toContain("福間南小学校");
+  });
+
+  it("一括報告の審査結果に並ぶ議案番号では打ち切らない", () => {
+    // 予算審査特別委員会は複数の議案をまとめて報告する。
+    // 議案番号と議決結果が同じ行にあるものは、次の案件ではなく報告の一部
+    const report = [
+      "２．審査経過。",
+      "　本議案は、全員の議員をもって構成した特別委員会で慎重に審査したため、詳細については省略。",
+      "　３．審査結果。",
+      "　　　議案第４号　令和７年度一般会計補正予算については、賛成多数により原案のとおり可決すべきものと決定した。",
+      "　　　議案第５号　令和７年度国民健康保険事業特別会計補正予算については、賛成多数により原案のとおり可決すべきものと決定した。",
+    ].join("\n");
+
+    expect(cutToOwnItem(report)).toBe(report);
+  });
+
+  it("先頭がその案件自身の見出しでも空にしない", () => {
+    const report = "請願第３号　在自土石流危険区域の被害軽減に関する請願。\n審査内容。";
+
+    expect(cutToOwnItem(report)).toBe(report);
+  });
+});
+
+describe("extractProposalReasons（発議の読み上げ）", () => {
+  it("委員長報告は塊のまま返す（切るのは本文の組み立て時）", () => {
+    // 請願は会議録の議決文の書式が議案と違い独立した案件として拾えないため、
+    // 直前の議案に紐づいた塊から切り出している。ここで切ると切り出し元が消える
+    const text = [
+      "◎委員長　議案第57号駐車場の指定管理者を指定することについて。",
+      "審査内容。",
+      "　（３）審査結果。本委員会では、賛成多数により原案のとおり可決すべきものと決定した。",
+      "　　　請願第４号　福間南小学校の教育環境整備を求める請願。",
+      "　（１）主な質疑及び答弁。質疑。請願項目１の文言について見解を伺う。",
+    ].join("\n");
+
+    const body = extractProposalReasons(text).get("議案第57号") ?? "";
+
+    expect(body).toContain("請願第４号");
   });
 });
 
@@ -163,10 +266,43 @@ describe("extractSponsors", () => {
     ]);
   });
 
+  it("役職名のあとに読点が入る書き方でも拾う", () => {
+    // 令和7年12月定例会 発議第8号の実例。会期によって書き方が揺れる
+    const reason =
+      "　令和７年12月２日提出。\n" +
+      "　提出者、福津市議会議員、中村清隆。賛成者、福津市議会議員、石田まなみ。";
+
+    expect(extractSponsors(reason)).toEqual([
+      { role: "proposer", memberName: "中村清隆" },
+      { role: "seconder", memberName: "石田まなみ" },
+    ]);
+  });
+
   it("提出者の記載が無い議案では空配列", () => {
     expect(extractSponsors("市長の公約に基づき、給料月額を減額するものです。")).toEqual(
       []
     );
+  });
+});
+
+describe("extractProposalReasons（発議の読み上げ）", () => {
+  it("発議の「…について提案いたします。」も見出しとして拾う", () => {
+    // 議案は市長が「…についてでございます。」、発議は提出議員が
+    // 「…について提案いたします。」と読み上げる
+    const text = [
+      "○議長（髙山賢二）　日程第９、発議第８号議員報酬に関する条例を改正することについてを議題といたします。",
+      "◎１７番（中村清隆）　発議第８号議員報酬に関する条例を改正することについて提案いたします。",
+      "　よって、福津市議会会議規則第14条第１項の規定により提出するものです。",
+      "　提出者、福津市議会議員、中村清隆。賛成者、福津市議会議員、石田まなみ。",
+      "　提案理由としましては、議会広報調査特別委員長に委員長の額を支給することが適当であるためです。",
+    ].join("\n");
+
+    const body = extractProposalReasons(text).get("発議第8号") ?? "";
+
+    expect(body).toContain("提出者、福津市議会議員、中村清隆");
+    expect(body).toContain("議会広報調査特別委員長に委員長の額を支給");
+    // 議長の「…を議題といたします。」は説明ではないので、そこから始まらない
+    expect(body).not.toContain("議題といたします");
   });
 });
 

@@ -9,13 +9,30 @@
  * 上部の要約はページに必ず表示されるので、本文は「要約に書いていないこと」から
  * 始める。どの議案を開いても同じ順序で読めるようにする。
  *
- *   ## この議案はどうなったか      … 議決の結果
+ *   ## なぜ出されたのか            … やさしい版のみ・理由をやさしく書き直したもの
  *   ## 議案書に記載された理由      … くわしい版のみ・資料があるとき
  *   ## 市が議会で説明した提案理由  … くわしい版のみ・会議録があるとき
+ *                                    （発議は「提出した議員が議会で説明した提案理由」）
  *   ## 委員会での審査              … くわしい版のみ・委員長報告があるとき
  *   ## 正式な件名                  … くわしい版のみ
  *   ## 元の資料                    … 出典リンク
  *   ## この記事の情報について      … AI要約である旨と、まだ載せられていないもの
+ *
+ * 【なぜ「なぜ出されたのか」がやさしい版に要るのか】
+ * 理由・提案理由・委員長報告はどれもくわしい版にしか無かった。そのため
+ * やさしい版の読者には、理由が難しく書かれているのではなく、理由が存在すること
+ * 自体が見えていなかった。切り替えスイッチが「表現の難しさ」ではなく
+ * 「情報の有無」を切り替えてしまっている状態だったため、やさしい版にも
+ * 同じ内容を平易な言葉で置き、原文はくわしい版で読めることを案内する。
+ *
+ * ヘッダーの要約と役割が重ならないようにする。
+ *   ヘッダーの要約   … 何の議案か
+ *   なぜ出されたのか … なぜ必要とされたのか／それを誰が説明しているのか
+ *
+ * 【議決の結果を本文に書かない理由】
+ * 以前は「## この議案はどうなったか」として議決結果の一文を置いていたが、
+ * 本文のすぐ上にある審議のステータスカードが同じ一文をそのまま表示している。
+ * 上部の要約を繰り返さないのと同じ理由で、これも本文には書かない。
  */
 
 export type BillContentSource = {
@@ -28,8 +45,19 @@ export type BillContentInput = {
   subject: string;
   /** 議案書どおりの正式な件名 */
   billName: string;
-  /** 「令和8年6月23日の本会議で否決」などの一文 */
-  statusNote: string;
+  /**
+   * 「なぜ出されたのか」に載せる、やさしく書き直した理由。
+   * 議案書の理由と提案理由説明をもとにAIが書いたもので、原文ではない。
+   * 予算議案のように理由がそもそも記録されていないものは undefined にする。
+   */
+  reasonPlain?: string | null;
+  /**
+   * 議員が提出した議案（発議）か。
+   * 提案理由を説明したのが市なのか議員なのかで見出しの主語が変わる。
+   * 発議なのに「市が説明した」と書くと、提出者の主張を市の説明として
+   * 読ませてしまうため、ここは必ず区別する。
+   */
+  isMemberBill?: boolean;
   /** 議案書に印刷された理由の原文 */
   documentReason?: string | null;
   /** 本会議で読み上げられた提案理由説明（会議録） */
@@ -53,6 +81,35 @@ export type BillContentInput = {
 /** 引用として表示するための記法。改行のある文章でも引用ブロックが途切れないようにする */
 export function asQuote(text: string): string {
   return `> ${text.replace(/\n/g, "\n> ")}`;
+}
+
+/** 提案理由を説明したのは誰か。市の議案と発議で主語が変わる */
+function proposalReasonSpeaker(input: BillContentInput): string {
+  return input.isMemberBill ? "提出した議員" : "市";
+}
+
+/**
+ * やさしい版の「なぜ出されたのか」。
+ *
+ * 原文はくわしい版にしか置いていないので、要約で済ませずに
+ * 「原文はどこで読めるのか」まで書く。要約だけを唯一の情報源にしない。
+ */
+function reasonSection(input: BillContentInput): string | null {
+  if (!input.reasonPlain) return null;
+
+  // くわしい版の見出しと同じ言い方で案内する。読み手が探せるようにするため
+  const originals: string[] = [];
+  if (input.documentReason) originals.push("議案書に記載された理由");
+  if (input.proposalReason) {
+    originals.push(`${proposalReasonSpeaker(input)}が議会で説明した提案理由`);
+  }
+
+  const guide =
+    originals.length > 0
+      ? `\n\n${originals.join("と、")}の原文は、「説明をもっと詳しく」に切り替えると読めます。`
+      : "";
+
+  return `## なぜ出されたのか\n\n${input.reasonPlain}${guide}`;
 }
 
 function sourcesSection(sources: BillContentSource[]): string | null {
@@ -94,9 +151,10 @@ function infoSection(input: BillContentInput): string {
 
 /** やさしい説明。上部の要約に続けて読む前提なので、説明を繰り返さない */
 export function buildNormalContent(input: BillContentInput): string {
-  const parts: string[] = [
-    `## この${input.subject}はどうなったか\n\n${input.statusNote}`,
-  ];
+  const parts: string[] = [];
+
+  const reason = reasonSection(input);
+  if (reason) parts.push(reason);
 
   const sources = sourcesSection(input.sources);
   if (sources) parts.push(sources);
@@ -108,9 +166,7 @@ export function buildNormalContent(input: BillContentInput): string {
 
 /** くわしい説明。どの資料からの引用かを必ず明示する */
 export function buildHardContent(input: BillContentInput): string {
-  const parts: string[] = [
-    `## この${input.subject}はどうなったか\n\n${input.statusNote}`,
-  ];
+  const parts: string[] = [];
 
   // 議案書の理由と、本会議で読み上げられた提案理由説明は別物なので両方載せる。
   // 議案書のほうが正式な文章なので先に置く。
@@ -121,7 +177,7 @@ export function buildHardContent(input: BillContentInput): string {
   }
   if (input.proposalReason) {
     parts.push(
-      `## 市が議会で説明した提案理由\n\n以下は会議録からの引用です。\n\n${asQuote(input.proposalReason)}`
+      `## ${proposalReasonSpeaker(input)}が議会で説明した提案理由\n\n以下は会議録からの引用です。\n\n${asQuote(input.proposalReason)}`
     );
   }
   if (input.committeeReport) {
