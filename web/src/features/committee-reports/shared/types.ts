@@ -6,6 +6,11 @@ export type CommitteeReportQa = {
 export type CommitteeReportBillReview = {
   billNumber: string;
   billTitle: string;
+  /**
+   * 議案か請願か。請願は結論の言い方が違う（可決／否決ではなく採択／不採択）。
+   * 省略時は議案として扱う。
+   */
+  itemType?: "bill" | "petition";
   /** 主な質疑及び答弁（原本の「(1)主な質疑及び答弁」より抜粋） */
   qa: CommitteeReportQa[];
   /** 主な意見（反対討論など。無ければ空配列） */

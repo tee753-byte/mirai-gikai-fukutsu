@@ -1,3 +1,6 @@
+import { COMMITTEE_REPORTS_R7_12 } from "./data-r7-12";
+import { COMMITTEE_REPORTS_R8_3 } from "./data-r8-3";
+import { COMMITTEE_REPORTS_R8_2, COMMITTEE_REPORTS_R8_4 } from "./data-rinji";
 import type { CommitteeReportGroup, CommitteeReportSession } from "./types";
 
 /**
@@ -149,6 +152,30 @@ export const COMMITTEE_REPORT_SESSIONS: CommitteeReportSession[] = [
     name: "令和8年6月定例会",
     periodLabel: "2026年6月",
     groups: COMMITTEE_REPORTS_R8_6,
+  },
+  {
+    slug: "r8-4",
+    name: "令和8年4月臨時会",
+    periodLabel: "2026年4月",
+    groups: COMMITTEE_REPORTS_R8_4,
+  },
+  {
+    slug: "r8-3",
+    name: "令和8年3月定例会",
+    periodLabel: "2026年2月〜3月",
+    groups: COMMITTEE_REPORTS_R8_3,
+  },
+  {
+    slug: "r8-2",
+    name: "令和8年2月臨時会",
+    periodLabel: "2026年2月",
+    groups: COMMITTEE_REPORTS_R8_2,
+  },
+  {
+    slug: "r7-12",
+    name: "令和7年12月定例会",
+    periodLabel: "2025年11月〜12月",
+    groups: COMMITTEE_REPORTS_R7_12,
   },
 ];
 

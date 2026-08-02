@@ -30,7 +30,11 @@ export function CommitteeReportCard({
       */}
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-mirai-text-muted">{review.billNumber}</p>
-        <BillStatusBadge status={review.outcome} className="shrink-0" />
+        <BillStatusBadge
+          status={review.outcome}
+          billType={review.itemType === "petition" ? "petition" : undefined}
+          className="shrink-0"
+        />
       </div>
       <h3 className="font-bold text-mirai-text leading-snug mt-1">
         {review.billTitle}
