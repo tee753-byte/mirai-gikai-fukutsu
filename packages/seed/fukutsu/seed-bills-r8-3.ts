@@ -5,6 +5,7 @@
  * それをもとにAIが書いた平易な要約を、議案ごとに同じ項目で入れる。
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { buildHardContent, buildNormalContent } from "./bill-content-format";
 import {
   decidedAt,
   documentReason,
@@ -36,48 +37,31 @@ function buildStatusNote(
   return `令和${wareki}年${m}月${d}日の本会議で${result}／${describeVoteMethod(voteMethod)}`;
 }
 
-/** 引用として表示するための記法。改行のある文章でも引用ブロックが途切れないようにする */
-function asQuote(text: string): string {
-  return `> ${text.replace(/\n/g, "\n> ")}`;
-}
-
-/** くわしい説明。どの資料からの引用かを必ず明示する */
-function buildHardContent(
+/** 本文の組み立てに渡す前提。この会期は会議録も市議会だよりも公開済み */
+function toContentInput(
   billName: string,
   statusNote: string,
   docReason: string | null,
   proposalReason: string | null,
   committeeReport: string | null
-): string {
-  const parts = [`## 議決結果\n\n${statusNote}`];
-
-  // 議案書の理由と、本会議で読み上げられた提案理由説明は別物なので両方載せる。
-  // 議案書のほうが正式な文章なので先に置く。
-  if (docReason) {
-    parts.push(
-      `## 議案書に記載された理由\n\n以下は議案書からの引用です。\n\n${asQuote(docReason)}`
-    );
-  }
-  if (proposalReason) {
-    parts.push(
-      `## 市が議会で説明した提案理由\n\n以下は会議録からの引用です。\n\n${asQuote(proposalReason)}`
-    );
-  }
-  if (committeeReport) {
-    parts.push(
-      `## 委員会での審査\n\n以下は委員長報告の会議録からの引用です。\n\n${asQuote(committeeReport)}`
-    );
-  }
-  parts.push(
-    `## 正式な件名\n\n${billName}\n\nここに載せているのは、議案書と会議録に記録された市の説明です。議案書そのものは、この非公式サイトでは再掲載していません。`
-  );
-
-  return parts.join("\n\n");
-}
-
-/** やさしい説明 */
-function buildNormalContent(summary: string, statusNote: string): string {
-  return `${summary}\n\n## この議案はどうなったか\n\n${statusNote}\n\nこの説明は、議案書と会議録に記録された市の説明をもとに、AIがわかりやすく書き直したものです。`;
+) {
+  return {
+    subject: "議案",
+    billName,
+    statusNote,
+    documentReason: docReason,
+    proposalReason,
+    committeeReport,
+    sources: [
+      { label: "この定例会のページ（福津市公式）", url: R8_3_SOURCE_URL },
+    ],
+    hasMinutes: true,
+    hasMemberVotes: true,
+    minutesDueLabel: null,
+    aiSourceLabel: "議案書と会議録に記録された市の説明",
+    originalDocumentNote:
+      "ここに載せているのは、議案書と会議録に記録された市の説明です。議案書そのものは、この非公式サイトでは再掲載していません。",
+  };
 }
 
 export async function seedBillsR8_3(
@@ -147,26 +131,28 @@ export async function seedBillsR8_3(
       decidedAt(v.sessionDay)
     );
 
+    const contentInput = toContentInput(
+      v.billName,
+      statusNote,
+      documentReason(v.billNumber),
+      v.proposalReason,
+      v.committeeReport
+    );
+
     return [
       {
         bill_id: billId,
         difficulty_level: "normal" as const,
         title: plain.title,
         summary: plain.summary,
-        content: buildNormalContent(plain.summary, statusNote),
+        content: buildNormalContent(contentInput),
       },
       {
         bill_id: billId,
         difficulty_level: "hard" as const,
         title: v.billName,
         summary: plain.summary,
-        content: buildHardContent(
-          v.billName,
-          statusNote,
-          documentReason(v.billNumber),
-          v.proposalReason,
-          v.committeeReport
-        ),
+        content: buildHardContent(contentInput),
       },
     ];
   });

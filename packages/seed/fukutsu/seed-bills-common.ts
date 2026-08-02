@@ -5,6 +5,11 @@
  * それ以降に追加する会期（r7-12・r8-1・r8-2など）はこちらを共有する。
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  type BillContentSource,
+  buildHardContent,
+  buildNormalContent,
+} from "./bill-content-format";
 import { findMemberParty } from "./members";
 import {
   type BillVote,
@@ -45,6 +50,20 @@ export type SeedBillsForSessionInput = {
   votes: BillVoteRecord[];
   plainTexts: Record<string, PlainText>;
   sourceUrl: string;
+  /** 本文の「元の資料」に並べるリンク。市が公開しているものだけを渡す */
+  sources?: BillContentSource[];
+  /**
+   * 会議録が公開済みか。未公開の会期では質疑・討論を載せられないため、
+   * その旨を記事に明記する。省略時は公開済みとして扱う
+   */
+  hasMinutes?: boolean;
+  /**
+   * 議員別の賛否を載せられているか。市が公開する議決結果の資料には
+   * 可決・否決しか載らず、誰が賛成したかは市議会だよりを待つ必要がある
+   */
+  hasMemberVotes?: boolean;
+  /** 会議録の公開見込み。例:「令和8年9月ごろ」 */
+  minutesDueLabel?: string | null;
   /** 会議録の何日目に議決されたかから、議決日（YYYY-MM-DD）を返す */
   decidedAt: (sessionDay: number) => string;
   /** 議案番号から、上程日（YYYY-MM-DD）を返す */
@@ -107,54 +126,41 @@ function buildStatusNote(
   return voteMethod ? `${base}／${describeVoteMethod(voteMethod)}` : base;
 }
 
-/** 引用として表示するための記法。改行のある文章でも引用ブロックが途切れないようにする */
-function asQuote(text: string): string {
-  return `> ${text.replace(/\n/g, "\n> ")}`;
-}
-
-/** くわしい説明。どの資料からの引用かを必ず明示する */
-function buildHardContent(
+/**
+ * 本文の組み立てに渡す、会期と議案ごとの前提をまとめる。
+ *
+ * 請願は市民が提出するものなので「市の説明」ではない。請願書そのものも
+ * 非公開資料のため、載せているのが会議録の記録だけであることを明示する。
+ */
+function toContentInput(
   billName: string,
+  billNumber: string,
   statusNote: string,
   proposalReason: string | null,
   committeeReport: string | null,
-  billNumber: string
-): string {
+  sources: BillContentSource[],
+  hasMinutes: boolean,
+  hasMemberVotes: boolean,
+  minutesDueLabel: string | null
+) {
   const petition = isPetition(billNumber);
-  const parts = [`## 議決結果\n\n${statusNote}`];
-
-  if (proposalReason) {
-    parts.push(
-      `## 市が議会で説明した提案理由\n\n以下は会議録からの引用です。\n\n${asQuote(proposalReason)}`
-    );
-  }
-  if (committeeReport) {
-    parts.push(
-      `## 委員会での審査\n\n以下は委員長報告の会議録からの引用です。\n\n${asQuote(committeeReport)}`
-    );
-  }
-  // 請願は市民が提出するものなので「市の説明」ではない。請願書そのものも
-  // 非公開資料のため、載せているのが会議録の記録だけであることを明示する
-  parts.push(
-    petition
-      ? `## 正式な件名\n\n${billName}\n\nここに載せているのは、会議録に記録された委員会での審査内容と議決結果です。請願書そのもの（請願の趣旨・請願人）は、この非公式サイトでは掲載していません。`
-      : `## 正式な件名\n\n${billName}\n\nここに載せているのは、会議録に記録された市の説明です。議案書そのものは、この非公式サイトでは再掲載していません。`
-  );
-
-  return parts.join("\n\n");
-}
-
-/** やさしい説明 */
-function buildNormalContent(
-  summary: string,
-  statusNote: string,
-  billNumber: string
-): string {
-  const subject = isPetition(billNumber) ? "請願" : "議案";
-  const note = isPetition(billNumber)
-    ? "この説明は、会議録に記録された委員会での審査内容をもとに、AIがわかりやすく書き直したものです。"
-    : "この説明は、会議録に記録された市の説明をもとに、AIがわかりやすく書き直したものです。";
-  return `${summary}\n\n## この${subject}はどうなったか\n\n${statusNote}\n\n${note}`;
+  return {
+    subject: petition ? "請願" : "議案",
+    billName,
+    statusNote,
+    proposalReason,
+    committeeReport,
+    sources,
+    hasMinutes,
+    hasMemberVotes,
+    minutesDueLabel,
+    aiSourceLabel: petition
+      ? "会議録に記録された委員会での審査内容"
+      : "会議録に記録された市の説明",
+    originalDocumentNote: petition
+      ? "ここに載せているのは、会議録に記録された委員会での審査内容と議決結果です。請願書そのもの（請願の趣旨・請願人）は、この非公式サイトでは掲載していません。"
+      : "ここに載せているのは、会議録に記録された市の説明です。議案書そのものは、この非公式サイトでは再掲載していません。",
+  };
 }
 
 /**
@@ -170,9 +176,17 @@ export async function seedBillsForSession({
   votes,
   plainTexts,
   sourceUrl,
+  sources,
+  hasMinutes = true,
+  hasMemberVotes = true,
+  minutesDueLabel = null,
   decidedAt,
   submittedAt,
 }: SeedBillsForSessionInput): Promise<{ id: string; bill_number: string }[]> {
+  // 「元の資料」に出すリンク。指定が無ければ会期のページだけを載せる
+  const contentSources: BillContentSource[] = sources ?? [
+    { label: "この定例会のページ（福津市公式）", url: sourceUrl },
+  ];
   // ── bills ──
   const billRows = votes.map((v) => {
     const plain = plainTexts[v.billNumber];
@@ -234,26 +248,32 @@ export async function seedBillsForSession({
       v.billNumber
     );
 
+    const contentInput = toContentInput(
+      v.billName,
+      v.billNumber,
+      statusNote,
+      v.proposalReason ?? null,
+      v.committeeReport ?? null,
+      contentSources,
+      hasMinutes,
+      hasMemberVotes,
+      minutesDueLabel
+    );
+
     return [
       {
         bill_id: billId,
         difficulty_level: "normal" as const,
         title: plain.title,
         summary: plain.summary,
-        content: buildNormalContent(plain.summary, statusNote, v.billNumber),
+        content: buildNormalContent(contentInput),
       },
       {
         bill_id: billId,
         difficulty_level: "hard" as const,
         title: v.billName,
         summary: plain.summary,
-        content: buildHardContent(
-          v.billName,
-          statusNote,
-          v.proposalReason ?? null,
-          v.committeeReport ?? null,
-          v.billNumber
-        ),
+        content: buildHardContent(contentInput),
       },
     ];
   });

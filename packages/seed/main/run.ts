@@ -269,12 +269,15 @@ async function seedDatabase() {
         submittedAt: submittedAtR8_2,
       },
       {
-        // 会議録が未公開の会期。件名と議決結果のみを掲載する
+        // 会議録が未公開の会期。件名と議決結果のみを掲載する。
+        // 市議会だよりも未公開のため、誰が賛成したかもまだ載せられない
         slug: R8_4_SESSION_SLUG,
         label: "r8-4",
         votes: BILL_VOTES_R8_4,
         plainTexts: PLAIN_TEXTS_R8_4,
         sourceUrl: R8_4_SOURCE_URL,
+        hasMinutes: false,
+        hasMemberVotes: false,
         decidedAt: decidedAtR8_4,
         submittedAt: submittedAtR8_4,
       },
@@ -299,6 +302,9 @@ async function seedDatabase() {
         votes: s.votes as any,
         plainTexts: s.plainTexts,
         sourceUrl: s.sourceUrl,
+        // 指定が無い会期は、会議録も市議会だよりも公開済み
+        hasMinutes: "hasMinutes" in s ? s.hasMinutes : true,
+        hasMemberVotes: "hasMemberVotes" in s ? s.hasMemberVotes : true,
         decidedAt: s.decidedAt,
         submittedAt: s.submittedAt,
       });

@@ -29,6 +29,10 @@ interface BillContentWithBillName {
  * - 議決結果   https://www.city.fukutsu.lg.jp/material/files/group/20/giketukekka0806.pdf
  * - 定例会ページ https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19863.html
  */
+import {
+  buildHardContent,
+  buildNormalContent,
+} from "../fukutsu/bill-content-format";
 import billDocuments from "../fukutsu/data/r8-6-bill-documents.json" with {
   type: "json",
 };
@@ -221,48 +225,52 @@ const BILL_OUTLINES: BillOutline[] = [
   },
 ];
 
-/** 掲載状態の注記。全議案で同じ文面を使う（要約基準を統一するため） */
-const NOTICE = `## この記事の情報について
-
-この記事は、福津市が公開している議案一覧・議決結果一覧と、議案書に記載された「理由」をもとに書いています。
-やさしい言葉での説明は、これらの資料をもとにAIが書き直したものです。
-
-本会議での質疑や討論の内容は、会議録の公開後（${MINUTES_DUE_LABEL}の見込み）に追加します。
-どの議員が賛成・反対したかは、市議会だよりの賛否一覧表が公開されてから掲載します。`;
-
-/** 引用として表示するための記法。改行のある文章でも引用ブロックが途切れないようにする */
-function asQuote(text: string): string {
-  return `> ${text.replace(/\n/g, "\n> ")}`;
+/**
+ * 本文の組み立てに渡す前提。
+ *
+ * 他の会期と同じ形で読めるように、共通の bill-content-format を使う。
+ * この会期は会議録も市議会だよりも未公開なので、質疑・討論と議員別の賛否が
+ * まだ載せられないことを記事に明記する。
+ */
+function toContentInput(o: BillOutline) {
+  return {
+    subject: "議案",
+    billName: o.billName,
+    statusNote: `${DECIDED_LABEL}の本会議で${o.result}`,
+    documentReason: DOCUMENT_REASONS.get(o.billNumber) ?? null,
+    proposalReason: null,
+    committeeReport: null,
+    sources: [
+      { label: "令和8年6月定例会のページ（福津市公式）", url: SESSION_URL },
+      { label: "議決結果一覧（PDF・福津市公式）", url: KETSUGI_PDF_URL },
+    ],
+    hasMinutes: false,
+    hasMemberVotes: false,
+    minutesDueLabel: MINUTES_DUE_LABEL,
+    aiSourceLabel:
+      "福津市が公開している議案一覧・議決結果一覧と、議案書に記載された「理由」",
+    originalDocumentNote:
+      "ここに載せているのは、議案書に記載された内容と議決結果です。議案書そのものは、この非公式サイトでは再掲載していません。",
+  };
 }
 
 function buildContent(o: BillOutline, level: DifficultyLevel): string {
-  const kind = level === "normal" ? o.kindNormal : o.kindHard;
-  const reason = DOCUMENT_REASONS.get(o.billNumber) ?? null;
-
-  // 本文の先頭に見出しを置かない。議案ページには既にタイトルが表示されており、
-  // ここにも同じ文字列を入れると、見出しも説明文も画面に2回並ぶことになる。
-  const parts = [`## この議案の内容\n\n${kind}`];
-
-  // 議案書に印刷された正式な理由。要約すると意味が変わるので原文のまま引用する。
-  // やさしい版では上の説明に噛みくだいて入れてあるため、くわしい版だけに置く。
-  if (reason && level === "hard") {
-    parts.push(
-      `## 議案書に記載された理由\n\n以下は議案書からの引用です。\n\n${asQuote(reason)}`
-    );
-  }
-
-  parts.push(
-    `## 審議の結果\n\n- 議案番号: ${o.billNumber}\n- 議決年月日: ${DECIDED_LABEL}\n- 議決結果: **${o.result}**`,
-    `## 元の資料\n\n- [令和8年6月定例会のページ（福津市公式）](${SESSION_URL})\n- [議決結果一覧（PDF・福津市公式）](${KETSUGI_PDF_URL})`,
-    NOTICE
-  );
-
-  return parts.join("\n\n");
+  const input = toContentInput(o);
+  // 議案書の理由は原文のまま引用する。やさしい版では上の要約に噛みくだいて
+  // 入れてあるため、くわしい版だけに置く
+  return level === "normal"
+    ? buildNormalContent({ ...input, documentReason: null })
+    : buildHardContent(input);
 }
 
+/**
+ * カードとページ上部に出す要約。
+ *
+ * 議決の結果は本文の「この議案はどうなったか」と、カードのバッジに出るので
+ * ここには書かない。他の会期の要約とも書き方をそろえる。
+ */
 function buildSummary(o: BillOutline, level: DifficultyLevel): string {
-  const kind = level === "normal" ? o.kindNormal : o.kindHard;
-  return `${kind}${DECIDED_LABEL}の本会議で${o.result}されました。`;
+  return level === "normal" ? o.kindNormal : o.kindHard;
 }
 
 export const billContentsWithBillName: BillContentWithBillName[] =
