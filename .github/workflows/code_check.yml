@@ -1,10 +1,13 @@
-name: Code Check kawasaki/develop
+name: Code Check
 
+# 福津版の作業ブランチでも動かす。これまで kawasaki/develop だけが対象で、
+# fukutsu/develop への push では lint・型チェック・テストのどれも
+# 走っていなかった。
 on:
   push:
-    branches: [kawasaki/develop]
+    branches: [kawasaki/develop, fukutsu/develop]
   pull_request:
-    branches: [kawasaki/develop]
+    branches: [kawasaki/develop, fukutsu/develop]
 
 jobs:
   lint-and-typecheck:
