@@ -34,13 +34,19 @@ export function TopicsListCard() {
           <li key={topic.slug} className="flex items-start gap-2.5">
             <span
               aria-hidden="true"
-              className="mt-[0.55rem] h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+              className="mt-[0.6rem] h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
             />
             <Link
               href={`/topics#${topic.slug}`}
-              className="text-sm leading-relaxed text-mirai-text-secondary hover:text-primary-accent hover:underline"
+              className="group text-sm font-medium leading-relaxed text-mirai-text hover:text-primary-accent"
             >
-              {topic.title}
+              {/*
+                文字の下半分だけに色を敷いて、蛍光ペンで線を引いたように見せる。
+                下線だと他のリンクと区別がつかず、全体を塗ると読みにくくなる。
+              */}
+              <span className="bg-[linear-gradient(transparent_62%,var(--color-topic-marker)_62%)] group-hover:bg-[linear-gradient(transparent_62%,var(--color-topic-marker-hover)_62%)]">
+                {topic.title}
+              </span>
             </Link>
           </li>
         ))}

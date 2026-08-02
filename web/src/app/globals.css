@@ -143,6 +143,15 @@
   --color-bill-type-other-bg: #e8e8ec; /* 決議など、上のどれにも入らないもの */
   --color-bill-type-other-border: #c9c9d2;
   --color-bill-type-other-text: #52525c;
+
+  /*
+   * トピックスの見出しに引くマーカー。
+   * 市民に一番読んでほしいのはトピックスだが、色の濃い議案カードに負けて
+   * 見過ごされやすい。蛍光ペンで線を引いた程度の淡さにとどめ、
+   * 文字の読みやすさを損なわずに視線を集める。
+   */
+  --color-topic-marker: #fbeeb0;
+  --color-topic-marker-hover: #f8e084;
 }
 
 :root {
