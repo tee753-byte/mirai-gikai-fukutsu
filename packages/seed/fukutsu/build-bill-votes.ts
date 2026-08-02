@@ -58,11 +58,44 @@ function withoutProposalSpeech<T extends { rawText: string }>(
   return debates.filter((d) => !strip(d.rawText).includes(key));
 }
 
+/**
+ * 会期をまたぐ会議録が混ざっていないかを確かめる。
+ *
+ * このスクリプトは渡されたフォルダの .txt を全部読み、引数の会期名は
+ * 出力ファイル名にしか使わない。会期ごとにフォルダを分けておく前提だが、
+ * 会議録を1か所にまとめたフォルダを渡すと、全会期ぶんが1つの会期の
+ * データとして書き出され、他の会期のファイルまで同じ内容で上書きされる。
+ *
+ * 会議録のファイル名は先頭が YYYYMMDD。1つの会期が2か月を超えることはない。
+ */
+function assertSingleSession(files: string[]): void {
+  const dates = files
+    .map((f) => f.match(/^(\d{8})/)?.[1])
+    .filter((d): d is string => Boolean(d))
+    .sort();
+  if (dates.length < 2) return;
+
+  const toDate = (d: string) =>
+    new Date(`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`);
+  const spanDays =
+    (toDate(dates[dates.length - 1]).getTime() - toDate(dates[0]).getTime()) /
+    86_400_000;
+
+  if (spanDays > 60) {
+    console.error(
+      `❌ 会議録が ${dates[0]} 〜 ${dates[dates.length - 1]} と${Math.round(spanDays)}日に及んでいます。\n` +
+        "   複数の会期が混ざっていませんか。会期ごとにフォルダを分けて渡してください。\n" +
+        "   （このまま実行すると、他の会期のデータまで同じ内容で上書きされます）"
+    );
+    process.exit(1);
+  }
+}
+
 function main() {
   const [dir, slug] = process.argv.slice(2);
   if (!dir || !slug) {
     console.error(
-      'usage: npx tsx fukutsu/build-bill-votes.ts "<会議録フォルダ>" <session_slug>'
+      'usage: npx tsx fukutsu/build-bill-votes.ts "<会期の会議録フォルダ>" <session_slug>'
     );
     process.exit(1);
   }
@@ -71,6 +104,8 @@ function main() {
     .readdirSync(dir)
     .filter((f) => f.endsWith(".txt") && !f.includes("日程一覧"))
     .sort();
+
+  assertSingleSession(files);
 
   // 提案理由説明と委員長報告は会議録上おなじ書式で読み上げられるため、
   // 日付順に見て「先に出たほう＝提案理由説明」「質疑応答が入るほう＝委員長報告」で振り分ける。
