@@ -1,11 +1,13 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Landmark, Users } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
 import { siteConfig } from "@/config/site.config";
 import { getCouncilSessionBySlug } from "@/features/council-sessions/server/loaders/get-council-session-by-slug";
+import { SessionQuestionsSwitcher } from "@/features/general-questions/server/components/session-questions-switcher";
 import { SessionTopicsView } from "@/features/general-questions/server/components/session-topics-view";
 import { getGeneralQuestionsBySession } from "@/features/general-questions/server/loaders/get-general-questions-by-session";
+import { getSessionsWithQuestions } from "@/features/general-questions/server/loaders/get-sessions-with-questions";
 
 type Props = {
   params: Promise<{ session_slug: string }>;
@@ -33,7 +35,10 @@ export default async function SessionQuestionsPage({ params }: Props) {
     notFound();
   }
 
-  const questions = await getGeneralQuestionsBySession(session.id);
+  const [questions, sessionsWithQuestions] = await Promise.all([
+    getGeneralQuestionsBySession(session.id),
+    getSessionsWithQuestions(),
+  ]);
 
   return (
     <Container className="py-8">
@@ -44,13 +49,31 @@ export default async function SessionQuestionsPage({ params }: Props) {
         <p className="mt-2 text-sm text-mirai-text-secondary">
           議員が問い、市が答えた。あなたの暮らしに関わる取り組みをテーマ別にまとめました。
         </p>
-        <Link
-          href="/questions/members"
-          className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-        >
-          議員から見る
-          <ArrowRight className="h-3 w-3" />
-        </Link>
+
+        {/* 見方の入口。議員から入る道と、定例会から入る道の両方を出す */}
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <Link
+            href="/questions/members"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            <Users className="h-4 w-4 shrink-0" />
+            議員から見る
+            <ArrowRight className="h-3 w-3 shrink-0" />
+          </Link>
+          <Link
+            href="/sessions"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            <Landmark className="h-4 w-4 shrink-0" />
+            議会ごとのまとめを見る
+            <ArrowRight className="h-3 w-3 shrink-0" />
+          </Link>
+        </div>
+
+        <SessionQuestionsSwitcher
+          sessions={sessionsWithQuestions}
+          currentSlug={session_slug}
+        />
       </div>
       <SessionTopicsView questions={questions} />
     </Container>
