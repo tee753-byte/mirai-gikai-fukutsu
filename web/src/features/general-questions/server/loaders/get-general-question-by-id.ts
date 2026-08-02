@@ -1,16 +1,16 @@
 import { unstable_cache } from "next/cache";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import type { GeneralQuestion } from "../../shared/types";
+import type { GeneralQuestionWithSessionName } from "../repositories/general-questions-repository";
 import { findPublishedGeneralQuestionById } from "../repositories/general-questions-repository";
 
 export async function getGeneralQuestionById(
   id: string
-): Promise<GeneralQuestion | null> {
+): Promise<GeneralQuestionWithSessionName | null> {
   return _getCached(id);
 }
 
 const _getCached = unstable_cache(
-  async (id: string): Promise<GeneralQuestion | null> => {
+  async (id: string): Promise<GeneralQuestionWithSessionName | null> => {
     return findPublishedGeneralQuestionById(id);
   },
   ["general-question-by-id"],

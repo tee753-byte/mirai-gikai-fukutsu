@@ -3,6 +3,12 @@ import { createAdminClient } from "@mirai-gikai/supabase";
 import type { GeneralQuestion } from "../../shared/types";
 import type { GeneralQuestionWithSession } from "../../shared/utils/build-questioner-groups";
 
+/** 質問1件と、それが行われた定例会の名前 */
+export type GeneralQuestionWithSessionName = GeneralQuestion & {
+  session_name: string | null;
+  session_slug: string | null;
+};
+
 /**
  * 公開済みの一般質問を、定例会の情報つきで全件取得する。
  * 議員別ページで、1人の議員の質問を定例会をまたいで並べるために使う。
@@ -91,13 +97,20 @@ export async function findLatestSessionSlugWithPublishedQuestions(): Promise<
   return session?.slug ?? null;
 }
 
+/**
+ * 質問1件を取得する。
+ *
+ * 定例会名を一緒に取るのは、同じ議員が複数の定例会で質問しているため。
+ * 定例会が分からないと、ページの見出しもブラウザのタブも検索結果も
+ * 「○○議員の一般質問」が並ぶだけで、どれがどれか区別できない。
+ */
 export async function findPublishedGeneralQuestionById(
   id: string
-): Promise<GeneralQuestion | null> {
+): Promise<GeneralQuestionWithSessionName | null> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("general_questions")
-    .select("*")
+    .select("*, council_sessions(name, slug)")
     .eq("id", id)
     .eq("publish_status", "published")
     .single();
@@ -107,8 +120,14 @@ export async function findPublishedGeneralQuestionById(
     throw new Error(`Failed to fetch general question: ${error.message}`);
   }
 
+  const { council_sessions, ...question } = data as typeof data & {
+    council_sessions: { name: string; slug: string | null } | null;
+  };
+
   return {
-    ...data,
-    topics: Array.isArray(data.topics) ? data.topics : [],
-  } as GeneralQuestion;
+    ...question,
+    topics: Array.isArray(question.topics) ? question.topics : [],
+    session_name: council_sessions?.name ?? null,
+    session_slug: council_sessions?.slug ?? null,
+  } as GeneralQuestionWithSessionName;
 }

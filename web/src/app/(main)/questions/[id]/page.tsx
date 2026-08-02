@@ -20,8 +20,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "質問が見つかりません" };
   }
 
+  // 同じ議員が複数の定例会で質問しているため、定例会名を入れないと
+  // 検索結果でもタブでも同じ見出しが並んで区別できなくなる
+  const sessionPrefix = question.session_name
+    ? `${question.session_name} `
+    : "";
+
   return {
-    title: `${question.questioner_name} 議員の一般質問 | ${siteConfig.siteName}`,
+    title: `${sessionPrefix}${question.questioner_name} 議員の一般質問 | ${siteConfig.siteName}`,
     description: question.summary ?? undefined,
   };
 }
@@ -57,10 +63,12 @@ export default async function GeneralQuestionDetailPage({ params }: Props) {
       </Link>
 
       <div className="mt-4 mb-6">
+        {/* 議員ページの見出しと同じだとどちらのページか分からないため「の一般質問」まで書く */}
         <h1 className="text-2xl font-bold text-mirai-text">
-          {question.questioner_name} 議員
+          {question.questioner_name} 議員の一般質問
         </h1>
         <p className="mt-1 text-sm text-mirai-text-secondary">
+          {question.session_name && <span>{question.session_name}　｜　</span>}
           {question.questioner_party && (
             <span>{question.questioner_party}　｜　</span>
           )}
