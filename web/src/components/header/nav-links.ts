@@ -13,7 +13,7 @@ export type NavLink = {
  */
 export const NAV_LINKS: NavLink[] = [
   { label: "トピックス", href: "/topics", icon: Clock },
-  { label: "議案を検索", href: "/search", icon: Search },
+  { label: "議案・質問を検索", href: "/search", icon: Search },
   { label: "議会ごとのまとめ", href: "/sessions", icon: Landmark },
   { label: "議員・提出者から見る", href: "/questions/members", icon: Users },
 ];

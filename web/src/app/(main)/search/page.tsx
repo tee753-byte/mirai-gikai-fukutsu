@@ -11,11 +11,13 @@ import {
   BILL_TYPE_ORDER,
   getBillTypeMeta,
 } from "@/features/bills/shared/utils/bill-type";
+import { QuestionSearchResultCard } from "@/features/general-questions/server/components/question-search-result-card";
+import { searchGeneralQuestions } from "@/features/general-questions/server/loaders/search-general-questions";
 
 export const metadata: Metadata = {
-  title: "議案を検索",
+  title: "議会の記録を検索",
   description:
-    "福津市議会に提出された議案・発議・請願を、キーワードや会期から探せます。",
+    "福津市議会に提出された議案・発議・請願と、議員が行った一般質問を、キーワードや会期から探せます。",
 };
 
 type SearchPageProps = {
@@ -45,10 +47,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   };
 
   const difficultyLevel = await getDifficultyLevel();
-  const { bills, totalCount, sessionOptions, tagOptions } = await searchBills(
-    filters,
-    difficultyLevel
-  );
+  const [{ bills, totalCount, sessionOptions, tagOptions }, questionResult] =
+    await Promise.all([
+      searchBills(filters, difficultyLevel),
+      searchGeneralQuestions({
+        keyword: filters.keyword,
+        sessionSlug: filters.sessionSlug,
+      }),
+    ]);
 
   const hasFilter =
     filters.keyword !== "" ||
@@ -57,13 +63,31 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     filters.result !== "" ||
     filters.tag !== "";
 
+  /*
+   * 一般質問は、種別・議決結果・分野といった議案だけの条件が指定されているときは
+   * 出さない。議案を絞り込んでいるのに一般質問だけ全件並ぶと結果が読めなくなる。
+   */
+  const showQuestions =
+    filters.billType === "" && filters.result === "" && filters.tag === "";
+  const questions = showQuestions ? questionResult.questions : [];
+
+  // キーワードを入れずに開いたときは、議案の一覧だけを出して画面を静かに保つ
+  const listQuestions = filters.keyword !== "" ? questions : [];
+
+  // 抜粋のどこが検索に当たったのかを示すために、検索語をそのまま渡す
+  const searchKeywords = filters.keyword
+    .replace(/　/g, " ")
+    .split(" ")
+    .map((k) => k.trim())
+    .filter((k) => k.length > 0);
+
   return (
     <Container className="py-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-mirai-text">議案を検索</h1>
+        <h1 className="text-2xl font-bold text-mirai-text">議会の記録を検索</h1>
         <p className="mt-2 text-sm leading-relaxed text-mirai-text-secondary">
           {siteConfig.councilName}
-          に提出された議案・発議・請願を探せます。議案の正式名称だけでなく、わかりやすい見出しや要約の中身も検索の対象です。
+          に提出された議案・発議・請願と、議員が行った一般質問を探せます。正式名称だけでなく、わかりやすい見出しや要約、会議録のやり取りの中身も検索の対象です。
         </p>
       </div>
 
@@ -84,7 +108,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             name="q"
             type="search"
             defaultValue={filters.keyword}
-            placeholder="例：福間南小学校、使用料、補正予算"
+            placeholder="例：東福間、いじめ、補正予算"
             className="min-w-0 flex-1 rounded-lg border border-border bg-white px-3 py-2 text-sm text-mirai-text placeholder:text-mirai-text-placeholder focus:border-primary focus:outline-none"
           />
           <button
@@ -165,42 +189,83 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <p className="mt-6 text-sm text-mirai-text-secondary">
         {hasFilter ? (
           <>
+            議案{" "}
             <span className="font-bold text-mirai-text">{bills.length}件</span>
-            見つかりました（掲載中{totalCount}件のうち）
+            {filters.keyword !== "" && (
+              <>
+                {" ／ "}一般質問{" "}
+                <span className="font-bold text-mirai-text">
+                  {listQuestions.length}件
+                </span>
+              </>
+            )}
+            {" が見つかりました"}
           </>
         ) : (
           <>
-            掲載中の
+            掲載中の議案
             <span className="font-bold text-mirai-text">{totalCount}件</span>
-            をすべて表示しています。
+            をすべて表示しています。キーワードを入れると一般質問も一緒に探します。
           </>
         )}
       </p>
 
-      {bills.length === 0 ? (
+      {bills.length === 0 && listQuestions.length === 0 ? (
         <div className="mt-6 rounded-lg bg-mirai-surface-grouped px-4 py-8 text-center">
           <p className="text-sm text-mirai-text-secondary">
-            条件に合う議案が見つかりませんでした。
+            条件に合う記録が見つかりませんでした。
           </p>
           <p className="mt-1 text-xs text-mirai-text-muted">
             キーワードを短くするか、絞り込みを外してお試しください。
           </p>
         </div>
       ) : (
-        <ul className="mt-4 flex flex-col gap-3">
-          {bills.map((bill) => (
-            <li key={bill.id}>
-              <Link href={`/bills/${bill.id}`} className="block">
-                <CompactBillCard bill={bill} />
-              </Link>
-              {bill.council_session?.name && (
-                <p className="mt-1 pl-1 text-xs text-mirai-text-muted">
-                  {bill.council_session.name}
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
+        <>
+          {bills.length > 0 && (
+            <section className="mt-4">
+              <h2 className="mb-2 text-sm font-bold text-mirai-text">
+                議案・発議・請願（{bills.length}件）
+              </h2>
+              <ul className="flex flex-col gap-3">
+                {bills.map((bill) => (
+                  <li key={bill.id}>
+                    <Link href={`/bills/${bill.id}`} className="block">
+                      <CompactBillCard bill={bill} />
+                    </Link>
+                    {bill.council_session?.name && (
+                      <p className="mt-1 pl-1 text-xs text-mirai-text-muted">
+                        {bill.council_session.name}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/*
+            議案に出てこない話題が一般質問では議論されていることが多い。
+            「東福間」のように議案が0件でも一般質問が複数ある語があるため、
+            議案が見つからなくても必ずこちらを出す
+          */}
+          {listQuestions.length > 0 && (
+            <section className="mt-8">
+              <h2 className="mb-2 text-sm font-bold text-mirai-text">
+                一般質問（{listQuestions.length}件）
+              </h2>
+              <ul className="flex flex-col gap-3">
+                {listQuestions.map((question) => (
+                  <li key={question.id}>
+                    <QuestionSearchResultCard
+                      question={question}
+                      keywords={searchKeywords}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </>
       )}
     </Container>
   );
