@@ -10,9 +10,28 @@ interface SessionListProps {
   sessions: CouncilSession[];
   /** session.id をキーにした集計。無ければ集計行を出さない */
   summaries?: Record<string, SessionSummary>;
+  /** どこまで資料を反映できているかを会期ごとに出すか */
+  showCoverage?: boolean;
 }
 
-export function SessionList({ sessions, summaries }: SessionListProps) {
+/**
+ * その会期がどこまで反映済みかの一文。
+ *
+ * 会議録は正式公開までおよそ3か月、議員別の賛否が載る市議会だよりはおよそ2か月かかる。
+ * そのため直近の会期は必ず「議決結果まで」の状態になる。
+ * 完成度の違いを隠して並べると読み手が誤解するので、カードに明示する。
+ */
+function coverageLabel(summary: SessionSummary): string {
+  return summary.hasMemberVotes
+    ? "会議録と議員別の賛否まで反映済み"
+    : "議決結果まで掲載。討論と議員別の賛否は、会議録と市議会だよりの公開後に追加します";
+}
+
+export function SessionList({
+  sessions,
+  summaries,
+  showCoverage = false,
+}: SessionListProps) {
   const grouped = groupSessionsByYear(sessions);
 
   if (grouped.length === 0) {
@@ -54,6 +73,11 @@ export function SessionList({ sessions, summaries }: SessionListProps) {
                             `　賛否が分かれた議案${summary.splitVoteCount}件`}
                           {summary.generalQuestionsCount > 0 &&
                             `　一般質問${summary.generalQuestionsCount}件`}
+                        </span>
+                      )}
+                      {showCoverage && summary && (
+                        <span className="text-xs text-mirai-text-secondary">
+                          {coverageLabel(summary)}
                         </span>
                       )}
                     </div>

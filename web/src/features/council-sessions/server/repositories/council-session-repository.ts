@@ -93,6 +93,83 @@ export async function findAllPastCouncilSessions(): Promise<CouncilSession[]> {
 }
 
 /**
+ * 公開済み議案が1件以上ある定例会を新しい順に取得（開催中のものも含む）。
+ *
+ * findAllPastCouncilSessions と違い is_active で絞らない。会期一覧ページは
+ * 「これまでの議会」をすべて並べるため、直近の会期も落とさずに出す。
+ */
+export async function findAllCouncilSessionsWithBills(): Promise<
+  CouncilSession[]
+> {
+  const supabase = createAdminClient();
+
+  const { data: billData, error: billError } = await supabase
+    .from("bills")
+    .select("council_session_id")
+    .eq("publish_status", "published");
+
+  if (billError) {
+    console.error("Failed to fetch published bills:", billError);
+    return [];
+  }
+
+  const sessionIds = [
+    ...new Set(
+      (billData ?? [])
+        .map((b) => b.council_session_id)
+        .filter((id): id is string => id !== null)
+    ),
+  ];
+
+  if (sessionIds.length === 0) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("council_sessions")
+    .select("*")
+    .in("id", sessionIds)
+    .order("start_date", { ascending: false });
+
+  if (error) {
+    console.error("Failed to fetch council sessions:", error);
+    return [];
+  }
+
+  return (data ?? []) as CouncilSession[];
+}
+
+/**
+ * 議員別の賛否が入っている会期のIDを返す。
+ *
+ * 議員別の賛否は市議会だよりの賛否一覧表からしか取れず、だよりは定例会の
+ * およそ2か月後に発行される。そのため直近の会期は必ず空になる。
+ * 会期一覧では、この有無を「どこまで反映済みか」の目印に使う。
+ */
+export async function findSessionIdsWithMemberVotes(): Promise<Set<string>> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from("bill_member_votes")
+    .select("bills!inner(council_session_id)");
+
+  if (error) {
+    console.error("Failed to fetch sessions with member votes:", error);
+    return new Set();
+  }
+
+  const rows = (data ?? []) as unknown as {
+    bills: { council_session_id: string | null } | null;
+  }[];
+
+  return new Set(
+    rows
+      .map((row) => row.bills?.council_session_id)
+      .filter((id): id is string => Boolean(id))
+  );
+}
+
+/**
  * 指定日より前の直近の定例会を取得
  */
 export async function findPreviousCouncilSession(

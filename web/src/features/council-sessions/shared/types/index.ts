@@ -15,4 +15,10 @@ export type SessionSummary = {
   billCount: number;
   splitVoteCount: number;
   generalQuestionsCount: number;
+  /**
+   * 議員別の賛否まで入っているか。
+   * 賛否は市議会だよりの一覧表からしか取れず、だよりは定例会のおよそ2か月後に出る。
+   * 直近の会期は必ず false になるので、どこまで反映済みかの表示に使う。
+   */
+  hasMemberVotes: boolean;
 };
