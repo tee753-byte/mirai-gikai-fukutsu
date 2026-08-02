@@ -77,6 +77,11 @@ export default function PrivacyPage() {
           <LegalParagraph>
             Googleアナリティクスでデータが収集および処理される仕組みの詳細は「Googleのサービスを使用するサイトやアプリから収集した情報のGoogleによる使用」のページをご覧ください。
           </LegalParagraph>
+          <LegalParagraph>
+            また、当ウェブサイトを提供しているVercel社のアクセス解析機能（Vercel
+            Web Analytics および Speed
+            Insights）を使用しています。どのページがどれだけ閲覧されたか、ページの表示速度などを把握するためのもので、Cookieは使用せず、閲覧者個人を特定する情報も収集しません。
+          </LegalParagraph>
         </section>
 
         <section className="space-y-4">
