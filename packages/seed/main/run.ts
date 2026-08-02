@@ -35,51 +35,13 @@ import { generalQuestionsBySession } from "../fukutsu/general-questions-data";
 import { R8_3_SESSION_SLUG } from "../fukutsu/bills-r8-3";
 import { seedBillsR8_3 } from "../fukutsu/seed-bills-r8-3";
 import { seedBudgetR8_3 } from "../fukutsu/seed-budget-r8-3";
-import {
-  PLAIN_TEXTS as PLAIN_TEXTS_R7_12,
-  R7_12_SESSION_SLUG,
-  R7_12_SOURCE_URL,
-  decidedAt as decidedAtR7_12,
-  sanitizeR7_12Debates,
-  submittedAt as submittedAtR7_12,
-} from "../fukutsu/bills-r7-12";
-import {
-  PLAIN_TEXTS as PLAIN_TEXTS_R8_1,
-  R8_1_SESSION_SLUG,
-  R8_1_SOURCE_URL,
-  decidedAt as decidedAtR8_1,
-  submittedAt as submittedAtR8_1,
-} from "../fukutsu/bills-r8-1";
-import {
-  PLAIN_TEXTS as PLAIN_TEXTS_R8_2,
-  R8_2_SESSION_SLUG,
-  R8_2_SOURCE_URL,
-  decidedAt as decidedAtR8_2,
-  submittedAt as submittedAtR8_2,
-} from "../fukutsu/bills-r8-2";
-import {
-  BILL_VOTES_R8_4,
-  PLAIN_TEXTS as PLAIN_TEXTS_R8_4,
-  R8_4_SESSION_SLUG,
-  R8_4_SOURCE_URL,
-  decidedAt as decidedAtR8_4,
-  submittedAt as submittedAtR8_4,
-} from "../fukutsu/bills-r8-4";
 import { seedBillsForSession } from "../fukutsu/seed-bills-common";
-import r7_12BillVotes from "../fukutsu/data/r7-12-bill-votes.json" with {
-  type: "json",
-};
-import r8_1BillVotes from "../fukutsu/data/r8-1-bill-votes.json" with {
-  type: "json",
-};
-import r8_2BillVotes from "../fukutsu/data/r8-2-bill-votes.json" with {
-  type: "json",
-};
+import { FUKUTSU_SESSIONS } from "../fukutsu/sessions";
+import { seedGeneralQuestionsForSession } from "../fukutsu/seed-general-questions";
+import { R7_12_SESSION_SLUG } from "../fukutsu/bills-r7-12";
+import { R8_1_SESSION_SLUG } from "../fukutsu/bills-r8-1";
+import { R8_2_SESSION_SLUG } from "../fukutsu/bills-r8-2";
 import { seedMemberVotes } from "../fukutsu/seed-member-votes";
-import {
-  buildPetitionsR7_12,
-  PETITION_PLAIN_TEXTS_R7_12,
-} from "../fukutsu/petitions-r7-12";
 import { seedMemberVotesR7_12 } from "../fukutsu/seed-member-votes-r7-12";
 
 async function seedDatabase() {
@@ -231,61 +193,7 @@ async function seedDatabase() {
       insertedCommittees.map((c) => [c.name, c.id])
     );
 
-    const sessionsToSeed = [
-      {
-        slug: R7_12_SESSION_SLUG,
-        label: "r7-12",
-        // 議案・発議に加えて請願2件も同じ流れで投入する（bill_type = 'petition'）
-        votes: [
-          // biome-ignore lint/suspicious/noExplicitAny: JSON importの型をBillVoteRecord[]に合わせるための簡易キャスト
-          ...sanitizeR7_12Debates(r7_12BillVotes as any),
-          // biome-ignore lint/suspicious/noExplicitAny: 同上
-          ...buildPetitionsR7_12(r7_12BillVotes as any),
-        ],
-        plainTexts: {
-          ...PLAIN_TEXTS_R7_12,
-          ...PETITION_PLAIN_TEXTS_R7_12,
-        },
-        sourceUrl: R7_12_SOURCE_URL,
-        documentsFile: "r7-12-bill-documents.json",
-        decidedAt: decidedAtR7_12,
-        submittedAt: submittedAtR7_12,
-      },
-      {
-        slug: R8_1_SESSION_SLUG,
-        label: "r8-1",
-        votes: r8_1BillVotes,
-        plainTexts: PLAIN_TEXTS_R8_1,
-        sourceUrl: R8_1_SOURCE_URL,
-        documentsFile: "r8-1-bill-documents.json",
-        decidedAt: decidedAtR8_1,
-        submittedAt: submittedAtR8_1,
-      },
-      {
-        slug: R8_2_SESSION_SLUG,
-        label: "r8-2",
-        votes: r8_2BillVotes,
-        plainTexts: PLAIN_TEXTS_R8_2,
-        sourceUrl: R8_2_SOURCE_URL,
-        documentsFile: "r8-2-bill-documents.json",
-        decidedAt: decidedAtR8_2,
-        submittedAt: submittedAtR8_2,
-      },
-      {
-        // 会議録が未公開の会期。件名と議決結果のみを掲載する。
-        // 市議会だよりも未公開のため、誰が賛成したかもまだ載せられない
-        slug: R8_4_SESSION_SLUG,
-        label: "r8-4",
-        votes: BILL_VOTES_R8_4,
-        plainTexts: PLAIN_TEXTS_R8_4,
-        sourceUrl: R8_4_SOURCE_URL,
-        documentsFile: "r8-4-bill-documents.json",
-        hasMinutes: false,
-        hasMemberVotes: false,
-        decidedAt: decidedAtR8_4,
-        submittedAt: submittedAtR8_4,
-      },
-    ] as const;
+    const sessionsToSeed = FUKUTSU_SESSIONS;
 
     for (const s of sessionsToSeed) {
       const session = insertedCouncilSessions.find((cs) => cs.slug === s.slug);
@@ -340,6 +248,7 @@ async function seedDatabase() {
     console.log("🙋 Inserting general questions...");
     let insertedGeneralQuestionsCount = 0;
 
+
     for (const session of generalQuestionsBySession) {
       const questionsSession = insertedCouncilSessions.find(
         (s) => s.slug === session.session_slug
@@ -352,52 +261,11 @@ async function seedDatabase() {
         continue;
       }
 
-      // 会議録から取り出したやり取り全文を氏名で突き合わせる。
-      // 会議録は「山本祐平」、シードは「山本 祐平」と全角スペースの有無が違うため、
-      // 空白を除いた形をキーにする。
-      const stripSpaces = (name: string) => name.replace(/[\s　]/g, "");
-      const transcriptByName = new Map(
-        (session.transcripts ?? []).map((t) => [
-          stripSpaces(t.questioner_name),
-          t,
-        ])
+      insertedGeneralQuestionsCount += await seedGeneralQuestionsForSession(
+        supabase,
+        questionsSession.id,
+        session
       );
-
-      const rows = session.questions.map((q) => ({
-        council_session_id: questionsSession.id,
-        questioner_name: q.questioner_name,
-        questioner_party: q.questioner_party,
-        question_order: q.question_order,
-        session_day: q.session_day ?? 1,
-        summary: q.summary,
-        topics: q.topics,
-        raw_text:
-          transcriptByName.get(stripSpaces(q.questioner_name))?.raw_text ?? null,
-        source_url: session.source_url,
-        publish_status: "published",
-      }));
-
-      // 突き合わせできなかったやり取りがあれば、氏名の表記ゆれを疑う
-      const matched = rows.filter((r) => r.raw_text !== null).length;
-      const expected = transcriptByName.size;
-      if (matched !== expected) {
-        console.log(
-          `⚠️ "${session.session_slug}": やり取り全文 ${expected} 件のうち ${matched} 件しか議員に紐づきませんでした。氏名の表記を確認してください。`
-        );
-      }
-
-      const { data: insertedQuestions, error: questionsError } = await supabase
-        .from("general_questions")
-        .insert(rows)
-        .select("id");
-
-      if (questionsError) {
-        throw new Error(
-          `Failed to insert general questions for "${session.session_slug}": ${questionsError.message}`
-        );
-      }
-
-      insertedGeneralQuestionsCount += insertedQuestions?.length ?? 0;
     }
 
     console.log(

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "seed": "tsx main/run.ts",
+    "seed:session": "tsx fukutsu/seed-session.ts",
     "seed:csv": "tsx csv/import-csv.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
