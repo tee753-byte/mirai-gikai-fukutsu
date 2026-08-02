@@ -108,7 +108,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             name="q"
             type="search"
             defaultValue={filters.keyword}
-            placeholder="例：東福間、いじめ、補正予算"
+            placeholder="例：福間南、いじめ、補正予算"
             className="min-w-0 flex-1 rounded-lg border border-border bg-white px-3 py-2 text-sm text-mirai-text placeholder:text-mirai-text-placeholder focus:border-primary focus:outline-none"
           />
           <button

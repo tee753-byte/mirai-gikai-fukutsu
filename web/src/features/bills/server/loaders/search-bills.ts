@@ -22,6 +22,12 @@ export type BillSearchFilters = {
 /** 検索対象。会期名も一緒に持たせて、会期での絞り込みと表示に使う */
 export type SearchableBill = BillWithContent & {
   council_session?: { name: string; slug: string | null } | null;
+  /**
+   * やさしい版とくわしい版の両方の文章をつないだもの。検索だけに使う。
+   * 委員会での質疑応答はくわしい版にしかないため、画面に出している版だけを
+   * 探すと市民が目的の議案にたどり着けない。
+   */
+  searchText?: string;
 };
 
 export type BillSearchResult = {
@@ -43,19 +49,26 @@ function toKeywords(keyword: string): string[] {
 }
 
 function matchesKeywords(
-  bill: BillWithContent,
+  bill: SearchableBill,
   sessionName: string,
   keywords: string[]
 ): boolean {
   if (keywords.length === 0) return true;
 
-  // 正式名称・やさしい見出し・要約・議案番号・会期名のどこかに含まれていればヒット
+  /*
+   * 正式名称・議案番号・会期名・分野に加えて、やさしい版とくわしい版の
+   * 両方の本文を対象にする。
+   *
+   * 本文には議案書に記載された理由や、委員会での質疑応答の引用が入っている。
+   * 「福間南」のように、件名や要約には出てこないが審査の中では議論されている
+   * 地名・施設名があり、本文を外すと市民が探せない。一般質問の検索が会議録の
+   * 全文を対象にしているのと考え方をそろえる。
+   */
   const haystack = [
     bill.name,
-    bill.bill_content?.title,
-    bill.bill_content?.summary,
     bill.bill_number,
     sessionName,
+    bill.searchText,
     ...(bill.tags?.map((t) => t.label) ?? []),
   ]
     .filter(Boolean)
@@ -128,7 +141,7 @@ export async function searchBills(
 
 const _getCachedSearchableBills = unstable_cache(
   async (difficultyLevel: DifficultyLevelEnum): Promise<SearchableBill[]> => {
-    const data = await findSearchableBills(difficultyLevel);
+    const data = await findSearchableBills();
     if (data.length === 0) return [];
 
     const billIds = data.map((item) => item.id);
@@ -136,11 +149,22 @@ const _getCachedSearchableBills = unstable_cache(
 
     const billsWithContent = data.map((item) => {
       const { bill_contents, council_sessions, ...bill } = item;
+      const contents = Array.isArray(bill_contents)
+        ? bill_contents
+        : [bill_contents];
+
       return {
         ...bill,
-        bill_content: Array.isArray(bill_contents)
-          ? bill_contents[0]
-          : undefined,
+        // 画面に出すのは読者が選んでいる難易度の文章だけ
+        bill_content:
+          contents.find((c) => c?.difficulty_level === difficultyLevel) ??
+          contents[0] ??
+          undefined,
+        // 検索は両方の難易度の文章を対象にする
+        searchText: contents
+          .flatMap((c) => [c?.title, c?.summary, c?.content])
+          .filter(Boolean)
+          .join(" "),
         tags: tagsByBillId.get(item.id) ?? [],
         council_session: Array.isArray(council_sessions)
           ? council_sessions[0]
