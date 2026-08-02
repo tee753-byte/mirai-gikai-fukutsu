@@ -73,6 +73,12 @@ export type BillWithContent = Bill & {
   featured_tag?: FeaturedTag;
   /** 議員別の賛否データがある議案だけ入る（起立採決のため大半の議案は無い） */
   voteCounts?: { for: number; against: number };
+  /**
+   * その議案が提出された定例会。
+   * 給与条例の改正のように毎年ほぼ同じ名前の議案が出るため、
+   * どの定例会のものかを示さないと画面でも検索結果でも区別できない。
+   */
+  council_session?: { name: string; slug: string | null } | null;
 };
 
 // タグごとにグループ化された議案

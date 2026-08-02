@@ -47,9 +47,11 @@ export async function findPublishedBillsWithContents(
  */
 export async function findPublishedBillById(id: string) {
   const supabase = createAdminClient();
+  // 定例会名も一緒に取る。毎年ほぼ同じ名前の議案（給与条例の改正など）があり、
+  // どの定例会のものかが分からないとページを見分けられないため。
   const { data, error } = await supabase
     .from("bills")
-    .select("*")
+    .select("*, council_sessions(name, slug)")
     .eq("id", id)
     .eq("publish_status", "published")
     .single();
