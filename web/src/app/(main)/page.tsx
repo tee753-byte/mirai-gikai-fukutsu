@@ -56,6 +56,13 @@ export default async function Home() {
       {/* 本日の定例会セクション */}
       <CurrentCouncilSession session={currentSession} />
 
+      {/* トピックス（暮らしに関わりの大きいテーマ）
+          市民に一番読んでほしい内容なので、各機能への入口より前に置く。
+          詳しい版に戻す場合は TopicsHighlight に差し替える */}
+      <Container className="pt-6">
+        <TopicsListCard />
+      </Container>
+
       {/* 一般質問バナー */}
       {latestQuestionsSlug && (
         <Container className="pt-6">
@@ -73,12 +80,6 @@ export default async function Home() {
       {/* 委員会報告バナー（プロトタイプ） */}
       <Container className="pt-3">
         <CommitteeReportsBanner />
-      </Container>
-
-      {/* トピックス（暮らしに関わりの大きいテーマ）
-          詳しい版に戻す場合は TopicsHighlight に差し替える */}
-      <Container className="pt-6">
-        <TopicsListCard />
       </Container>
 
       {/* 議案一覧セクション */}
