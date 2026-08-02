@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
 import { siteConfig } from "@/config/site.config";
+import { MemberProfileCard } from "@/features/council-members/client/components/member-profile-card";
+import { findMemberProfile } from "@/features/council-members/shared/member-profiles";
 import { getQuestionerGroups } from "@/features/general-questions/server/loaders/get-questioner-groups";
 
 type Props = {
@@ -38,6 +40,8 @@ export default async function QuestionerDetailPage({ params }: Props) {
     notFound();
   }
 
+  const profile = findMemberProfile(group.name);
+
   return (
     <Container className="py-8 max-w-2xl">
       <Link
@@ -48,14 +52,25 @@ export default async function QuestionerDetailPage({ params }: Props) {
         議員一覧へ
       </Link>
 
-      <div className="mt-4 mb-6">
+      <div className="mt-4 mb-4">
         <h1 className="text-2xl font-bold text-mirai-text">
           {group.name} 議員
         </h1>
         <p className="mt-1 text-sm text-mirai-text-secondary">
-          {group.party ?? "会派情報なし"}
+          {/* 名簿に無い場合だけ、一般質問の通告書に書かれていた会派で補う */}
+          {profile ? profile.kana : (group.party ?? "会派情報なし")}
         </p>
       </div>
+
+      {profile && (
+        <div className="mb-8">
+          <MemberProfileCard profile={profile} />
+        </div>
+      )}
+
+      <h2 className="mb-3 text-lg font-bold text-mirai-text">
+        定例会ごとの一般質問
+      </h2>
 
       <div className="flex flex-col gap-4">
         {group.entries.map((entry) => (
@@ -63,7 +78,7 @@ export default async function QuestionerDetailPage({ params }: Props) {
             key={entry.questionId}
             className="rounded-xl border border-border bg-card p-4"
           >
-            <h2 className="font-bold text-mirai-text">{entry.sessionName}</h2>
+            <h3 className="font-bold text-mirai-text">{entry.sessionName}</h3>
 
             {entry.summary && (
               <p className="mt-2 text-sm leading-relaxed text-mirai-text">

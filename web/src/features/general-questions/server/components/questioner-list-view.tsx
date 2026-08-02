@@ -1,5 +1,6 @@
 import { ChevronRight, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { findMemberProfile } from "@/features/council-members/shared/member-profiles";
 import type { QuestionerGroup } from "../../shared/utils/build-questioner-groups";
 import { groupQuestionersByParty } from "../../shared/utils/group-questioners-by-party";
 
@@ -27,23 +28,34 @@ export function QuestionerListView({ groups }: { groups: QuestionerGroup[] }) {
             {partyLabel}（{members.length}人）
           </h2>
           <ul className="grid gap-3 sm:grid-cols-2">
-            {members.map((g) => (
-              <li key={g.slug}>
-                <Link
-                  href={`/questions/members/${encodeURIComponent(g.slug)}`}
-                  className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-4 transition-colors hover:bg-mirai-surface-grouped"
-                >
-                  <div className="min-w-0">
-                    <p className="font-bold text-mirai-text">{g.name}</p>
-                    <p className="mt-2 inline-flex items-center gap-1 text-xs text-mirai-text-secondary">
-                      <MessageSquare className="h-3 w-3 shrink-0" />
-                      {g.entries.length}回の定例会 ・ {g.topicCount}件の質問事項
-                    </p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 shrink-0 text-mirai-text-muted transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </li>
-            ))}
+            {members.map((g) => {
+              // どの委員会に属しているかは、その議員が扱う分野に直結するため一覧にも出す
+              const profile = findMemberProfile(g.name);
+
+              return (
+                <li key={g.slug}>
+                  <Link
+                    href={`/questions/members/${encodeURIComponent(g.slug)}`}
+                    className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-4 transition-colors hover:bg-mirai-surface-grouped"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-bold text-mirai-text">{g.name}</p>
+                      {profile?.committee && (
+                        <p className="mt-1 text-xs text-mirai-text-secondary">
+                          {profile.committee}
+                        </p>
+                      )}
+                      <p className="mt-2 inline-flex items-center gap-1 text-xs text-mirai-text-secondary">
+                        <MessageSquare className="h-3 w-3 shrink-0" />
+                        {g.entries.length}回の定例会 ・ {g.topicCount}
+                        件の質問事項
+                      </p>
+                    </div>
+                    <ChevronRight className="h-5 w-5 shrink-0 text-mirai-text-muted transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </section>
       ))}
