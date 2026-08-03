@@ -44,7 +44,6 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-primary-accent: var(--primary-accent);
-  --color-primary-pale: var(--primary-pale);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -165,13 +164,12 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   /* 福津市版のアクセントカラー（臙脂）。
-     他地域の「みらい議会」と一目で見分けがつくよう、白ヘッダー＋エメラルドの
-     組み合わせから変えている。白文字とのコントラストは11.3:1で、
-     以前のオーシャンティール（3.8:1）がWCAGの4.5:1を満たしていなかった点も解消する。 */
+     他地域の「みらい議会」と一目で見分けがつくよう、エメラルドから変えている。
+     ヘッダーは白のままで、フッターとトピックス節の淡いグラデーションで色を出す。
+     白文字とのコントラストは11.3:1で、以前のオーシャンティール（3.8:1）が
+     WCAGの4.5:1を満たしていなかった点も解消する。 */
   --primary: #701a1a;
   --primary-accent: #501111;
-  /* ヘッダーに敷く淡色。白のままだと他地域版と区別がつかない */
-  --primary-pale: #f1e1de;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
