@@ -15,10 +15,22 @@ interface HeaderClientProps {
   difficultyLevel: DifficultyLevelEnum;
 }
 
+/**
+ * サイト名を「みらい議会」と「＠福津市」に分ける。
+ * 下線ではなく「＠地域名」部分の色でシリーズの他地域版と見分けられるようにする
+ * （ロゴSVGの配色に合わせている）。区切りが無ければ全体をそのまま返す。
+ */
+function splitSiteName(name: string): { base: string; area: string | null } {
+  const at = name.indexOf("＠");
+  if (at === -1) return { base: name, area: null };
+  return { base: name.slice(0, at), area: name.slice(at) };
+}
+
 export function HeaderClient({ difficultyLevel }: HeaderClientProps) {
   const pathname = usePathname();
   const showDifficultySelector = isMainPage(pathname);
   const showInterviewActions = isInterviewPage(pathname);
+  const { base, area } = splitSiteName(siteConfig.siteName);
 
   return (
     <header className="px-3 fixed top-4 left-0 right-0 z-10 max-w-[1440px] mx-auto">
@@ -39,9 +51,10 @@ export function HeaderClient({ difficultyLevel }: HeaderClientProps) {
                   height={36}
                 />
               )}
-              {/* 白ヘッダーのままでも福津市版だと分かるよう、サイト名に臙脂の下線を引く */}
-              <div className="text-xl font-bold border-b-2 border-primary-underline pb-0.5">
-                {siteConfig.siteName}
+              {/* 白ヘッダーのままでも福津市版だと分かるよう、「＠地域名」だけ臙脂にする */}
+              <div className="text-xl font-bold">
+                {base}
+                {area && <span className="text-primary">{area}</span>}
               </div>
             </Link>
           </div>
