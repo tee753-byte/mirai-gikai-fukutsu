@@ -113,16 +113,20 @@ function main() {
   const committeeReports = new Map<string, string>();
   for (const file of files) {
     const text = fs.readFileSync(path.join(dir, file), "utf8");
-    for (const [billNumber, body] of extractProposalReasons(text)) {
-      if (isCommitteeReport(body)) {
-        const prev = committeeReports.get(billNumber);
-        if (!prev || body.length > prev.length) {
-          committeeReports.set(billNumber, body);
+    for (const [billNumber, bodies] of extractProposalReasons(text)) {
+      // 1日で閉じる臨時会は、提案理由説明と委員長報告が同じファイルに入る。
+      // 塊ごとに中身を見て振り分ける
+      for (const body of bodies) {
+        if (isCommitteeReport(body)) {
+          const prev = committeeReports.get(billNumber);
+          if (!prev || body.length > prev.length) {
+            committeeReports.set(billNumber, body);
+          }
+          continue;
         }
-        continue;
+        // 提案理由説明は最初に出たものを採る（後日の再掲より初日の説明が正確）
+        if (!reasons.has(billNumber)) reasons.set(billNumber, body);
       }
-      // 提案理由説明は最初に出たものを採る（後日の再掲より初日の説明が正確）
-      if (!reasons.has(billNumber)) reasons.set(billNumber, body);
     }
   }
 

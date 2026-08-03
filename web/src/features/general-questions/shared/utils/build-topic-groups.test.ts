@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { assignCategory, buildTopicGroups } from "./build-topic-groups";
 import type { GeneralQuestion } from "../types";
+import { assignCategory, buildTopicGroups } from "./build-topic-groups";
 
 describe("assignCategory", () => {
   it("保育所 → 子育て・教育", () => {

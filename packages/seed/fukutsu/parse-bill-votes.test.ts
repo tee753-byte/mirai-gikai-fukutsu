@@ -204,9 +204,30 @@ describe("extractProposalReasons（発議の読み上げ）", () => {
       "　（１）主な質疑及び答弁。質疑。請願項目１の文言について見解を伺う。",
     ].join("\n");
 
-    const body = extractProposalReasons(text).get("議案第57号") ?? "";
+    const body = extractProposalReasons(text).get("議案第57号")?.[0] ?? "";
 
     expect(body).toContain("請願第４号");
+  });
+
+  it("同じ議案の提案理由説明と委員長報告を、両方とも出現順に返す", () => {
+    // 1日で閉じる臨時会は、提案理由説明と委員長報告が同じ会議録ファイルに入る。
+    // どちらも同じ書式で読み上げられるため、ここで1つに絞ると
+    // 長いほうの委員長報告が提案理由を消してしまう（令和8年2月臨時会 議案第3号）
+    const text = [
+      "○議長　日程第７、議案第３号工事請負変更契約を締結することについてを議題といたします。",
+      "◎市長　議案第３号工事請負変更契約を締結することについてでございます。",
+      "　変更するのは、契約金額で5,121万6,000円減額するものでございます。",
+      "○議長　日程第８、議案第３号工事請負変更契約を締結することについてを議題といたします。",
+      "◎委員長　議案第３号　工事請負変更契約を締結することについて。",
+      "審査内容。",
+      "　（１）主な質疑及び答弁。質疑。今回の造成工事２工区の減額工種について伺う。",
+    ].join("\n");
+
+    const bodies = extractProposalReasons(text).get("議案第3号") ?? [];
+
+    expect(bodies).toHaveLength(2);
+    expect(bodies[0]).toContain("5,121万6,000円減額");
+    expect(bodies[1]).toContain("主な質疑及び答弁");
   });
 });
 
@@ -297,7 +318,7 @@ describe("extractProposalReasons（発議の読み上げ）", () => {
       "　提案理由としましては、議会広報調査特別委員長に委員長の額を支給することが適当であるためです。",
     ].join("\n");
 
-    const body = extractProposalReasons(text).get("発議第8号") ?? "";
+    const body = extractProposalReasons(text).get("発議第8号")?.[0] ?? "";
 
     expect(body).toContain("提出者、福津市議会議員、中村清隆");
     expect(body).toContain("議会広報調査特別委員長に委員長の額を支給");

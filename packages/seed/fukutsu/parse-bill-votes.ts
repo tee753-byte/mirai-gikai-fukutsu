@@ -315,8 +315,24 @@ function isEnumeration(body: string): boolean {
  * 初日の「提案理由の説明」から、議案ごとの説明文を取り出す。
  * 市長が読み上げた見出しから、次の議案の見出しまでがその議案の説明にあたる。
  * 一括説明された議案は、同じ説明文を範囲内の全議案に割り当てる。
+ *
+ * 【1議案につき複数の塊を返す理由】
+ * 提案理由説明と委員長報告は、会議録上まったく同じ書式で読み上げられる。
+ *   市長　「議案第３号工事請負変更契約を締結することについてでございます。」
+ *   委員長「議案第３号　工事請負変更契約を締結することについて。」
+ * どちらがどちらかは、中身（「主な質疑及び答弁」を含むか）を見ないと分からない。
+ *
+ * 以前はここで「同じ議案なら長いほうを採る」と1つに絞っていた。定例会は
+ * 提案日と委員長報告日で会議録ファイルが分かれるため問題にならなかったが、
+ * 1日で閉じる臨時会は両方が同じファイルに入る。委員長報告のほうが長いので
+ * 提案理由が上書きされ、そのあと呼び出し側が「これは委員長報告だ」と判定して
+ * 委員長報告に振り分けた結果、提案理由が丸ごと消えていた
+ * （令和8年2月臨時会 議案第3号）。
+ *
+ * 絞り込みは中身の判定ができる呼び出し側の仕事なので、ここでは出現順に
+ * すべて返す。
  */
-export function extractProposalReasons(text: string): Map<string, string> {
+export function extractProposalReasons(text: string): Map<string, string[]> {
   const normalized = text.replace(/\r/g, "");
   const headings: ReasonHeading[] = [];
   let m: RegExpExecArray | null;
@@ -351,7 +367,7 @@ export function extractProposalReasons(text: string): Map<string, string> {
 
   headings.sort((a, b) => a.index - b.index);
 
-  const reasons = new Map<string, string>();
+  const reasons = new Map<string, string[]>();
   for (let i = 0; i < headings.length; i++) {
     const body = normalized
       .slice(headings[i].endIndex, headings[i + 1]?.index ?? normalized.length)
@@ -367,9 +383,9 @@ export function extractProposalReasons(text: string): Map<string, string> {
     if (body.length < 20 || isEnumeration(body)) continue;
 
     for (const billNumber of headings[i].billNumbers) {
-      // 同じ議案が複数回出てきたら、説明が一番厚いものを採る
-      const prev = reasons.get(billNumber);
-      if (!prev || body.length > prev.length) reasons.set(billNumber, body);
+      const bodies = reasons.get(billNumber);
+      if (bodies) bodies.push(body);
+      else reasons.set(billNumber, [body]);
     }
   }
 

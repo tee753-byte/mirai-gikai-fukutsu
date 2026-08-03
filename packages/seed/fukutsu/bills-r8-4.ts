@@ -14,7 +14,11 @@
  * また、いずれも市民個人が相手方となる事案であり、私人の個人情報にあたる
  * 内容を含むため、詳細は扱わない。
  */
-import type { BillVoteRecord, PlainText } from "./seed-bills-common";
+import {
+  type BillVoteRecord,
+  contractSystemNote,
+  type PlainText,
+} from "./seed-bills-common";
 
 export const R8_4_SESSION_SLUG = "r8-4";
 export const R8_4_SOURCE_URL =
@@ -121,6 +125,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "新設小学校の学童保育所を建てる工事契約を結ぶ（1億9,250万円）",
     summary:
       "令和9年4月に開校する宮司地区の新設小学校の敷地内に、学童保育所を新築する工事の請負契約です。契約金額は1億9,250万円、工期は令和9年2月25日まで。制限付一般競争入札により、株式会社片岡建設（福津市本木）が請け負います。",
+    systemNote: contractSystemNote({ hasMinutes: false }),
     tag: "子育て・教育",
     committee: "総務文教委員会",
   },
