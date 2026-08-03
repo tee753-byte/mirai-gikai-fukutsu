@@ -516,43 +516,38 @@ export async function findDiscussionsByBillId(billId: string) {
 }
 
 /**
- * 同じ件名で提出された、ほかの会期の議案を取得する。
+ * 議案番号で公開済み議案をまとめて取得する。
  *
- * 【なぜ件名だけで結び付けられるか】
- * 議案の件名は「福津市○○条例を改正することについて」のように、
- * 議案書に印刷された正式名称をそのまま入れている。市が同じ内容の議案を
- * 出し直したときは件名も一字一句同じになるため、件名の一致がそのまま
- * 「同じ案件の再提出」を意味する。手で対応表を持つ必要がない。
- *
- * 否決された議案が次の会期で再び出される例（市長の給与減額）があり、
- * 新しい会期のページだけを見ても、それが初めて出された議案なのか
- * 何度目なのかが分からなかった。
+ * 関連議案の解決に使う。どの会期のものかは会期のslugで絞り込むが、
+ * Supabaseの結合先での絞り込みは書き方が複雑になるので、番号でまとめて
+ * 引いてから呼び出し側で会期を突き合わせる。関連議案は多くて数件のため、
+ * この方が読みやすい。
  */
-export async function findBillsWithSameName(
-  name: string,
-  excludeBillId: string
-) {
+export async function findBillsByNumbers(billNumbers: string[]) {
+  if (billNumbers.length === 0) {
+    return [];
+  }
+
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("bills")
     .select(
       `
       id,
-      name,
       bill_number,
       status,
       council_sessions (
         name,
+        slug,
         end_date
       )
     `
     )
-    .eq("name", name)
-    .eq("publish_status", "published")
-    .neq("id", excludeBillId);
+    .in("bill_number", billNumbers)
+    .eq("publish_status", "published");
 
   if (error) {
-    console.error(`Failed to fetch bills with same name: ${error.message}`);
+    console.error(`Failed to fetch bills by numbers: ${error.message}`);
     return [];
   }
 

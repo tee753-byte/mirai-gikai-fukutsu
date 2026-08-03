@@ -1,3 +1,4 @@
+import type { RelatedBillRef } from "../data/related-bill-groups";
 import type { BillStatusEnum } from "../types";
 
 /** 関連議案の一覧に出す1件ぶん */
@@ -10,7 +11,11 @@ export type RelatedBill = {
   sessionEndDate: string | null;
 };
 
-type SessionRow = { name: string; end_date: string | null };
+type SessionRow = {
+  name: string;
+  slug: string | null;
+  end_date: string | null;
+};
 
 /** DBから返ってきた行。council_sessions は型上、配列になることがある */
 type BillRow = {
@@ -20,19 +25,35 @@ type BillRow = {
   council_sessions: SessionRow | SessionRow[] | null;
 };
 
+function toSession(row: BillRow): SessionRow | null {
+  const session = Array.isArray(row.council_sessions)
+    ? row.council_sessions[0]
+    : row.council_sessions;
+  return session ?? null;
+}
+
 /**
- * 同じ件名の議案の行を、表示用に整えて新しい会期の順に並べる。
+ * 議案番号で引いてきた行から、指定した会期・議案番号のものだけを選び、
+ * 表示用に整えて新しい会期の順に並べる。
  *
- * 会期に紐づいていない議案は落とす。いつ提出されたものかを示せないと、
- * 「同じ議案が繰り返し出されている」という情報が伝わらないため。
+ * 番号だけで引くと別の会期の同じ番号が混ざるため、会期のslugまで
+ * 一致するものに絞る。会期に紐づいていない議案は、いつのものか示せないので
+ * 落とす。
  */
-export function toRelatedBills(rows: BillRow[]): RelatedBill[] {
+export function toRelatedBills(
+  rows: BillRow[],
+  refs: RelatedBillRef[]
+): RelatedBill[] {
   return rows
     .flatMap((row) => {
-      const session = Array.isArray(row.council_sessions)
-        ? row.council_sessions[0]
-        : row.council_sessions;
-      if (!session) return [];
+      const session = toSession(row);
+      if (!session?.slug || !row.bill_number) return [];
+
+      const wanted = refs.some(
+        (ref) =>
+          ref.sessionSlug === session.slug && ref.billNumber === row.bill_number
+      );
+      if (!wanted) return [];
 
       return [
         {

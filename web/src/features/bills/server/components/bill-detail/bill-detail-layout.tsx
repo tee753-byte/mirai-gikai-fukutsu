@@ -37,7 +37,7 @@ export async function BillDetailLayout({
       getInterviewConfig(bill.id),
       getPublicReportsByBillId(bill.id),
       getBillDiscussions(bill.id),
-      getRelatedBills(bill.id, bill.name),
+      getRelatedBills(bill.council_session?.slug, bill.bill_number),
     ]);
 
   return (
@@ -90,7 +90,7 @@ export async function BillDetailLayout({
           そこで行き止まりにせず、同じ議案が読める会期へ渡す
         */}
         <div className="my-8">
-          <RelatedBillsSection relatedBills={relatedBills} />
+          <RelatedBillsSection related={relatedBills} />
         </div>
 
         {siteConfig.features.aiInterview && interviewConfig != null && (
