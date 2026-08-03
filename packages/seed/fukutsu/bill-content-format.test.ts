@@ -44,6 +44,28 @@ describe("buildNormalContent", () => {
     expect(headings(content)[0]).toBe("元の資料");
   });
 
+  it("理由の記録が無い議案には、しくみの説明を置く", () => {
+    const content = buildNormalContent({
+      ...BASE,
+      systemNote: "予算の議案には、議案書に理由が書かれていません。",
+    });
+
+    // 誰かの説明ではないので、見出しを「なぜ出されたのか」にしない
+    expect(headings(content)[0]).toBe("どんな議案か");
+    expect(content).not.toContain("なぜ出されたのか");
+  });
+
+  it("理由があるときは、しくみの説明よりそちらを優先する", () => {
+    const content = buildNormalContent({
+      ...BASE,
+      reasonPlain: "市は、条例を直す必要があると説明しています。",
+      systemNote: "これは出ないはず",
+    });
+
+    expect(headings(content)[0]).toBe("なぜ出されたのか");
+    expect(content).not.toContain("これは出ないはず");
+  });
+
   it("議決の結果は本文に書かない", () => {
     // すぐ上の審議のステータスカードが同じ一文をそのまま表示している
     const content = buildNormalContent({

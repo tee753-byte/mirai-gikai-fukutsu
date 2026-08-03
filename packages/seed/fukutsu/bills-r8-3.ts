@@ -18,6 +18,7 @@
  */
 import billVotes from "./data/r8-3-bill-votes.json" with { type: "json" };
 import { loadBillDocuments, toReasonMap } from "./load-bill-documents";
+import { budgetSystemNote } from "./seed-bills-common";
 
 /**
  * 議案書に印刷されている理由。
@@ -75,6 +76,11 @@ export type PlainText = {
    * 説明が残っていないため、書けるだけの材料が無い。省略する。
    */
   reasonPlain?: string;
+  /**
+   * 理由の記録が無い議案（予算）に置く、しくみの説明。
+   * 誰かの説明ではなく制度そのものの説明なので、reasonPlain とは別にする。
+   */
+  systemNote?: string;
   /** どの分野の議案か（タグ付けに使う） */
   tag: string;
   /** 付託された委員会 */
@@ -112,6 +118,10 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "今年度の市の予算を組み替える（一般会計の補正予算）",
     summary:
       "令和7年度の市全体の予算を、年度の途中で組み替えるための議案です。決算の見込みが立った事業の減額や、災害復旧などで足りなくなった分の増額をまとめて処理します。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "市全体のお金（一般会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
@@ -119,6 +129,10 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "国民健康保険の会計を組み替える（補正予算）",
     summary:
       "令和7年度の国民健康保険事業特別会計を、年度の途中で組み替えるための議案です。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "国民健康保険のお金（特別会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
@@ -126,6 +140,10 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "後期高齢者医療の会計を組み替える（補正予算）",
     summary:
       "令和7年度の後期高齢者医療事業特別会計を、年度の途中で組み替えるための議案です。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "後期高齢者医療のお金（特別会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
@@ -133,6 +151,10 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "介護保険の会計を組み替える（補正予算）",
     summary:
       "令和7年度の介護保険事業特別会計を、年度の途中で組み替えるための議案です。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "介護保険のお金（特別会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
@@ -140,6 +162,10 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "下水道の会計を組み替える（補正予算）",
     summary:
       "令和7年度の公共下水道事業会計を、年度の途中で組み替えるための議案です。処理場の整備費を減らし、被災した施設の復旧工事のための管渠整備費を増やします。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "下水道のお金（企業会計）",
+    }),
     tag: "くらし・まちづくり",
     committee: "予算審査特別委員会",
   },
@@ -149,24 +175,41 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "来年度（令和8年度）の市の予算を決める",
     summary:
       "令和8年度の市全体の使いみちを決める、1年でいちばん大きな議案です。基金の運用問題を受けた臨時行財政運営方針のもとで組まれた予算で、4人の議員が討論に立ちました。",
+    systemNote: budgetSystemNote({
+      kind: "当初予算",
+      account: "市全体のお金（一般会計）",
+      linkBudgetPage: true,
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
   議案第10号: {
     title: "来年度の国民健康保険の予算を決める",
     summary: "令和8年度の国民健康保険事業特別会計の予算を決める議案です。",
+    systemNote: budgetSystemNote({
+      kind: "当初予算",
+      account: "国民健康保険のお金（特別会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
   議案第11号: {
     title: "来年度の後期高齢者医療の予算を決める",
     summary: "令和8年度の後期高齢者医療事業特別会計の予算を決める議案です。",
+    systemNote: budgetSystemNote({
+      kind: "当初予算",
+      account: "後期高齢者医療のお金（特別会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
   議案第12号: {
     title: "来年度の介護保険の予算を決める",
     summary: "令和8年度の介護保険事業特別会計の予算を決める議案です。",
+    systemNote: budgetSystemNote({
+      kind: "当初予算",
+      account: "介護保険のお金（特別会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
@@ -174,6 +217,10 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "来年度の下水道の予算を決める",
     summary:
       "令和8年度の公共下水道事業会計の予算を決める議案です。水道事業に民間の力を入れる「ウォーターPPP」の可能性調査の費用が入っており、これに反対する討論がありました。",
+    systemNote: budgetSystemNote({
+      kind: "当初予算",
+      account: "下水道のお金（企業会計）",
+    }),
     tag: "くらし・まちづくり",
     committee: "予算審査特別委員会",
   },

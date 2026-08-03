@@ -15,6 +15,7 @@
  * 会議録に一切記録されていないため、ここでは扱わない。
  * 氏名が分かるのは討論をした議員と、発議の提出者・賛成者だけ。
  */
+import { budgetSystemNote } from "./seed-bills-common";
 import type { BillVoteRecord, PlainText } from "./seed-bills-common";
 
 export const R7_12_SESSION_SLUG = "r7-12";
@@ -107,6 +108,10 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "今年度の市の予算を組み替える（一般会計補正予算）",
     summary:
       "令和7年度の一般会計予算を組み替える議案です。8月の大雨による災害復旧費なども含まれており、反対討論（特別職報酬引き上げ等が一括計上されていること等を理由）と、賛成討論（災害復旧の緊急性を理由）がありました。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "市全体のお金（一般会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
@@ -114,6 +119,10 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "国民健康保険の会計を組み替える（補正予算）",
     summary:
       "令和7年度の国民健康保険事業特別会計を組み替える議案です。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "国民健康保険のお金（特別会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
@@ -121,18 +130,30 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     title: "後期高齢者医療の会計を組み替える（補正予算）",
     summary:
       "令和7年度の後期高齢者医療事業特別会計を組み替える議案です。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "後期高齢者医療のお金（特別会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
   議案第50号: {
     title: "介護保険の会計を組み替える（補正予算）",
     summary: "令和7年度の介護保険事業特別会計を組み替える議案です。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "介護保険のお金（特別会計）",
+    }),
     tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
   議案第51号: {
     title: "下水道の会計を組み替える（補正予算）",
     summary: "令和7年度の公共下水道事業会計を組み替える議案です。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "下水道のお金（企業会計）",
+    }),
     tag: "くらし・まちづくり",
     committee: "予算審査特別委員会",
   },

@@ -31,6 +31,44 @@ export type BillVoteRecord = BillVote & {
   sourceFile: string;
 };
 
+/**
+ * 令和8年度の主要事業をまとめたページ。
+ * 市が公開している「令和8年度 主要事業の概要」（37事業）をもとにしている。
+ */
+const BUDGET_PAGE_PATH = "/budget/r8-3/shuyo-jigyo";
+
+/**
+ * 予算の議案に置く、しくみの説明。
+ *
+ * 予算の議案には議案書に理由欄が無い。地方自治法で市長が予算を調製して
+ * 議会に提出することが定められており、理由を述べる制度になっていないため。
+ * 空欄のままだと資料に無いのか載せ忘れなのかが読み手に区別できないので、
+ * 何の議案なのかを説明する。
+ *
+ * @param kind 予算の種類（当初予算か補正予算か）
+ * @param account 会計の名前。「市全体のお金（一般会計）」など
+ * @param linkBudgetPage 主要事業のページへ案内するか。令和8年度の一般会計だけ
+ */
+export function budgetSystemNote(o: {
+  kind: "当初予算" | "補正予算";
+  account: string;
+  linkBudgetPage?: boolean;
+}): string {
+  const base =
+    o.kind === "当初予算"
+      ? `市が1年間に行う仕事と、それに使うお金をまとめて決める議案です。${o.account}が対象です。`
+      : `すでに決めてある1年ぶんの予算を、年度の途中で組み替える議案です。${o.account}が対象です。`;
+
+  const why =
+    "予算の議案には、議案書に理由が書かれていません。地方自治法で、市長が予算をつくって議会に提出し、議決を受けることが定められているためです。";
+
+  const link = o.linkBudgetPage
+    ? `\n\nこの予算に含まれる主な事業は、市が公開している「令和8年度 主要事業の概要」をもとに[別のページ](${BUDGET_PAGE_PATH})にまとめています。`
+    : "";
+
+  return `${base}\n\n${why}${link}`;
+}
+
 export type PlainText = {
   /** 市民向けの見出し */
   title: string;
@@ -42,6 +80,11 @@ export type PlainText = {
    * 理由がそもそも記録されていない議案（予算など）は省略する。
    */
   reasonPlain?: string;
+  /**
+   * 理由の記録が無い議案（予算など）に置く、しくみの説明。
+   * budgetSystemNote() で組み立てる。
+   */
+  systemNote?: string;
   /** どの分野の議案か（タグ付けに使う） */
   tag: string;
   /** 付託された委員会。議員提出の発議など委員会付託が無いものはnull */
@@ -149,7 +192,7 @@ function buildStatusNote(
  * 議案ごとに違う。一律の文言にすると、読み手に何を根拠に書かれた記事なのかを
  * 誤って伝えることになる。
  */
-function buildAiSourceLabel(o: {
+export function buildAiSourceLabel(o: {
   petition: boolean;
   memberBill: boolean;
   hasDocumentReason: boolean;
@@ -179,6 +222,7 @@ function toContentInput(o: {
   billName: string;
   billNumber: string;
   reasonPlain: string | undefined;
+  systemNote: string | undefined;
   documentReason: string | null;
   proposalReason: string | null;
   committeeReport: string | null;
@@ -194,6 +238,7 @@ function toContentInput(o: {
     subject: petition ? "請願" : "議案",
     billName: o.billName,
     reasonPlain: o.reasonPlain,
+    systemNote: o.systemNote,
     // 提案理由を説明したのが市か提出議員かで見出しの主語が変わる
     isMemberBill: memberBill,
     documentReason: o.documentReason,
@@ -307,6 +352,7 @@ export async function seedBillsForSession({
       billName: v.billName,
       billNumber: v.billNumber,
       reasonPlain: plain.reasonPlain,
+      systemNote: plain.systemNote,
       // 請願は請願書そのものが非公開資料なので、議案書の理由は持たない
       documentReason: documentReasons.get(v.billNumber) ?? null,
       proposalReason: v.proposalReason ?? null,

@@ -37,6 +37,7 @@ import {
   loadBillDocuments,
   toReasonMap,
 } from "../fukutsu/load-bill-documents";
+import { budgetSystemNote } from "../fukutsu/seed-bills-common";
 
 /**
  * 議案書に印刷されている理由。
@@ -98,6 +99,11 @@ type BillOutline = {
    * 理由欄が無い議案（予算・財産の取得・意見書）は省略する。
    */
   reasonPlain?: string;
+  /**
+   * 理由の記録が無い議案（予算）に置く、しくみの説明。
+   * 誰かの説明ではなく制度そのものの説明なので、reasonPlain とは別にする。
+   */
+  systemNote?: string;
 };
 
 const BILL_OUTLINES: BillOutline[] = [
@@ -109,6 +115,10 @@ const BILL_OUTLINES: BillOutline[] = [
     result: "可決",
     kindNormal:
       "市の一年間の使いみちを決めた予算（当初予算）を、年度の途中で変更するための議案です。「一般会計」は、市の基本的な仕事のほとんどを扱う財布のことです。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "市全体のお金（一般会計）",
+    }),
     kindHard:
       "地方自治法第218条第1項に基づく補正予算。当初予算成立後に生じた事由により、歳入歳出予算に追加・更正を行うもの。第1号は当該年度で最初の補正を指す。",
   },
@@ -120,6 +130,10 @@ const BILL_OUTLINES: BillOutline[] = [
     result: "可決",
     kindNormal:
       "介護保険のお金は、市の基本の財布とは分けて管理されています（特別会計）。その予算を年度の途中で変更するための議案です。",
+    systemNote: budgetSystemNote({
+      kind: "補正予算",
+      account: "介護保険のお金（特別会計）",
+    }),
     kindHard:
       "介護保険事業特別会計に係る補正予算。特別会計は特定の事業について歳入歳出を一般会計と区分して経理するもので、介護保険法に基づき市町村が設置する。",
   },
@@ -252,6 +266,7 @@ function toContentInput(o: BillOutline) {
     subject: "議案",
     billName: o.billName,
     reasonPlain: o.reasonPlain,
+    systemNote: o.systemNote,
     // 提案理由を説明したのが市か提出議員かで見出しの主語が変わる
     isMemberBill: o.billNumber.startsWith("発議"),
     documentReason: DOCUMENT_REASONS.get(o.billNumber) ?? null,

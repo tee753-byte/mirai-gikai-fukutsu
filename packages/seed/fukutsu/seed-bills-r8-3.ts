@@ -6,6 +6,7 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildHardContent, buildNormalContent } from "./bill-content-format";
+import { buildAiSourceLabel } from "./seed-bills-common";
 import {
   decidedAt,
   documentReason,
@@ -46,6 +47,7 @@ function toContentInput(
   billNumber: string,
   billName: string,
   reasonPlain: string | undefined,
+  systemNote: string | undefined,
   docReason: string | null,
   proposalReason: string | null,
   committeeReport: string | null
@@ -54,6 +56,7 @@ function toContentInput(
     subject: "議案",
     billName,
     reasonPlain,
+    systemNote,
     // 提案理由を説明したのが市か提出議員かで見出しの主語が変わる
     isMemberBill: billNumber.startsWith("発議"),
     documentReason: docReason,
@@ -67,12 +70,16 @@ function toContentInput(
     hasMinutes: true,
     hasMemberVotes: true,
     minutesDueLabel: null,
-    // 発議は市ではなく議員が出したもの。「市の説明」と書くと出典を偽ることになる
-    aiSourceLabel: billNumber.startsWith("発議")
-      ? "議案書と会議録に記録された提出議員の説明"
-      : "議案書と会議録に記録された市の説明",
-    originalDocumentNote:
-      "ここに載せているのは、議案書と会議録に記録された市の説明です。議案書そのものは、この非公式サイトでは再掲載していません。",
+    // その議案に実際にある資料から決める。予算議案には議案書の理由欄が無く、
+    // 会議録にも提案理由の説明が残っていないため、一律の文言にすると
+    // 何を根拠に書かれた記事なのかを誤って伝えることになる
+    aiSourceLabel: buildAiSourceLabel({
+      petition: false,
+      memberBill: billNumber.startsWith("発議"),
+      hasDocumentReason: Boolean(docReason),
+      hasProposalReason: Boolean(proposalReason),
+    }),
+    originalDocumentNote: `ここに載せているのは、${docReason ? "議案書と会議録に記録された" : "会議録に記録された"}${billNumber.startsWith("発議") ? "提出議員" : "市"}の説明です。議案書そのものは、この非公式サイトでは再掲載していません。`,
   };
 }
 
@@ -142,6 +149,7 @@ export async function seedBillsR8_3(
       v.billNumber,
       v.billName,
       plain.reasonPlain,
+      plain.systemNote,
       documentReason(v.billNumber),
       v.proposalReason,
       v.committeeReport
