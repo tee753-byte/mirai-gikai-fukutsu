@@ -39,7 +39,10 @@ export function HeaderClient({ difficultyLevel }: HeaderClientProps) {
                   height={36}
                 />
               )}
-              <div className="text-xl font-bold">{siteConfig.siteName}</div>
+              {/* 白ヘッダーのままでも福津市版だと分かるよう、サイト名に臙脂の下線を引く */}
+              <div className="text-xl font-bold border-b-2 border-primary-underline pb-0.5">
+                {siteConfig.siteName}
+              </div>
             </Link>
           </div>
 

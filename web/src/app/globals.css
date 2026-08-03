@@ -44,6 +44,7 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-primary-accent: var(--primary-accent);
+  --color-primary-underline: var(--primary-underline);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -170,6 +171,10 @@
      WCAGの4.5:1を満たしていなかった点も解消する。 */
   --primary: #701a1a;
   --primary-accent: #501111;
+  /* ヘッダーのサイト名に引く下線。ヘッダー自体は白のままにしたいが、
+     それだと他地域の「みらい議会」と見分けがつかないため、
+     ここだけ淡い臙脂を入れて福津市版だと分かるようにする */
+  --primary-underline: #d8aba5;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
