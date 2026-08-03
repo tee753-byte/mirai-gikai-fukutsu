@@ -1,5 +1,6 @@
 import { ArrowRight, Clock } from "lucide-react";
 import Link from "next/link";
+import { MINUTES_PUBLICATION_TIMING } from "@/features/council-sessions/shared/minutes-schedule";
 import type { SessionWithQuestions } from "../loaders/get-sessions-with-questions";
 
 type Props = {
@@ -61,7 +62,7 @@ export function SessionQuestionsSwitcher({ sessions, currentSlug }: Props) {
               <strong className="font-bold text-mirai-text">
                 質問の項目だけ
               </strong>
-              を載せています（正式公開までおよそ3か月）。
+              を載せています（{MINUTES_PUBLICATION_TIMING}に公開されます）。
             </span>
           </p>
           <Link

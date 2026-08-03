@@ -1,6 +1,7 @@
 "use client";
 
 import { MessageCircle, User } from "lucide-react";
+import { MINUTES_PUBLICATION_TIMING } from "@/features/council-sessions/shared/minutes-schedule";
 import type { GeneralQuestionTopic } from "../../shared/types";
 
 /** 議員の発言。「やり取りを追う」表示からも使う */
@@ -88,7 +89,7 @@ export function QuestionChatView({ topics }: QuestionChatViewProps) {
           ) : (
             // 議事録が未公開の定例会は答弁が空になる。空の吹き出しを出さず理由を書く
             <p className="rounded-lg bg-mirai-surface-muted px-3 py-2 text-xs leading-relaxed text-mirai-text-secondary">
-              答弁は議事録の公開後に掲載します（正式公開までおよそ3か月）。
+              答弁は会議録の公開後に掲載します（{MINUTES_PUBLICATION_TIMING}）。
             </p>
           )}
         </div>

@@ -6,6 +6,7 @@ import { Container } from "@/components/layouts/container";
 import { siteConfig } from "@/config/site.config";
 import { MemberProfileCard } from "@/features/council-members/client/components/member-profile-card";
 import { findMemberProfile } from "@/features/council-members/shared/member-profiles";
+import { MINUTES_PUBLICATION_TIMING } from "@/features/council-sessions/shared/minutes-schedule";
 import { getQuestionerGroups } from "@/features/general-questions/server/loaders/get-questioner-groups";
 
 type Props = {
@@ -103,7 +104,8 @@ export default async function QuestionerDetailPage({ params }: Props) {
               <p className="mt-3 inline-flex items-start gap-1 rounded-md bg-mirai-surface-muted px-2 py-1 text-[11px] leading-relaxed text-mirai-text-secondary">
                 <Clock className="mt-0.5 h-3 w-3 shrink-0" />
                 <span>
-                  やり取りの全文は、議事録の公開後に掲載します（正式公開までおよそ3か月）。
+                  やり取りの全文は、会議録の公開後に掲載します（
+                  {MINUTES_PUBLICATION_TIMING}）。
                 </span>
               </p>
             )}

@@ -12,6 +12,7 @@ import {
   Trophy,
 } from "lucide-react";
 import Link from "next/link";
+import { MINUTES_PUBLICATION_TIMING } from "@/features/council-sessions/shared/minutes-schedule";
 import type { GeneralQuestion } from "../../shared/types";
 import type {
   TopicEntry,
@@ -126,7 +127,8 @@ function TopicCard({
             <p className="mt-2 inline-flex items-start gap-1 rounded-md bg-white/70 px-2 py-1 text-[11px] leading-relaxed text-mirai-text-secondary">
               <Clock className="mt-0.5 h-3 w-3 shrink-0" />
               <span>
-                答弁は議事録の公開後に追加します（正式公開までおよそ3か月）。それまでは質問の要旨のみを掲載しています。
+                答弁は会議録の公開後に追加します（{MINUTES_PUBLICATION_TIMING}
+                ）。それまでは質問の要旨のみを掲載しています。
               </span>
             </p>
           </>

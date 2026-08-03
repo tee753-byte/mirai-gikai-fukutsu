@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layouts/container";
 import { siteConfig } from "@/config/site.config";
+import { MemberTermsNote } from "@/features/council-members/client/components/member-terms-note";
 import { QuestionerListView } from "@/features/general-questions/server/components/questioner-list-view";
 import { getQuestionerGroups } from "@/features/general-questions/server/loaders/get-questioner-groups";
 
@@ -22,6 +23,10 @@ export default async function QuestionMembersPage() {
         <p className="mt-2 text-xs text-mirai-text-secondary">
           掲載の基準は全議員で同じです。質問の回数や発言の量では並べ替えていません。
         </p>
+      </div>
+      {/* 用語の説明は一度読めば足りるので、議員ごとのページではなくここに置く */}
+      <div className="mb-6">
+        <MemberTermsNote />
       </div>
       <QuestionerListView groups={groups} />
     </Container>
