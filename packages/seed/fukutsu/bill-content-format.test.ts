@@ -89,6 +89,32 @@ describe("buildNormalContent", () => {
     );
   });
 
+  it("請願は委員長報告だけが原文なので、それを案内する", () => {
+    // 請願書は非公開資料で、市の提案理由の説明も存在しない
+    const content = buildNormalContent({
+      ...BASE,
+      subject: "請願",
+      reasonPlain: "請願を審査した委員会では、賛成の意見が出されました。",
+      committeeReport: "審査内容。（１）主な質疑及び答弁。",
+    });
+
+    expect(content).toContain(
+      "委員会での審査の原文は、「説明をもっと詳しく」に切り替えると読めます。"
+    );
+  });
+
+  it("議案書の理由があるときは、委員長報告を案内文に足さない", () => {
+    // 原文が読めること自体は伝わるので、一文を長くしない
+    const content = buildNormalContent({
+      ...BASE,
+      reasonPlain: "市は、条例を直す必要があると説明しています。",
+      documentReason: "法律の改正に伴い、所要の改正を行う。",
+      committeeReport: "審査内容。",
+    });
+
+    expect(content).not.toContain("委員会での審査");
+  });
+
   it("原文がひとつも無ければ、読めない場所へ案内しない", () => {
     const content = buildNormalContent({
       ...BASE,

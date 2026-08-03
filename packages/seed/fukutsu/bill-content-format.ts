@@ -121,6 +121,11 @@ function reasonSection(input: BillContentInput): string | null {
   if (input.proposalReason) {
     originals.push(`${proposalReasonSpeaker(input)}が議会で説明した提案理由`);
   }
+  // 請願には議案書の理由も提案理由の説明も無く、委員長報告だけが残っている。
+  // 何も案内しないと、原文が読めること自体が伝わらない
+  if (originals.length === 0 && input.committeeReport) {
+    originals.push("委員会での審査");
+  }
 
   const guide =
     originals.length > 0
