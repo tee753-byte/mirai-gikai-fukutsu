@@ -11,11 +11,13 @@ import { BillStatusProgress } from "../../../client/components/bill-detail/bill-
 import { FactionStanceCard } from "../../../client/components/bill-detail/faction-stance-card";
 import type { BillWithContent } from "../../../shared/types";
 import { getBillDiscussions } from "../../loaders/get-bill-discussions";
+import { getRelatedBills } from "../../loaders/get-related-bills";
 import { BillShareButtons } from "../share/bill-share-buttons";
 import { BillContent } from "./bill-content";
 import { BillDetailHeader } from "./bill-detail-header";
 import { BillDiscussionsSection } from "./bill-discussions-section";
 import { BillVoteSection } from "./bill-vote-section";
+import { RelatedBillsSection } from "./related-bills-section";
 
 interface BillDetailLayoutProps {
   bill: BillWithContent;
@@ -30,13 +32,13 @@ export async function BillDetailLayout({
     bill.status === "preparing" ||
     (bill.faction_stances && bill.faction_stances.length > 0);
 
-  const [interviewConfig, publicReportsResult, discussions] = await Promise.all(
-    [
+  const [interviewConfig, publicReportsResult, discussions, relatedBills] =
+    await Promise.all([
       getInterviewConfig(bill.id),
       getPublicReportsByBillId(bill.id),
       getBillDiscussions(bill.id),
-    ]
-  );
+      getRelatedBills(bill.id, bill.name),
+    ]);
 
   return (
     <div className="container mx-auto pb-8 max-w-4xl">
@@ -81,6 +83,14 @@ export async function BillDetailLayout({
         {/* 誰が賛成し、誰が反対したか（討論・提出者・議員別賛否） */}
         <div className="my-8">
           <BillVoteSection billId={bill.id} voteMethod={bill.vote_method} />
+        </div>
+
+        {/*
+          賛否のすぐ下に置く。会議録が未公開の会期は賛否が空になるので、
+          そこで行き止まりにせず、同じ議案が読める会期へ渡す
+        */}
+        <div className="my-8">
+          <RelatedBillsSection relatedBills={relatedBills} />
         </div>
 
         {siteConfig.features.aiInterview && interviewConfig != null && (
