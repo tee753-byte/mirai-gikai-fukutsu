@@ -166,7 +166,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       kind: "補正予算",
       account: "下水道のお金（企業会計）",
     }),
-    tag: "くらし・まちづくり",
+    tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
 
@@ -221,7 +221,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       kind: "当初予算",
       account: "下水道のお金（企業会計）",
     }),
-    tag: "くらし・まちづくり",
+    tag: "予算・財政",
     committee: "予算審査特別委員会",
   },
 
@@ -250,7 +250,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "令和8年度の組織改編で「防災安全課」が「危機管理課」に変わることに伴い、関係する3つの条例の記載を直す議案です。",
     reasonPlain:
       "市は、令和8年4月1日に市の組織の一部を見直すことで担当課の名前が変わるため、防災会議・水防協議会・国民保護協議会の3つの条例に書かれている課の名前を直す必要があると説明しています。",
-    tag: "くらし・まちづくり",
+    tag: "防災",
     committee: "総務文教委員会",
   },
   議案第18号: {
@@ -267,7 +267,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     summary:
       "公共施設の使用料の算定方法を市全体でそろえる方針にもとづき、武道館の使用料を見直す議案です。本会議で否決されました。",
     reasonPlain: feeRevisionReason("福津市武道館"),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "総務文教委員会",
   },
   議案第20号: {
@@ -278,7 +278,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "福津市体育施設",
       "あわせて、体育室の利用方法の見直しに伴う改正も行うとしています。"
     ),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "総務文教委員会",
   },
   議案第21号: {
@@ -286,7 +286,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     summary:
       "公共施設の使用料の算定方法を市全体でそろえる方針にもとづき、勝浦浜海洋スポーツセンターの使用料を見直す議案です。",
     reasonPlain: feeRevisionReason("福津市勝浦浜海洋スポーツセンター"),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "総務文教委員会",
   },
   議案第22号: {
@@ -297,7 +297,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "福津市公民館",
       "あわせて、公民館ホールの利用停止などに伴う改正も行うとしています。"
     ),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "総務文教委員会",
   },
   議案第23号: {
@@ -308,7 +308,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "福津市複合文化センター",
       "あわせて、新たに会議室を増やしたことに伴う改正も行うとしています。"
     ),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "総務文教委員会",
   },
   議案第24号: {
@@ -363,7 +363,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "子ども・子育て支援法などの改正で、保険料に加えて「子ども・子育て支援納付金」を新たに集めることになったこと等に伴う議案です。",
     reasonPlain:
       "市は、令和8年4月1日から「子ども・子育て支援納付金」を集めるしくみが始まること、市の国民健康保険運営協議会から答申を受けたことから、保険税の税率を改めて設定する必要が生じたと説明しています。福岡県内で保険料の水準をそろえていく動きに気をつけながら、社会保険料の負担を軽くすることを目的にしたものだとしています。",
-    tag: "くらし・まちづくり",
+    tag: "予算・財政",
     committee: "市民福祉委員会",
   },
   議案第29号: {
@@ -372,7 +372,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "介護保険法施行令の改正に伴い、令和7年度の税制改正（給与所得控除の見直し）を保険料の算定に反映させる議案です。",
     reasonPlain:
       "市は、介護保険法施行令を改める政令が令和7年12月17日に公布されたことに伴い、市の介護保険条例を直す必要があると説明しています。",
-    tag: "くらし・まちづくり",
+    tag: "予算・財政",
     committee: "市民福祉委員会",
   },
   議案第30号: {
@@ -389,7 +389,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     summary:
       "公共施設の使用料の算定方法を市全体でそろえる方針にもとづき、健康福祉総合センター（ふくとぴあ）の使用料を見直す議案です。減免を受けている高齢者・障がい者団体への影響が議論となり、本会議で否決されました。",
     reasonPlain: feeRevisionReason("福津市健康福祉総合センター"),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "市民福祉委員会",
   },
   議案第32号: {
@@ -397,7 +397,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     summary:
       "公共施設の使用料の算定方法を市全体でそろえる方針にもとづき、福間会館の使用料を見直す議案です。本会議で否決されました。",
     reasonPlain: feeRevisionReason("福津市立福間会館"),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "市民福祉委員会",
   },
 
@@ -408,7 +408,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "下水道事業運営審議会の答申にもとづき、下水道の基本使用料と従量使用料の単価をともに引き上げる議案です。賛成と反対が同数となり、議長の裁決で否決されました。",
     reasonPlain:
       "市は、公共下水道事業がこれから先も良質なサービスを安定して続けられるよう、経営の基盤を強くすることを目的として、使用料の額を改める必要があると説明しています。金額は下水道事業運営審議会の答申にもとづくものだとしています。",
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "建設環境委員会",
   },
   議案第34号: {
@@ -425,7 +425,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "福間漁港の一部を民間事業者に貸し、小型船舶の係留施設の運営を始めることに伴う議案です。2人の議員が反対討論に立ちました。",
     reasonPlain:
       "市は、小型船舶をつなぎとめておく施設を貸す事業者が選ばれ、令和8年4月1日からその民間企業が運営することになるため、漁港管理条例を直す必要があると説明しています。",
-    tag: "くらし・まちづくり",
+    tag: "まちづくり",
     committee: "建設環境委員会",
   },
   議案第36号: {
@@ -434,7 +434,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "林野火災を防ぐため、宗像地区事務組合の火災予防条例の改正に合わせて、火入れ中の決まりを見直す議案です。",
     reasonPlain:
       "市は、気象発表で使われなくなった用語を改めることと、林野火災を防ぐ効果を高めることを目的に宗像地区事務組合の火災予防条例が改正されたため、市の火入れに関する条例も合わせて直す必要があると説明しています。",
-    tag: "くらし・まちづくり",
+    tag: "まちづくり",
     committee: "建設環境委員会",
   },
   議案第37号: {
@@ -442,7 +442,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     summary:
       "公共施設の使用料の算定方法を市全体でそろえる方針にもとづき、農林漁業体験実習館の使用料を見直す議案です。",
     reasonPlain: feeRevisionReason("福津市農林漁業体験実習館"),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "建設環境委員会",
   },
   議案第38号: {
@@ -453,7 +453,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "福津市まちおこしセンター",
       "あわせて、貸室のうち展示コーナーの貸出単位を1日とし、観光案内コーナーをなくすとしています。"
     ),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "建設環境委員会",
   },
   議案第39号: {
@@ -464,7 +464,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "福津市津屋崎千軒民俗館",
       "あわせて、使用料の減免についての書き方を他の公共施設とそろえるとしています。"
     ),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "建設環境委員会",
   },
   議案第40号: {
@@ -472,7 +472,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     summary:
       "公共施設の使用料の算定方法を市全体でそろえる方針にもとづき、津屋崎千軒古民家の使用料を見直す議案です。",
     reasonPlain: feeRevisionReason("福津市津屋崎千軒古民家"),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "建設環境委員会",
   },
   議案第41号: {
@@ -480,7 +480,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     summary:
       "公共施設の使用料の算定方法を市全体でそろえる方針にもとづき、行政・観光情報ステーションの使用料を見直す議案です。",
     reasonPlain: feeRevisionReason("福津市行政・観光情報ステーション"),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "建設環境委員会",
   },
   議案第42号: {
@@ -491,7 +491,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "有料公園施設",
       "あわせて、有料公園施設の使用料に市外の人向けの料金を設けるとしています。"
     ),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "建設環境委員会",
   },
   議案第43号: {
@@ -502,7 +502,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "福津市コミュニティセンター",
       "あわせて、多目的室の利用方法の見直しに伴う改正も行うとしています。"
     ),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "建設環境委員会",
   },
   議案第44号: {
@@ -513,7 +513,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
       "福津市郷づくり交流センター",
       "あわせて、条文の一部の書き方を整えるとしています。"
     ),
-    tag: "くらし・まちづくり",
+    tag: "施設・使用料",
     committee: "建設環境委員会",
   },
   議案第45号: {
@@ -523,7 +523,7 @@ export const PLAIN_TEXTS: Record<string, PlainText> = {
     // 議案書に理由欄が無いため、会議録の提案理由の説明だけをもとにしている
     reasonPlain:
       "市は、令和7年度のうちに、道路法の規定にもとづいて6つの路線を新たに市道として認定するため、議会の議決を求めると説明しています。",
-    tag: "くらし・まちづくり",
+    tag: "まちづくり",
     committee: "建設環境委員会",
   },
 

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { formatDateJST } from "@/lib/utils/date";
 import type { BillWithContent } from "../../../shared/types";
+import { getTagThumbnail } from "../../../shared/utils/tag-thumbnail";
 import { BillStatusBadge } from "./bill-status-badge";
 import { BillTypeBand } from "./bill-type-band";
 import { VoteCountBadge } from "./vote-count-badge";
@@ -18,6 +19,7 @@ interface CompactBillCardProps {
 export function CompactBillCard({ bill, className }: CompactBillCardProps) {
   const displayTitle = bill.bill_content?.title || bill.name;
   const statusLabel = "提出";
+  const thumbnailUrl = bill.thumbnail_url ?? getTagThumbnail(bill.tags);
 
   return (
     <Card
@@ -47,11 +49,11 @@ export function CompactBillCard({ bill, className }: CompactBillCardProps) {
           </div>
         </div>
 
-        {/* サムネイル画像 */}
-        {bill.thumbnail_url && (
+        {/* サムネイル画像。個別設定が無ければタグに応じたデフォルト画像を表示する */}
+        {thumbnailUrl && (
           <div className="relative w-24 h-16 flex-shrink-0 self-center mr-4 rounded-lg overflow-hidden">
             <Image
-              src={bill.thumbnail_url}
+              src={thumbnailUrl}
               alt={bill.name}
               fill
               className="object-cover"

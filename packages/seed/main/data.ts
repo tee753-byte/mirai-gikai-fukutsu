@@ -148,6 +148,8 @@ export const committees: CommitteeInsert[] = [
 ];
 
 // タグデータ（福津市議会の議案構成に合わせた分類）
+// 本番DBの tags テーブルと一致させること（管理画面から追加・改名されることがあるため、
+// 定期的に本番の内容と突き合わせて更新する）
 export const tags: TagInsert[] = [
   {
     label: "予算・財政",
@@ -160,8 +162,8 @@ export const tags: TagInsert[] = [
     featured_priority: 2,
   },
   {
-    label: "くらし・まちづくり",
-    description: "福祉、医療、防災、都市整備、環境に関する議案",
+    label: "まちづくり",
+    description: "漁港・道路・公共インフラなど、まちづくりに関する議案",
     featured_priority: 3,
   },
   {
@@ -173,6 +175,16 @@ export const tags: TagInsert[] = [
     label: "意見書・決議",
     description: "国や県などに対して議会の意思を伝える意見書・決議",
     featured_priority: 5,
+  },
+  {
+    label: "施設・使用料",
+    description: "市有施設の使用料改定に関する議案",
+    featured_priority: 6,
+  },
+  {
+    label: "防災",
+    description: "防災、災害復旧に関する議案",
+    featured_priority: 7,
   },
 ];
 
@@ -323,7 +335,7 @@ export function createBillsTags(
     "令和8年度福津市一般会計補正予算（第1号）について": ["予算・財政"],
     "令和8年度福津市介護保険事業特別会計補正予算（第1号）について": [
       "予算・財政",
-      "くらし・まちづくり",
+      "まちづくり",
     ],
     "福津市特別職の職員で常勤のものの給与及び旅費に関する条例を改正することについて":
       ["議会・行政のしくみ"],
