@@ -6,6 +6,7 @@ import { Header } from "@/components/header";
 import { AuthGate } from "@/components/layouts/auth-gate";
 import { Footer } from "@/components/layouts/footer/footer";
 import { MainLayout } from "@/components/layouts/main-layout";
+import { siteConfig } from "@/config/site.config";
 import { env } from "@/lib/env";
 import { RubyfulInitializer } from "@/lib/rubyful";
 
@@ -25,7 +26,14 @@ export default function MainGroupLayout({
       <Analytics />
       <GoogleAnalytics gaId={env.analytics.gaTrackingId ?? ""} />
       <RubyfulInitializer />
-      <AuthGate />
+      {/*
+        匿名ユーザーIDの発行はAIチャット・AIインタビュー機能でのみ必要。
+        福津版ではどちらも無効のため、無条件で呼ぶとSupabase側で
+        匿名サインインを許可していないエラーが毎回発生してしまう。
+      */}
+      {(siteConfig.features.aiChat || siteConfig.features.aiInterview) && (
+        <AuthGate />
+      )}
 
       <MainLayout>
         <Header />
