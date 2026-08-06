@@ -34,6 +34,13 @@ export const siteConfig = {
   heroImage: "/img/hero_miyajidake.jpg",
   externalLinks: {
     report: "https://forms.gle/aJuYZxKqtrRHtVwH9",
+    /**
+     * LINE公式アカウントの友だち追加URL。
+     * 無料枠は月200通で「友だち数×配信回数」で消費されるため、友だちが増えるほど送れる回数が減る。
+     * そのため案内文では配信の頻度を約束しないこと（「更新のたびに通知」「月1回」等と書かない）。
+     * 期待値を上げるとブロックされ、次に何を送っても届かなくなる。
+     */
+    line: "https://lin.ee/u6YHvT3",
     aboutNote: "",
     donation: "https://team-mir.ai/support/donation",
     teamAbout: "https://team-mir.ai/about",

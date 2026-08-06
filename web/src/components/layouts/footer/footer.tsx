@@ -18,6 +18,7 @@ export function Footer() {
     <footer className="bg-mirai-gradient text-slate-900">
       <div className="mx-auto flex w-full max-w-[500px] flex-col items-center px-6 py-14 pb-20 text-center">
         {siteConfig.features.showTeamMiraiSection && <FooterLogoSection />}
+        <FooterLineSection />
         <FooterPrimaryLinks />
         <FooterPolicies />
         <FooterDisclaimer />
@@ -39,6 +40,36 @@ function FooterLogoSection() {
           className="h-auto"
         />
       </Link>
+    </div>
+  );
+}
+
+/**
+ * LINE公式アカウントの友だち追加。
+ *
+ * 規約リンクの列に混ぜると埋もれるため、独立したブロックとして先頭に置く。
+ * 説明文で配信の頻度を約束しないこと（「更新のたびに通知」「毎週」等と書かない）。
+ * 無料枠は月200通で、これは「友だち数×配信回数」で消費されるため、
+ * 友だちが増えるほど送れる回数が減る。約束すると守れなくなり、ブロックされて次が届かなくなる。
+ */
+function FooterLineSection() {
+  if (!siteConfig.externalLinks.line) {
+    return null;
+  }
+
+  return (
+    <div className="w-full mb-8 flex flex-col items-center gap-2">
+      <a
+        href={siteConfig.externalLinks.line}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center justify-center rounded-full bg-[#06C755] px-7 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+      >
+        LINEで友だち追加
+      </a>
+      <p className="text-[11px] text-slate-600">
+        {siteConfig.councilName}の動きを不定期にお届けします
+      </p>
     </div>
   );
 }
