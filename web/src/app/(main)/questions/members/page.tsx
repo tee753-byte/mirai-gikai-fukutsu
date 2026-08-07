@@ -6,8 +6,9 @@ import { QuestionerListView } from "@/features/general-questions/server/componen
 import { getQuestionerGroups } from "@/features/general-questions/server/loaders/get-questioner-groups";
 
 export const metadata: Metadata = {
-  title: `議員から見る一般質問 | ${siteConfig.siteName}`,
+  title: "議員から見る一般質問",
   description: `${siteConfig.councilName}の議員が、それぞれの定例会でどんな一般質問をしたのかを議員ごとにまとめています。`,
+  alternates: { canonical: "/questions/members" },
 };
 
 export default async function QuestionMembersPage() {

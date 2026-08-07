@@ -14,6 +14,7 @@ import { getGeneralQuestionsBySession } from "@/features/general-questions/serve
 export const metadata: Metadata = {
   title: "これまでの議会一覧",
   description: "これまでに開催された定例会・臨時会の一覧です。",
+  alternates: { canonical: "/sessions" },
 };
 
 export default async function SessionsPage() {

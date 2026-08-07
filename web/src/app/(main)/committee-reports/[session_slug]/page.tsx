@@ -30,6 +30,7 @@ export async function generateMetadata({
   return {
     title: `${session.name} 委員会報告`,
     description: `${session.name}で、常任委員会が議案を審査した内容をまとめています。`,
+    alternates: { canonical: `/committee-reports/${session_slug}` },
   };
 }
 

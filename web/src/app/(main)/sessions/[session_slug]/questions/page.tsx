@@ -2,7 +2,6 @@ import { ArrowRight, Landmark, Users } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
-import { siteConfig } from "@/config/site.config";
 import { getCouncilSessionBySlug } from "@/features/council-sessions/server/loaders/get-council-session-by-slug";
 import { SessionQuestionsSwitcher } from "@/features/general-questions/server/components/session-questions-switcher";
 import { SessionTopicsView } from "@/features/general-questions/server/components/session-topics-view";
@@ -22,8 +21,9 @@ export async function generateMetadata({ params }: Props) {
   }
 
   return {
-    title: `${session.name}の一般質問 | ${siteConfig.siteName}`,
+    title: `${session.name}の一般質問`,
     description: `${session.name}で行われた一般質問の一覧です。議員が市長や市の担当部長に直接質問した内容をわかりやすく解説します。`,
+    alternates: { canonical: `/sessions/${session_slug}/questions` },
   };
 }
 

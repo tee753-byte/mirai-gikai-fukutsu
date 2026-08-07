@@ -2,7 +2,7 @@
 
 import { ChevronDown, ExternalLink, Info } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Collapsible,
@@ -32,6 +32,44 @@ function OutcomeBadge({ topic }: { topic: Topic }) {
 export function TopicCard({ topic, defaultOpen = false }: TopicCardProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
+  // --- 実験: ハイライト演出（不要なら isHighlighted 関連の3行と
+  //     className の articleHighlightClass をまとめて消せば元に戻る） ---
+  const [isHighlighted, setIsHighlighted] = useState(false);
+  const articleHighlightClass = isHighlighted
+    ? "animate-topic-highlight-flash"
+    : "";
+  // --- 実験ここまで ---
+
+  /*
+   * トップページの一覧から「/topics#slug」でこのカードへ直接リンクしている。
+   * URLのハッシュだけではブラウザが該当位置へスクロールするだけで、
+   * 中身が閉じたままだと「リンクを押しても変化が分からない」と誤解される
+   * （ベータテストで実際に報告された）。ハッシュが自分のslugと一致するときは
+   * 開いた状態にする。/topics内の別トピックへ移動したとき（ページ遷移なしで
+   * ハッシュだけ変わる）にも追従できるよう hashchange も見ておく。
+   */
+  useEffect(() => {
+    const syncWithHash = () => {
+      if (window.location.hash === `#${topic.slug}`) {
+        setIsOpen(true);
+        // 実験: リンクで開いたときだけ一瞬光らせて、変化に気づきやすくする。
+        // 手動でクリックして開閉したときは光らせない（うるさくなるため）。
+        setIsHighlighted(true);
+      }
+    };
+    syncWithHash();
+    window.addEventListener("hashchange", syncWithHash);
+    return () => window.removeEventListener("hashchange", syncWithHash);
+  }, [topic.slug]);
+
+  // 実験: 光らせたら1.6秒後に消す。上のeffectに書くとタイマーの後片付けが
+  // hashchangeのたびに複雑になるため、別のeffectに分けている。
+  useEffect(() => {
+    if (!isHighlighted) return;
+    const timer = setTimeout(() => setIsHighlighted(false), 1600);
+    return () => clearTimeout(timer);
+  }, [isHighlighted]);
+
   const forStances = topic.stances.filter((s) => s.side === "for");
   const againstStances = topic.stances.filter((s) => s.side === "against");
   const hasStances = topic.stances.length > 0;
@@ -41,7 +79,7 @@ export function TopicCard({ topic, defaultOpen = false }: TopicCardProps) {
     // ヘッダーに隠れないよう scroll-mt を付けている
     <article
       id={topic.slug}
-      className="bg-card rounded-lg border border-border p-5 scroll-mt-24"
+      className={`bg-card rounded-lg border border-border p-5 scroll-mt-24 ${articleHighlightClass}`}
     >
       <div className="flex items-center gap-2 flex-wrap">
         <OutcomeBadge topic={topic} />

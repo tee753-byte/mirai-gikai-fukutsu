@@ -375,6 +375,29 @@
   animation: fade-in 0.3s ease-out forwards;
 }
 
+/*
+ * 実験: TOPページからリンクで開いたトピックスカードを一瞬光らせる演出。
+ * 不要になったら、この@keyframesと.animate-topic-highlight-flashを削除し、
+ * topic-card.tsx側の「実験」コメントで囲まれた部分を消せば元に戻る。
+ */
+@keyframes topic-highlight-flash {
+  0% {
+    background-color: var(--color-topic-marker);
+    box-shadow: 0 0 0 2px var(--color-topic-marker);
+  }
+
+  100% {
+    background-color: transparent;
+    box-shadow: 0 0 0 2px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-topic-highlight-flash {
+    animation: topic-highlight-flash 1.4s ease-out;
+  }
+}
+
 button {
   cursor: pointer;
 }

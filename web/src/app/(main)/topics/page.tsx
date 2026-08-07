@@ -1,12 +1,15 @@
 import { Info } from "lucide-react";
 import type { Metadata } from "next";
 import { Container } from "@/components/layouts/container";
+import { JsonLd } from "@/components/seo/json-ld";
+import { buildBreadcrumbSchema } from "@/lib/structured-data";
 import { siteConfig } from "@/config/site.config";
 import { TopicCard } from "@/features/topics/client/components/topic-card";
 import { TOPICS } from "@/features/topics/shared/data";
 
 export const metadata: Metadata = {
   title: "トピックス",
+  alternates: { canonical: "/topics" },
   description:
     "福津市議会で議論された、暮らしに関わりの大きいテーマをまとめています。",
 };
@@ -14,6 +17,13 @@ export const metadata: Metadata = {
 export default function TopicsPage() {
   return (
     <Container className="py-10">
+      <JsonLd
+        data={buildBreadcrumbSchema([
+          { name: "ホーム", path: "/" },
+          { name: "トピックス", path: "/topics" },
+        ])}
+      />
+
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-mirai-text">トピックス</h1>
         <p className="mt-2 text-sm leading-relaxed text-mirai-text-secondary">
@@ -32,8 +42,8 @@ export default function TopicsPage() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {TOPICS.map((topic, index) => (
-          <TopicCard key={topic.slug} topic={topic} defaultOpen={index === 0} />
+        {TOPICS.map((topic) => (
+          <TopicCard key={topic.slug} topic={topic} />
         ))}
       </div>
     </Container>

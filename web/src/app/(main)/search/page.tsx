@@ -16,6 +16,7 @@ import { searchGeneralQuestions } from "@/features/general-questions/server/load
 
 export const metadata: Metadata = {
   title: "議会の記録を検索",
+  alternates: { canonical: "/search" },
   description:
     "福津市議会に提出された議案・発議・請願と、議員が行った一般質問を、キーワードや会期から探せます。",
 };

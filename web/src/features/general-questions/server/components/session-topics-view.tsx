@@ -1,24 +1,20 @@
 import {
-  ArrowRight,
   Baby,
+  Briefcase,
   Building2,
   Circle,
-  Clock,
   Globe,
   Heart,
+  Landmark,
   Leaf,
   Shield,
   Stethoscope,
   Trophy,
 } from "lucide-react";
-import Link from "next/link";
-import { MINUTES_PUBLICATION_TIMING } from "@/features/council-sessions/shared/minutes-schedule";
 import type { GeneralQuestion } from "../../shared/types";
-import type {
-  TopicEntry,
-  TopicGroup,
-} from "../../shared/utils/build-topic-groups";
+import type { TopicGroup } from "../../shared/utils/build-topic-groups";
 import { buildTopicGroups } from "../../shared/utils/build-topic-groups";
+import { TopicCard } from "./topic-card";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Baby,
@@ -29,6 +25,8 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Leaf,
   Trophy,
   Globe,
+  Landmark,
+  Briefcase,
   Circle,
 };
 
@@ -84,6 +82,18 @@ const CATEGORY_STYLE: Record<
     text: "text-amber-700",
     iconBg: "bg-amber-100",
   },
+  "行政・財政": {
+    card: "bg-slate-50 border-slate-200",
+    header: "bg-white/60 border-slate-200",
+    text: "text-slate-700",
+    iconBg: "bg-slate-100",
+  },
+  "産業・経済": {
+    card: "bg-cyan-50 border-cyan-200",
+    header: "bg-white/60 border-cyan-200",
+    text: "text-cyan-700",
+    iconBg: "bg-cyan-100",
+  },
 };
 
 const DEFAULT_STYLE = {
@@ -92,65 +102,6 @@ const DEFAULT_STYLE = {
   text: "text-mirai-text-secondary",
   iconBg: "bg-card",
 };
-
-function TopicCard({
-  entry,
-  style,
-}: {
-  entry: TopicEntry;
-  style: typeof DEFAULT_STYLE;
-}) {
-  return (
-    <div className={`rounded-xl border ${style.card} overflow-hidden`}>
-      <div className="px-4 pt-4 pb-3">
-        <div className="flex items-start gap-2 mb-2">
-          <h3 className={`text-base font-bold ${style.text} flex-1`}>
-            {entry.title}
-          </h3>
-          {entry.topicCount > 1 && (
-            <span
-              className={`shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full ${style.iconBg} ${style.text}`}
-            >
-              {entry.topicCount}件
-            </span>
-          )}
-        </div>
-        {entry.answerSummary ? (
-          <p className="text-sm text-mirai-text leading-relaxed">
-            {entry.answerSummary}
-          </p>
-        ) : (
-          <>
-            <p className="text-sm text-mirai-text leading-relaxed">
-              {entry.questionSummary}
-            </p>
-            <p className="mt-2 inline-flex items-start gap-1 rounded-md bg-white/70 px-2 py-1 text-[11px] leading-relaxed text-mirai-text-secondary">
-              <Clock className="mt-0.5 h-3 w-3 shrink-0" />
-              <span>
-                答弁は会議録の公開後に追加します（{MINUTES_PUBLICATION_TIMING}
-                ）。それまでは質問の要旨のみを掲載しています。
-              </span>
-            </p>
-          </>
-        )}
-      </div>
-      <div
-        className={`px-4 py-2.5 border-t ${style.header} flex items-center justify-between gap-2`}
-      >
-        <p className="text-xs text-mirai-text-secondary line-clamp-1 flex-1">
-          {entry.questioner.name}議員の質問より
-        </p>
-        <Link
-          href={`/questions/${entry.questioner.id}`}
-          className={`inline-flex items-center gap-1 text-xs font-medium ${style.text} hover:underline shrink-0`}
-        >
-          質疑の詳細
-          <ArrowRight className="h-3 w-3" />
-        </Link>
-      </div>
-    </div>
-  );
-}
 
 function CategorySection({ group }: { group: TopicGroup }) {
   const Icon = ICON_MAP[group.iconName] ?? Circle;

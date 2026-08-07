@@ -9,8 +9,9 @@ import { Container } from "@/components/layouts/container";
 import { siteConfig } from "@/config/site.config";
 
 export const metadata: Metadata = {
-  title: `利用規約 | ${siteConfig.siteName}`,
+  title: "利用規約",
   description: `${siteConfig.siteName}の利用規約`,
+  alternates: { canonical: "/terms" },
 };
 
 const isAiChatEnabled =

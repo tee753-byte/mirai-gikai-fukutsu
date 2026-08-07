@@ -1,13 +1,16 @@
 import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
+import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site.config";
 import { MemberProfileCard } from "@/features/council-members/client/components/member-profile-card";
 import { findMemberProfile } from "@/features/council-members/shared/member-profiles";
 import { MINUTES_PUBLICATION_TIMING } from "@/features/council-sessions/shared/minutes-schedule";
 import { getQuestionerGroups } from "@/features/general-questions/server/loaders/get-questioner-groups";
+import { getTopicThumbnail } from "@/features/general-questions/shared/utils/topic-thumbnail";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -28,8 +31,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${group.name} 議員の一般質問 | ${siteConfig.siteName}`,
+    title: `${group.name} 議員の一般質問`,
     description: `${siteConfig.councilName} ${group.name}議員が定例会で行った一般質問の一覧です。`,
+    // slug は日本語の氏名なのでエンコードする。sitemap.ts と同じ形にそろえる
+    alternates: {
+      canonical: `/questions/members/${encodeURIComponent(group.slug)}`,
+    },
   };
 }
 
@@ -74,63 +81,80 @@ export default async function QuestionerDetailPage({ params }: Props) {
       </h2>
 
       <div className="flex flex-col gap-4">
-        {group.entries.map((entry) => (
-          <section
-            key={entry.questionId}
-            className="rounded-xl border border-border bg-card p-4"
-          >
-            <h3 className="font-bold text-mirai-text">{entry.sessionName}</h3>
+        {group.entries.map((entry) => {
+          const thumbnailUrl = getTopicThumbnail(entry.topicTitles);
 
-            {entry.summary && (
-              <p className="mt-2 text-sm leading-relaxed text-mirai-text">
-                {entry.summary}
-              </p>
-            )}
+          return (
+            <section
+              key={entry.questionId}
+              className="overflow-hidden rounded-xl border border-black bg-card"
+            >
+              <div className="relative h-40 w-full">
+                <Image
+                  src={thumbnailUrl}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                />
+              </div>
 
-            {entry.topicTitles.length > 0 && (
-              <ul className="mt-3 flex flex-col gap-1">
-                {entry.topicTitles.map((title) => (
-                  <li
-                    key={title}
-                    className="text-sm text-mirai-text-secondary before:mr-2 before:content-['・']"
-                  >
-                    {title}
-                  </li>
-                ))}
-              </ul>
-            )}
+              <div className="p-4">
+                <h3 className="font-bold text-mirai-text">
+                  {entry.sessionName}
+                </h3>
 
-            {!entry.hasTranscript && (
-              <p className="mt-3 inline-flex items-start gap-1 rounded-md bg-mirai-surface-muted px-2 py-1 text-[11px] leading-relaxed text-mirai-text-secondary">
-                <Clock className="mt-0.5 h-3 w-3 shrink-0" />
-                <span>
-                  やり取りの全文は、会議録の公開後に掲載します（
-                  {MINUTES_PUBLICATION_TIMING}）。
-                </span>
-              </p>
-            )}
+                {entry.summary && (
+                  <p className="mt-2 text-sm leading-relaxed text-mirai-text">
+                    {entry.summary}
+                  </p>
+                )}
 
-            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <Link
-                href={`/questions/${entry.questionId}`}
-                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-              >
-                {entry.hasTranscript
-                  ? "質疑のやり取りを読む"
-                  : "質問の内容を見る"}
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-              {entry.sessionSlug && (
-                <Link
-                  href={`/sessions/${entry.sessionSlug}/questions`}
-                  className="text-sm text-mirai-text-secondary hover:underline"
-                >
-                  この定例会の一般質問をすべて見る
-                </Link>
-              )}
-            </div>
-          </section>
-        ))}
+                {entry.topicTitles.length > 0 && (
+                  <ul className="mt-3 flex flex-col gap-1">
+                    {entry.topicTitles.map((title) => (
+                      <li
+                        key={title}
+                        className="text-sm text-mirai-text-secondary before:mr-2 before:content-['・']"
+                      >
+                        {title}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {!entry.hasTranscript && (
+                  <p className="mt-3 inline-flex items-start gap-1 rounded-md bg-mirai-surface-muted px-2 py-1 text-[11px] leading-relaxed text-mirai-text-secondary">
+                    <Clock className="mt-0.5 h-3 w-3 shrink-0" />
+                    <span>
+                      やり取りの全文は、会議録の公開後に掲載します（
+                      {MINUTES_PUBLICATION_TIMING}）。
+                    </span>
+                  </p>
+                )}
+
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/questions/${entry.questionId}`}>
+                      {entry.hasTranscript
+                        ? "質疑のやり取りを読む"
+                        : "質問の内容を見る"}
+                      <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  </Button>
+                  {entry.sessionSlug && (
+                    <Link
+                      href={`/sessions/${entry.sessionSlug}/questions`}
+                      className="text-sm text-mirai-text-secondary hover:underline"
+                    >
+                      この定例会の一般質問をすべて見る
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </section>
+          );
+        })}
       </div>
     </Container>
   );

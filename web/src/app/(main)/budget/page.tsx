@@ -7,6 +7,7 @@ import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders
 export const metadata: Metadata = {
   title: "過去の予算一覧",
   description: "過去の定例会の予算概要一覧です。",
+  alternates: { canonical: "/budget" },
 };
 
 export default async function BudgetIndexPage() {

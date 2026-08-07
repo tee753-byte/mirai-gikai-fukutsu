@@ -40,13 +40,30 @@ export const siteConfig = {
      * そのため案内文では配信の頻度を約束しないこと（「更新のたびに通知」「月1回」等と書かない）。
      * 期待値を上げるとブロックされ、次に何を送っても届かなくなる。
      */
-    line: "https://lin.ee/u6YHvT3",
+    line: "https://lin.ee/wKnGkPS",
     aboutNote: "",
+    /*
+     * 以下2つは福津版では使っていない。政党のサイトへ導線を持つと、
+     * 市議会全体を同じ基準で扱う中立の非公式サイトという立場と読み違えられるため。
+     * showTeamMiraiSection が false のあいだは参照されない。
+     * 値を消すとFork元との差分が増えるので、残したうえで理由をここに書いておく。
+     */
     donation: "https://team-mir.ai/support/donation",
     teamAbout: "https://team-mir.ai/about",
     terms: "https://team-mir.ai/terms",
     privacy: "https://team-mir.ai/privacy",
     faq: "https://team-mirai.notion.site/FAQ-28cf6f56bae180bd84e7f7ae80f806a1",
+  },
+  /**
+   * このサイト自身のSNSアカウント（政党「チームみらい」本体のアカウントとは別物）。
+   * 表示名はいずれも「みらい議会＠福津市 🔎 非公式」で統一している。
+   * 表示側（アイコン・並び順）は `@/lib/site-sns-links` を参照。
+   */
+  sns: {
+    x: "https://x.com/mg_fukutsu",
+    instagram: "https://www.instagram.com/mg_fukutsu",
+    threads: "https://www.threads.com/@mg_fukutsu",
+    facebook: "https://www.facebook.com/mirai.gikai.fukutsu",
   },
   /**
    * ページを管理する政党名（空文字列の場合は政党名を省略した汎用表現を使用）

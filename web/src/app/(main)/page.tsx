@@ -6,6 +6,11 @@ import { GeneralQuestionsBanner } from "@/components/top/general-questions-banne
 import { Hero } from "@/components/top/hero";
 import { PastSessionsSection } from "@/components/top/past-sessions-section";
 import { TeamMirai } from "@/components/top/team-mirai";
+import { JsonLd } from "@/components/seo/json-ld";
+import {
+  buildOrganizationSchema,
+  buildWebSiteSchema,
+} from "@/lib/structured-data";
 import { TopicsListCard } from "@/components/top/topics-list-card";
 import { siteConfig } from "@/config/site.config";
 import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
@@ -51,6 +56,10 @@ export default async function Home() {
 
   return (
     <>
+      {/* 検索エンジン向けのサイト情報。画面には何も出ない */}
+      <JsonLd data={buildWebSiteSchema()} />
+      <JsonLd data={buildOrganizationSchema()} />
+
       <Hero />
 
       {/* 本日の定例会セクション */}

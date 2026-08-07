@@ -87,11 +87,11 @@ export async function BillDetailHeader({
           </a>
         )}
 
-        {/* タグ表示 */}
+        {/* タグ表示。ここはカードの中ではないので、押すと同じ分野の議案を探せる */}
         {bill.tags && bill.tags.length > 0 && (
           <div className="flex flex-wrap gap-3 mb-4">
             {bill.tags.map((tag) => (
-              <BillTag key={tag.id} tag={tag} />
+              <BillTag key={tag.id} tag={tag} linkToSearch />
             ))}
           </div>
         )}

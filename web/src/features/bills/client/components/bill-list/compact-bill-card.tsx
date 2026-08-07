@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { formatDateJST } from "@/lib/utils/date";
 import type { BillWithContent } from "../../../shared/types";
-import { getTagThumbnail } from "../../../shared/utils/tag-thumbnail";
+import { getBillThumbnail } from "../../../shared/utils/tag-thumbnail";
 import { BillStatusBadge } from "./bill-status-badge";
 import { BillTypeBand } from "./bill-type-band";
 import { VoteCountBadge } from "./vote-count-badge";
@@ -19,7 +19,7 @@ interface CompactBillCardProps {
 export function CompactBillCard({ bill, className }: CompactBillCardProps) {
   const displayTitle = bill.bill_content?.title || bill.name;
   const statusLabel = "提出";
-  const thumbnailUrl = bill.thumbnail_url ?? getTagThumbnail(bill.tags);
+  const thumbnailUrl = bill.thumbnail_url ?? getBillThumbnail(bill);
 
   return (
     <Card

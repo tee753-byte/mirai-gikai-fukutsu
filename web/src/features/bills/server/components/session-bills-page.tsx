@@ -66,6 +66,9 @@ export function SessionBillsPage({
           rejected={summary.rejected}
           splitVotes={summary.splitVoteBills.length}
           generalQuestionsCount={generalQuestionsCount}
+          generalQuestionsHref={
+            session.slug ? `/sessions/${session.slug}/questions` : undefined
+          }
         />
       </div>
 

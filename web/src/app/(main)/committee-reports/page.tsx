@@ -8,6 +8,7 @@ import { STANDING_COMMITTEES } from "@/features/committee-reports/shared/types";
 
 export const metadata: Metadata = {
   title: "委員会報告",
+  alternates: { canonical: "/committee-reports" },
   description:
     "常任委員会（総務文教・市民福祉・建設環境）が議案を審査した内容を、議会ごとにまとめています。",
 };

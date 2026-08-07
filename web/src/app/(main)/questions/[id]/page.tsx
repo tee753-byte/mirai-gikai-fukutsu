@@ -3,10 +3,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
-import { siteConfig } from "@/config/site.config";
 import { QuestionDetailView } from "@/features/general-questions/client/components/question-detail-view";
 import { getGeneralQuestionById } from "@/features/general-questions/server/loaders/get-general-question-by-id";
 import { toQuestionerSlug } from "@/features/general-questions/shared/utils/build-questioner-groups";
+import { JsonLd } from "@/components/seo/json-ld";
+import {
+  buildArticleSchema,
+  buildBreadcrumbSchema,
+} from "@/lib/structured-data";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -27,8 +31,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : "";
 
   return {
-    title: `${sessionPrefix}${question.questioner_name} 議員の一般質問 | ${siteConfig.siteName}`,
+    title: `${sessionPrefix}${question.questioner_name} 議員の一般質問`,
     description: question.summary ?? undefined,
+    alternates: { canonical: `/questions/${id}` },
   };
 }
 
@@ -52,10 +57,30 @@ export default async function GeneralQuestionDetailPage({ params }: Props) {
   const dayLabel =
     DAY_LABELS[question.session_day] ?? `第${question.session_day}日`;
 
+  const memberPath = `/questions/members/${encodeURIComponent(toQuestionerSlug(question.questioner_name))}`;
+  const headline = `${question.session_name ? `${question.session_name} ` : ""}${question.questioner_name} 議員の一般質問`;
+
   return (
     <Container className="py-8 max-w-2xl">
+      {/* 検索エンジン向けの記事情報とパンくず。画面には何も出ない */}
+      <JsonLd
+        data={buildArticleSchema({
+          headline,
+          description: question.summary ?? undefined,
+          path: `/questions/${id}`,
+        })}
+      />
+      <JsonLd
+        data={buildBreadcrumbSchema([
+          { name: "ホーム", path: "/" },
+          { name: "議員から見る一般質問", path: "/questions/members" },
+          { name: `${question.questioner_name} 議員`, path: memberPath },
+          { name: "一般質問", path: `/questions/${id}` },
+        ])}
+      />
+
       <Link
-        href={`/questions/members/${encodeURIComponent(toQuestionerSlug(question.questioner_name))}`}
+        href={memberPath}
         className="inline-flex items-center gap-1 text-sm text-mirai-text-secondary hover:underline"
       >
         <ArrowLeft className="h-4 w-4" />

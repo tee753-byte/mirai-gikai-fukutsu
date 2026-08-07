@@ -26,6 +26,7 @@ export async function generateMetadata({
   return {
     title: `${session.name} 議案一覧`,
     description: `${session.name}に上程された議案の一覧です。`,
+    alternates: { canonical: `/sessions/${session_slug}/bills` },
   };
 }
 

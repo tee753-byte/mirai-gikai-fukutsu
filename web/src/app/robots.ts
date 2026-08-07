@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { resolveBaseUrl } from "@/lib/site-url";
 
 /**
  * robots.txt（検索エンジンのロボットへの案内）。
@@ -13,11 +14,7 @@ import type { MetadataRoute } from "next";
  * 中に入れない（401が返る）。認証を外した時点でこの内容が効き始める。
  */
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_WEB_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "http://localhost:3000");
+  const baseUrl = resolveBaseUrl();
 
   return {
     rules: {
@@ -34,6 +31,6 @@ export default function robots(): MetadataRoute.Robots {
         "/api/",
       ],
     },
-    sitemap: `${baseUrl.replace(/\/$/, "")}/sitemap.xml`,
+    sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

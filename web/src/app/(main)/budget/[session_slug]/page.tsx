@@ -30,6 +30,7 @@ export async function generateMetadata({
   return {
     title: `${session.name} 予算の重点施策`,
     description: `${session.name}の予算の重点施策・方向性をわかりやすく解説します。`,
+    alternates: { canonical: `/budget/${session_slug}` },
   };
 }
 

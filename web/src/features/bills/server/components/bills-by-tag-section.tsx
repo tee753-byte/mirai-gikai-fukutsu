@@ -25,6 +25,16 @@ export function BillsByTagSection({ billsByTag }: BillsByTagSectionProps) {
                 {tag.description}
               </p>
             )}
+            {/*
+              トップに出しているのは各タグの一部だけなので、残りを見に行ける
+              入口を置く。検索ページは以前から ?tag= での絞り込みに対応している。
+            */}
+            <Link
+              href={`/search?tag=${encodeURIComponent(tag.label)}`}
+              className="w-fit text-xs font-medium text-primary-accent underline underline-offset-2 hover:opacity-70 transition-opacity"
+            >
+              「{tag.label}」の議案をすべて見る →
+            </Link>
           </div>
 
           {/* 議案カード一覧 */}

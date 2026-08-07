@@ -6,29 +6,14 @@ import { COMMITTEE_REPORT_SESSIONS } from "@/features/committee-reports/shared/d
 import { getActiveCouncilSession } from "@/features/council-sessions/server/loaders/get-active-council-session";
 import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getQuestionerGroups } from "@/features/general-questions/server/loaders/get-questioner-groups";
-import { env } from "@/lib/env";
+import { resolveBaseUrl } from "@/lib/site-url";
 
 /**
  * サイトマップ（検索エンジンに「このサイトにはこんなページがある」と伝える一覧）。
  *
- * 【URLの決め方】以前は VERCEL_URL を使っていたが、これはデプロイのたびに変わる
- * 長いURL（mirai-gikai-fukutsu-xxxxx.vercel.app）なので、独自ドメインを設定しても
- * 検索エンジンに古いURLを伝え続けてしまう。そのため公開URLを次の順で決める。
- *
- *   1. NEXT_PUBLIC_WEB_URL … 公開URL。独自ドメインを取ったらこれを変える
- *   2. VERCEL_PROJECT_PRODUCTION_URL … 1が未設定のときの保険。Vercelが入れる
- *      本番の代表URL（独自ドメインがあればそれ、無ければプロジェクトの固定URL）
- *   3. localhost … ローカル開発用
+ * 公開URLの決め方は `@/lib/site-url` にまとめてある（canonical・robots.txt と
+ * 同じ値を使わないと、検索エンジンに別サイト扱いされてしまうため）。
  */
-function resolveBaseUrl(): string {
-  const configured = process.env.NEXT_PUBLIC_WEB_URL;
-  if (configured) return configured.replace(/\/$/, "");
-
-  const vercelProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  if (vercelProductionUrl) return `https://${vercelProductionUrl}`;
-
-  return env.webUrl.replace(/\/$/, "");
-}
 
 /**
  * 議案以外の主要ページ。増えたらここに足す。

@@ -35,6 +35,17 @@ export function About() {
               {siteConfig.siteName}は、{siteConfig.siteDescription}
               。市民の意見を政治に届けることを目指して、継続的にアップデートしていきます。
             </p>
+            {/*
+              情報が3段階で増えていくことを先に伝えておく。
+              「なぜ議論の中身がまだ載っていないのか」という疑問への答えになる。
+              所要期間や選定基準の細部はFAQ側に譲り、ここは短く保つ。
+              会議録・議会だよりが揃ったタイミングはLINE・SNSでお知らせする運用。
+            */}
+            <p className="text-[13px] leading-relaxed text-[#404040]">
+              議案は提出され次第、議案書に書かれた提案理由までを速報として掲載します。
+              その後、{siteConfig.councilName}
+              の会議録が公開されると審議の内容を、議会だよりが発行されると議員ごとの賛否を加えていきます。
+            </p>
           </div>
 
           {/* もっと詳しく知るボタン */}
@@ -60,19 +71,13 @@ export function About() {
                   このサイトは「チームみらい」開発の「みらい議会」をベースに作成しています。
                 </p>
 
+                {/*
+                  政党「チームみらい」のサイトへのリンクは置かない。
+                  このサイトは市議会全体を同じ基準で扱う中立の非公式サイトで、
+                  特定の政党の入口を持つとその立場と読まれてしまうため。
+                  元になったソフトウェアの出どころを示す下のリンクは残す。
+                */}
                 <div className="flex flex-col gap-4">
-                  <LinkButton
-                    href="https://team-mir.ai/"
-                    icon={{
-                      src: "/img/logo.svg",
-                      alt: "",
-                      width: 23,
-                      height: 22,
-                    }}
-                  >
-                    「チームみらい」について
-                  </LinkButton>
-
                   <LinkButton
                     href="https://gikai.team-mir.ai/"
                     icon={{

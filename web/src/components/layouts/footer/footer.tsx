@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site.config";
 import { isInterviewPage } from "@/lib/page-layout-utils";
+import { SITE_SNS_LINKS } from "@/lib/site-sns-links";
 import { policyLinks, primaryLinks } from "./footer.config";
 
 export function Footer() {
@@ -19,6 +20,7 @@ export function Footer() {
       <div className="mx-auto flex w-full max-w-[500px] flex-col items-center px-6 py-14 pb-20 text-center">
         {siteConfig.features.showTeamMiraiSection && <FooterLogoSection />}
         <FooterLineSection />
+        <FooterSnsSection />
         <FooterPrimaryLinks />
         <FooterPolicies />
         <FooterDisclaimer />
@@ -40,6 +42,44 @@ function FooterLogoSection() {
           className="h-auto"
         />
       </Link>
+    </div>
+  );
+}
+
+/**
+ * このサイト自身のSNSアカウント（X / Instagram / Threads / Facebook）へのリンク。
+ *
+ * 政党「チームみらい」本体のアカウントではなく、このサイト専用のアカウント
+ * （表示名はいずれも「みらい議会＠福津市 🔎 非公式」）に飛ぶ。特定の議員・会派・
+ * 政党の広報にならないよう、このサイトの発信という位置づけを崩さないこと。
+ * LINEの直後に置く。登録の負担が軽く一次チャネルになるLINEを先に見せ、
+ * 他サービスへの導線であるこちらは後ろに回している。
+ */
+function FooterSnsSection() {
+  return (
+    <div className="w-full mb-6 flex flex-wrap items-center justify-center gap-4">
+      {SITE_SNS_LINKS.map((link) => (
+        <a
+          key={link.key}
+          href={link.url}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`${siteConfig.siteName}の${link.name}`}
+          className="transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+        >
+          <Image
+            src={link.iconPath}
+            alt=""
+            width={28}
+            height={28}
+            className={
+              link.hasBorder
+                ? "rounded-full border border-mirai-border-light"
+                : ""
+            }
+          />
+        </a>
+      ))}
     </div>
   );
 }

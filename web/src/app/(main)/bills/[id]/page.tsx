@@ -3,6 +3,11 @@ import { notFound } from "next/navigation";
 import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
 import { BillDetailLayout } from "@/features/bills/server/components/bill-detail/bill-detail-layout";
 import { getBillById } from "@/features/bills/server/loaders/get-bill-by-id";
+import { JsonLd } from "@/components/seo/json-ld";
+import {
+  buildArticleSchema,
+  buildBreadcrumbSchema,
+} from "@/lib/structured-data";
 import { env } from "@/lib/env";
 
 interface BillDetailPageProps {
@@ -82,10 +87,44 @@ export default async function BillDetailPage({ params }: BillDetailPageProps) {
     notFound();
   }
 
+  const bill = billWithContent;
+  const sessionName = bill.council_session?.name;
+
   return (
-    <BillDetailLayout
-      bill={billWithContent}
-      currentDifficulty={currentDifficulty}
-    />
+    <>
+      {/* 検索エンジン向けの記事情報とパンくず。画面には何も出ない */}
+      <JsonLd
+        data={buildArticleSchema({
+          headline: bill.bill_content?.title ?? bill.name,
+          description: bill.bill_content?.summary ?? undefined,
+          path: `/bills/${bill.id}`,
+          imageUrl:
+            bill.share_thumbnail_url ??
+            bill.thumbnail_url ??
+            new URL("/ogp.jpg", env.webUrl).toString(),
+          publishedAt: bill.published_at ?? undefined,
+          modifiedAt: bill.updated_at,
+        })}
+      />
+      <JsonLd
+        data={buildBreadcrumbSchema([
+          { name: "ホーム", path: "/" },
+          ...(sessionName && bill.council_session?.slug
+            ? [
+                {
+                  name: sessionName,
+                  path: `/sessions/${bill.council_session.slug}/bills`,
+                },
+              ]
+            : []),
+          { name: bill.name, path: `/bills/${bill.id}` },
+        ])}
+      />
+
+      <BillDetailLayout
+        bill={billWithContent}
+        currentDifficulty={currentDifficulty}
+      />
+    </>
   );
 }

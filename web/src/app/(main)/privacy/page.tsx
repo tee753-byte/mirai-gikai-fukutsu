@@ -9,8 +9,9 @@ import {
 import { siteConfig } from "@/config/site.config";
 
 export const metadata: Metadata = {
-  title: `プライバシーポリシー | ${siteConfig.siteName}`,
+  title: "プライバシーポリシー",
   description: `${siteConfig.siteName}のプライバシーポリシー`,
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {

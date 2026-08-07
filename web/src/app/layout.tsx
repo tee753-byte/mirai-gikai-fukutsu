@@ -4,7 +4,7 @@ import { Lexend_Giga, Noto_Sans_JP } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import { siteConfig } from "@/config/site.config";
 import type { ReactNode } from "react";
-import { env } from "@/lib/env";
+import { resolveBaseUrl } from "@/lib/site-url";
 
 const notoSansJP = Noto_Sans_JP({
   variable: "--font-noto-sans-jp",
@@ -26,8 +26,17 @@ const ogImage = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(env.webUrl),
-  title: siteConfig.siteName,
+  metadataBase: new URL(resolveBaseUrl()),
+  /*
+   * title.template は「各ページが指定したタイトルの後ろに、自動でサイト名を足す」設定。
+   * これが無いと、ページごとに `| みらい議会＠福津市` を手書きすることになり、
+   * 付いているページと付いていないページが混ざる（実際に混ざっていた）。
+   * default はトップページのように自分でタイトルを指定しないページに使われる。
+   */
+  title: {
+    default: siteConfig.siteName,
+    template: `%s | ${siteConfig.siteName}`,
+  },
   description: siteConfig.siteDescription,
   keywords: [...siteConfig.keywords],
   icons: {
@@ -35,7 +44,18 @@ export const metadata: Metadata = {
     apple: "/icons/pwa/icon_app.svg",
   },
   manifest: "/manifest.json",
+  /*
+   * canonical（正規URL）は「このページの正式なアドレスはこれです」と検索エンジンに
+   * 伝えるもの。同じ内容に複数のURLで到達できるとき（末尾スラッシュの有無、
+   * 旧ドメイン、クエリ付きなど）に評価が分散するのを防ぐ。
+   */
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    url: "/",
     title: siteConfig.siteName,
     description: siteConfig.siteDescription,
     images: [ogImage],
@@ -46,6 +66,15 @@ export const metadata: Metadata = {
     title: siteConfig.siteName,
     description: siteConfig.siteDescription,
     images: [ogImage.url],
+  },
+  /*
+   * Google Search Console（検索での見え方を確認する無料ツール）に
+   * 「このサイトの持ち主です」と証明するための印。Vercelの環境変数に
+   * NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION を入れると <meta> が出力される。
+   * 未設定なら何も出ないので、ローカルでは空のままでよい。
+   */
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
   robots: {
     index: true,

@@ -33,6 +33,11 @@ export const previewRegistry: PreviewGroup[] = [
         label: "BillStatusBadge",
         description: "法案ステータスバッジ全バリアント",
       },
+      {
+        path: "/dev/features/bills/thumbnail-mapping",
+        label: "サムネイル割り当て",
+        description: "議案ごとにどの画像が出るかの一覧（目視確認用）",
+      },
     ],
   },
   {
@@ -52,6 +57,11 @@ export const previewRegistry: PreviewGroup[] = [
         path: "/dev/features/general-questions/topics-d",
         label: "テーマ別：市民向けキャッチー型",
         description: "市の方針を先に・大きく。カテゴリカラー",
+      },
+      {
+        path: "/dev/features/general-questions/card-banner-prototype",
+        label: "一般質問カードにバナー画像（案）",
+        description: "山本祐平議員の3件で試作。議案カードの画像を流用",
       },
     ],
   },

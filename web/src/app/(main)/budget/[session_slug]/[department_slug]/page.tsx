@@ -33,6 +33,7 @@ export async function generateMetadata({
     description:
       overview.direction ??
       `${session.name} ${overview.department_name}の重点施策と予算概要`,
+    alternates: { canonical: `/budget/${session_slug}/${department_slug}` },
   };
 }
 
