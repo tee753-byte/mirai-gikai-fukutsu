@@ -32,9 +32,14 @@ export const getPublicReportById = cache(
     try {
       report = await findPublicReportWithSessionById(reportId);
     } catch (error) {
-      // レポートが見つからない場合（PGRST116: single row not found）はnullを返す
+      // レポートが見つからない場合（PGRST116: single row not found）や
+      // reportIdがuuid形式でない場合（不正なURL直打ち等）はnullを返す
       const message = error instanceof Error ? error.message : String(error);
-      if (message.includes("PGRST116") || message.includes("not found")) {
+      if (
+        message.includes("PGRST116") ||
+        message.includes("not found") ||
+        message.includes("invalid input syntax")
+      ) {
         return null;
       }
       // それ以外のエラー（インフラ障害等）は再throwする

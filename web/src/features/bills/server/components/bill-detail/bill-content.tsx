@@ -31,6 +31,9 @@ export async function BillContent({ bill }: BillContentProps) {
             [&_blockquote]:pl-4
             [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto
             [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded
+            [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_table]:mb-4
+            [&_th]:border [&_th]:border-gray-300 [&_th]:px-2 [&_th]:py-1 [&_th]:bg-gray-50
+            [&_td]:border [&_td]:border-gray-300 [&_td]:px-2 [&_td]:py-1
             [&_section]:bg-white [&_section]:px-4 [&_section]:py-8 [&_section]:rounded-md [&_section]:mb-9
             [&_section]:break-all
             [&_section>*:last-child]:mb-0

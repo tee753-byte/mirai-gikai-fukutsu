@@ -98,7 +98,6 @@ export const BROAD_CATEGORY_THUMBNAILS: BroadCategoryRule[] = [
     src: "/images/tag-thumbnails/nursing-care.jpg",
   },
   {
-    // 画像は仮置き。TODO: 商店街・地域経済らしい専用画像に差し替える
     label: "産業・地域振興",
     keywords: [
       "企業",
@@ -117,7 +116,7 @@ export const BROAD_CATEGORY_THUMBNAILS: BroadCategoryRule[] = [
       "減税",
       "稼げるまち",
     ],
-    src: "/images/tag-thumbnails/town-development.jpg",
+    src: "/images/tag-thumbnails/local-economy.jpg",
   },
   {
     label: "行政・議会運営",

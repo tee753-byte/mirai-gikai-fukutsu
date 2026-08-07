@@ -116,7 +116,9 @@ export async function findPublishedGeneralQuestionById(
     .single();
 
   if (error) {
-    if (error.code === "PGRST116") return null;
+    // PGRST116: 該当行なし / 22P02: idがuuid形式でない（不正なURL直打ち等）
+    // どちらも「見つからない」として扱い、呼び出し元でnotFound()にする
+    if (error.code === "PGRST116" || error.code === "22P02") return null;
     throw new Error(`Failed to fetch general question: ${error.message}`);
   }
 
