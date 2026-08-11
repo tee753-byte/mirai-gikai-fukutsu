@@ -24,7 +24,10 @@ export default function MainGroupLayout({
         計測を実際に始めるには、Vercelの管理画面でWeb Analyticsを有効にする必要がある。
       */}
       <Analytics />
-      <GoogleAnalytics gaId={env.analytics.gaTrackingId ?? ""} />
+      {/* IDが未設定の環境（ローカル開発など）で空IDのままスクリプトを読み込まないようにする */}
+      {env.analytics.gaTrackingId && (
+        <GoogleAnalytics gaId={env.analytics.gaTrackingId} />
+      )}
       <RubyfulInitializer />
       {/*
         匿名ユーザーIDの発行はAIチャット・AIインタビュー機能でのみ必要。

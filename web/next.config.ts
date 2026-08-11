@@ -1,8 +1,31 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // レスポンスヘッダに "X-Powered-By: Next.js" を付けない。
+  // 使っているフレームワークを外部に教える必要はないため。
+  poweredByHeader: false,
   turbopack: {
     root: "../",
+  },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          // このサイトを他サイトの<iframe>に埋め込ませない（クリックジャッキング対策）
+          { key: "X-Frame-Options", value: "DENY" },
+          // ブラウザがContent-Typeを勝手に推測して実行するのを防ぐ
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          // 他サイトへのリンク先に、閲覧中のURL全体を送らないようにする
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // カメラ・位置情報・マイクなど、このサイトが使わない機能を明示的に無効化
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+    ];
   },
   images: {
     // トップの風景写真のような情報量の多い画像はAVIFのほうが大幅に軽い。
