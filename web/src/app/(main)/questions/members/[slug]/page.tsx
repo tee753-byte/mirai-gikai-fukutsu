@@ -82,7 +82,9 @@ export default async function QuestionerDetailPage({ params }: Props) {
 
       {group.entries.length === 0 && (
         <p className="text-sm text-mirai-text-secondary">
-          掲載している範囲の定例会では、一般質問・総括質疑の実績がまだありません。
+          {profile?.role === "議長"
+            ? "議長は会議の進行役を務めるため、一般質問・総括質疑は行いません。"
+            : "掲載している範囲の定例会では、一般質問・総括質疑の実績がまだありません。"}
         </p>
       )}
 
