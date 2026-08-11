@@ -49,12 +49,17 @@ export default async function SessionBillsRoute({
     getGeneralQuestionsBySession(session.id),
   ]);
 
+  const sokatsuQuestionsCount = generalQuestions.filter(
+    (q) => q.question_type === "sokatsu_shitsugi"
+  ).length;
+
   return (
     <Container className="py-10">
       <SessionBillsPage
         session={session}
         bills={bills}
-        generalQuestionsCount={generalQuestions.length}
+        generalQuestionsCount={generalQuestions.length - sokatsuQuestionsCount}
+        sokatsuQuestionsCount={sokatsuQuestionsCount}
       />
     </Container>
   );

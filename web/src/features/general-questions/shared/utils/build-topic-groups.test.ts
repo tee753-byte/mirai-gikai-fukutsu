@@ -24,6 +24,7 @@ const mockQuestion: GeneralQuestion = {
   questioner_number: 1,
   session_day: 1,
   question_order: 1,
+  question_type: "general",
   summary: "保育所の待機児童解消と耐震化促進について質問。",
   topics: [
     {
@@ -80,6 +81,7 @@ describe("buildTopicGroups", () => {
       questioner_number: 2,
       session_day: 1,
       question_order: 2,
+      question_type: "general",
       summary: "火災警報が平成以降一度も発令されていない実態を指摘。",
       topics: [
         {
@@ -130,6 +132,7 @@ describe("buildTopicGroups", () => {
       questioner_number: 3,
       session_day: 1,
       question_order: 3,
+      question_type: "general",
       summary: "防災と交通について質問。",
       topics: [
         {

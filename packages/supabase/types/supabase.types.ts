@@ -378,11 +378,11 @@ export type Database = {
         Row: {
           badge: string | null
           basic_plan_theme: string | null
-          prev_budget_amount: number | null
           budget_amount: number | null
           created_at: string
           description: string | null
           id: string
+          prev_budget_amount: number | null
           sort_order: number
           theme_id: string
           title: string
@@ -391,11 +391,11 @@ export type Database = {
         Insert: {
           badge?: string | null
           basic_plan_theme?: string | null
-          prev_budget_amount?: number | null
           budget_amount?: number | null
           created_at?: string
           description?: string | null
           id?: string
+          prev_budget_amount?: number | null
           sort_order?: number
           theme_id: string
           title: string
@@ -404,11 +404,11 @@ export type Database = {
         Update: {
           badge?: string | null
           basic_plan_theme?: string | null
-          prev_budget_amount?: number | null
           budget_amount?: number | null
           created_at?: string
           description?: string | null
           id?: string
+          prev_budget_amount?: number | null
           sort_order?: number
           theme_id?: string
           title?: string
@@ -785,6 +785,7 @@ export type Database = {
           id: string
           publish_status: string
           question_order: number
+          question_type: string
           questioner_name: string
           questioner_number: number | null
           questioner_party: string | null
@@ -801,6 +802,7 @@ export type Database = {
           id?: string
           publish_status?: string
           question_order?: number
+          question_type?: string
           questioner_name: string
           questioner_number?: number | null
           questioner_party?: string | null
@@ -817,6 +819,7 @@ export type Database = {
           id?: string
           publish_status?: string
           question_order?: number
+          question_type?: string
           questioner_name?: string
           questioner_number?: number | null
           questioner_party?: string | null

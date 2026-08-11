@@ -40,15 +40,24 @@ export function QuestionerListView({ groups }: { groups: QuestionerGroup[] }) {
                   >
                     <div className="min-w-0">
                       <p className="font-bold text-mirai-text">{g.name}</p>
-                      {profile?.committee && (
+                      {profile?.committee ? (
                         <p className="mt-1 text-xs text-mirai-text-secondary">
                           {profile.committee}
                         </p>
+                      ) : (
+                        // 議長は常任委員会に所属しないため委員会名が無い。
+                        // 議事進行の立場上、質問・質疑を行わないため0回になるが、
+                        // それを個別の説明文にはせず役職の表示だけで伝える
+                        // （副議長は質問できる立場なので対象外）
+                        profile?.role === "議長" && (
+                          <p className="mt-1 text-xs text-mirai-text-secondary">
+                            議長
+                          </p>
+                        )
                       )}
                       <p className="mt-2 inline-flex items-center gap-1 text-xs text-mirai-text-secondary">
                         <MessageSquare className="h-3 w-3 shrink-0" />
-                        {g.entries.length}回の定例会 ・ {g.topicCount}
-                        件の質問事項
+                        {g.entries.length}回の定例会
                       </p>
                     </div>
                     <ChevronRight className="h-5 w-5 shrink-0 text-mirai-text-muted transition-transform group-hover:translate-x-0.5" />

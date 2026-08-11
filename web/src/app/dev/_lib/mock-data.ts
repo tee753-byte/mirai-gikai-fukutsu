@@ -69,6 +69,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     questioner_number: 1,
     session_day: 1,
     question_order: 1,
+    question_type: "general",
     summary:
       "子育て支援の充実・市営スポーツ施設の老朽化対策・漁港の管理体制について質問した。",
     topics: [
@@ -114,6 +115,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     questioner_number: 2,
     session_day: 1,
     question_order: 2,
+    question_type: "general",
     summary:
       "福岡市の防災・減災対策と、能登半島地震を踏まえた木造密集市街地の耐震化促進について質問した。",
     topics: [
@@ -150,6 +152,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     questioner_number: 3,
     session_day: 2,
     question_order: 1,
+    question_type: "general",
     summary:
       "高齢者の移動支援・デジタルデバイド解消・学校給食の無償化について質問した。",
     topics: [
@@ -195,6 +198,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     questioner_number: 4,
     session_day: 2,
     question_order: 2,
+    question_type: "general",
     summary:
       "カーボンニュートラルの推進・再生可能エネルギーの導入促進について質問した。",
     topics: [
@@ -231,6 +235,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     questioner_number: 5,
     session_day: 3,
     question_order: 1,
+    question_type: "general",
     summary:
       "福岡空港の機能強化・都心部の渋滞対策・地下鉄七隈線延伸について質問した。",
     topics: [
@@ -267,6 +272,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     questioner_number: 6,
     session_day: 3,
     question_order: 2,
+    question_type: "general",
     summary:
       "国保料の引き下げ・子どもの貧困対策・非正規雇用労働者の処遇改善について質問した。",
     topics: [

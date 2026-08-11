@@ -59,6 +59,8 @@ const AGENDA_LINE_RE = /^△/;
 const SEAT_LABEL_RE = /^([0-9０-９]+)番$/;
 /** 議長が1人分の一般質問の終わりを宣言する行 */
 const QUESTION_END_RE = /以上で、.+?の一般質問を終わ[りる]ます/;
+/** 議長が1人分の総括質疑の終わりを宣言する行（例:「以上で、会派新政会の尾島議員の総括質疑を終わります」） */
+const SOKATSU_SHITSUGI_END_RE = /以上で、.+?の総括質疑を終わ[りる]ます/;
 
 /** 全角数字を半角に変換する */
 function toHalfWidthDigits(value: string): string {
@@ -230,6 +232,27 @@ export function buildTranscript(speeches: SpeechBlock[]): string {
 export function splitGeneralQuestions(
   blocks: SpeechBlock[]
 ): GeneralQuestionSection[] {
+  return splitBySection(blocks, QUESTION_END_RE);
+}
+
+/**
+ * 総括質疑の日の発言ブロックを、議員1人分ずつに切り分ける。
+ *
+ * 一般質問（splitGeneralQuestions）と切り分け方は同じで、終了宣言の
+ * 文言だけが違う（「◯◯の総括質疑を終わります」）。3月定例会の総括質疑は
+ * 発言者が「◆12番（尾島武弘）」のように議員個人として現れるため、
+ * 会派名は発言ブロックの氏名からは取れない（終了宣言の文面にのみ出る）。
+ */
+export function splitSokatsuShitsugi(
+  blocks: SpeechBlock[]
+): GeneralQuestionSection[] {
+  return splitBySection(blocks, SOKATSU_SHITSUGI_END_RE);
+}
+
+function splitBySection(
+  blocks: SpeechBlock[],
+  endRe: RegExp
+): GeneralQuestionSection[] {
   const sections: GeneralQuestionSection[] = [];
   let currentSpeeches: SpeechBlock[] = [];
 
@@ -252,7 +275,7 @@ export function splitGeneralQuestions(
   for (const block of blocks) {
     if (block.speakerType === "chairperson") {
       // 議長発言そのものは残さないが、終了宣言は区切りとして使う
-      if (QUESTION_END_RE.test(block.text)) {
+      if (endRe.test(block.text)) {
         flushSection();
       }
       continue;
@@ -260,6 +283,6 @@ export function splitGeneralQuestions(
     currentSpeeches.push(block);
   }
 
-  // 終了宣言のないまま残った発言は一般質問ではないので捨てる
+  // 終了宣言のないまま残った発言は対象外なので捨てる
   return sections;
 }

@@ -36,6 +36,11 @@ export function TopicCard({
           <h3 className={`text-base font-bold ${style.text} flex-1`}>
             {entry.title}
           </h3>
+          {entry.questionType === "sokatsu_shitsugi" && (
+            <span className="shrink-0 rounded-full border border-[#ddbfae] bg-[#f0e4de] px-2 py-0.5 text-[11px] font-bold text-[#7a4a30]">
+              総括質疑
+            </span>
+          )}
           {entry.topicCount > 1 && (
             <span
               className={`shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full ${style.iconBg} ${style.text}`}

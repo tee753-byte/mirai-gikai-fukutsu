@@ -32,6 +32,13 @@ export type GeneralQuestionTopic = {
   exchanges?: TopicExchange[];
 };
 
+/**
+ * 質問種別。
+ * general … 一般質問（既定値）
+ * sokatsu_shitsugi … 総括質疑（3月定例会に会派代表が行う、市長の施政方針・予算編成に対する質疑）
+ */
+export type QuestionType = "general" | "sokatsu_shitsugi";
+
 export type GeneralQuestion = {
   id: string;
   council_session_id: string;
@@ -40,6 +47,7 @@ export type GeneralQuestion = {
   questioner_number: number | null;
   session_day: number;
   question_order: number;
+  question_type: QuestionType;
   summary: string | null;
   topics: GeneralQuestionTopic[];
   raw_text: string | null;

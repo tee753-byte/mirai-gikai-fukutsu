@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import type { QuestionType } from "../../shared/types";
 import { findAllPublishedGeneralQuestions } from "../repositories/general-questions-repository";
 
 export type GeneralQuestionSearchFilters = {
@@ -15,6 +16,7 @@ export type GeneralQuestionSearchHit = {
   questionerName: string;
   sessionName: string;
   sessionSlug: string | null;
+  questionType: QuestionType;
   /** 質問事項（大項目）の見出し */
   topicTitles: string[];
   summary: string | null;
@@ -135,6 +137,7 @@ const _getCached = unstable_cache(
         questionerName: q.questioner_name,
         sessionName: q.session_name,
         sessionSlug: q.session_slug,
+        questionType: q.question_type,
         topicTitles,
         summary: q.summary,
         hasTranscript: Boolean(q.raw_text),

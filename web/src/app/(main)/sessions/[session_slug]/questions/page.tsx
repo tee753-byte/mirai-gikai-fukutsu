@@ -1,4 +1,4 @@
-import { ArrowRight, Landmark, Users } from "lucide-react";
+import { ArrowRight, Info, Landmark, Users } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
@@ -20,9 +20,17 @@ export async function generateMetadata({ params }: Props) {
     return { title: "定例会が見つかりません" };
   }
 
+  const questions = await getGeneralQuestionsBySession(session.id);
+  const hasSokatsu = questions.some(
+    (q) => q.question_type === "sokatsu_shitsugi"
+  );
+  const heading = hasSokatsu
+    ? `${session.name}の一般質問・総括質疑`
+    : `${session.name}の一般質問`;
+
   return {
-    title: `${session.name}の一般質問`,
-    description: `${session.name}で行われた一般質問の一覧です。議員が市長や市の担当部長に直接質問した内容をわかりやすく解説します。`,
+    title: heading,
+    description: `${session.name}で行われた一般質問${hasSokatsu ? "・総括質疑" : ""}の一覧です。議員が市長や市の担当部長に直接質問した内容をわかりやすく解説します。`,
     alternates: { canonical: `/sessions/${session_slug}/questions` },
   };
 }
@@ -40,15 +48,28 @@ export default async function SessionQuestionsPage({ params }: Props) {
     getSessionsWithQuestions(),
   ]);
 
+  const hasSokatsu = questions.some(
+    (q) => q.question_type === "sokatsu_shitsugi"
+  );
+
   return (
     <Container className="py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-mirai-text">
-          {session.name}の一般質問
+          {session.name}の一般質問{hasSokatsu && "・総括質疑"}
         </h1>
         <p className="mt-2 text-sm text-mirai-text-secondary">
           議員が問い、市が答えた。あなたの暮らしに関わる取り組みをテーマ別にまとめました。
         </p>
+
+        {hasSokatsu && (
+          <p className="mt-3 inline-flex items-start gap-1.5 rounded-md bg-mirai-surface-muted px-3 py-2 text-xs leading-relaxed text-mirai-text-secondary">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span>
+              総括質疑とは、市長の施政方針に対して行う質疑です。3月定例会では、議員によって一般質問を行う場合と、総括質疑を行う場合があります。
+            </span>
+          </p>
+        )}
 
         {/* 見方の入口。議員から入る道と、定例会から入る道の両方を出す */}
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">

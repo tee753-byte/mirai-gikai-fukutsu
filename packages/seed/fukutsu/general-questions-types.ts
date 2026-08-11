@@ -51,10 +51,14 @@ export type SeedGeneralQuestion = {
   /** 定例会全体を通した質問順 */
   question_order: number;
   /**
-   * 一般質問が行われた日が定例会の何日目か（一般質問の日を1から数える）。
+   * 一般質問・総括質疑が行われた日が定例会の何日目か（その質問種別の実施日を1から数える）。
    * 出典に実施日の記載がない場合は省略でき、投入時に 1 として扱う。
+   * 総括質疑は一般質問と実施日が別なので、(council_session_id, session_day, question_order)
+   * の一意制約に一般質問の値とぶつからないよう、専用の連番（0始まり）を使う。
    */
   session_day?: number;
+  /** 省略時は一般質問（"general"）として扱う */
+  question_type?: "general" | "sokatsu_shitsugi";
   summary: string;
   topics: SeedTopic[];
 };

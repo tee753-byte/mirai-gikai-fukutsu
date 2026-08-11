@@ -15,12 +15,14 @@ interface SessionBillsPageProps {
   session: CouncilSession;
   bills: BillWithContent[];
   generalQuestionsCount: number;
+  sokatsuQuestionsCount: number;
 }
 
 export function SessionBillsPage({
   session,
   bills,
   generalQuestionsCount,
+  sokatsuQuestionsCount,
 }: SessionBillsPageProps) {
   const startDate = new Date(session.start_date);
   const endDate = new Date(session.end_date ?? session.start_date);
@@ -67,6 +69,10 @@ export function SessionBillsPage({
           splitVotes={summary.splitVoteBills.length}
           generalQuestionsCount={generalQuestionsCount}
           generalQuestionsHref={
+            session.slug ? `/sessions/${session.slug}/questions` : undefined
+          }
+          sokatsuQuestionsCount={sokatsuQuestionsCount}
+          sokatsuQuestionsHref={
             session.slug ? `/sessions/${session.slug}/questions` : undefined
           }
         />

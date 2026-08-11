@@ -6,6 +6,7 @@
  */
 
 import { generalQuestionsR8_3, R8_3_SESSION_SLUG, R8_3_SOURCE_URL } from "./general-questions-r8-3";
+import { sokatsuShitsugiR8_3 } from "./general-questions-sokatsu-r8-3";
 import { generalQuestionsR8_6, R8_6_SESSION_SLUG, R8_6_SOURCE_URL } from "./general-questions-r8-6";
 import { generalQuestionsR7_12, R7_12_SESSION_SLUG, R7_12_SOURCE_URL } from "./general-questions-r7-12";
 import type {
@@ -17,6 +18,7 @@ import { digestR8_3Thick } from "./general-questions-digest-r8-3-thick";
 import { digestR7_12 } from "./digest-r7-12";
 import { mergeDigest } from "./merge-digest";
 import r8_3Transcripts from "./data/r8-3-transcripts.json" with { type: "json" };
+import r8_3SokatsuTranscripts from "./data/r8-3-sokatsu-transcripts.json" with { type: "json" };
 import r7_12Transcripts from "./data/r7-12-transcripts.json" with { type: "json" };
 
 /**
@@ -66,8 +68,14 @@ export const generalQuestionsBySession: SeedSessionQuestions[] = [
   {
     session_slug: R8_3_SESSION_SLUG,
     source_url: R8_3_SOURCE_URL,
-    questions: r8_3Merged.questions,
-    transcripts: r8_3Transcripts as SeedTranscript[],
+    // 総括質疑（3月9日）は一般質問（3月23〜25日）と実施日が別の会議録ファイルのため、
+    // やり取り全文もbuild-sokatsu-transcripts.tsで別に生成している。
+    // 同じ会期内で氏名が重複することはない（総括質疑をした議員はその回は一般質問をしない）
+    questions: [...r8_3Merged.questions, ...sokatsuShitsugiR8_3],
+    transcripts: [
+      ...(r8_3Transcripts as SeedTranscript[]),
+      ...(r8_3SokatsuTranscripts as SeedTranscript[]),
+    ],
   },
   {
     session_slug: R7_12_SESSION_SLUG,

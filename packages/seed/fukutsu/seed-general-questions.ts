@@ -37,6 +37,7 @@ export async function seedGeneralQuestionsForSession(
     questioner_party: q.questioner_party,
     question_order: q.question_order,
     session_day: q.session_day ?? 1,
+    question_type: q.question_type ?? "general",
     summary: q.summary,
     topics: q.topics,
     raw_text:

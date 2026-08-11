@@ -80,6 +80,12 @@ export default async function QuestionerDetailPage({ params }: Props) {
         定例会ごとの一般質問
       </h2>
 
+      {group.entries.length === 0 && (
+        <p className="text-sm text-mirai-text-secondary">
+          掲載している範囲の定例会では、一般質問・総括質疑の実績がまだありません。
+        </p>
+      )}
+
       <div className="flex flex-col gap-4">
         {group.entries.map((entry) => {
           const thumbnailUrl = getTopicThumbnail(entry.topicTitles);
@@ -100,6 +106,9 @@ export default async function QuestionerDetailPage({ params }: Props) {
               </div>
 
               <div className="p-4">
+                {entry.questionType === "sokatsu_shitsugi" && (
+                  <p className="text-xs text-mirai-text-muted">総括質疑</p>
+                )}
                 <h3 className="font-bold text-mirai-text">
                   {entry.sessionName}
                 </h3>

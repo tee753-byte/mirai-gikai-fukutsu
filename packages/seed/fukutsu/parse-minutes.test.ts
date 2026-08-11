@@ -6,6 +6,7 @@ import {
   normalizeName,
   parseMinutes,
   splitGeneralQuestions,
+  splitSokatsuShitsugi,
 } from "./parse-minutes";
 
 /**
@@ -169,6 +170,34 @@ describe("splitGeneralQuestions", () => {
 ○議長（髙山賢二）　以上で、質疑を終わります。
 `;
     expect(splitGeneralQuestions(parseMinutes(debateDay))).toEqual([]);
+  });
+});
+
+describe("splitSokatsuShitsugi", () => {
+  const sokatsuDay = `○議長（髙山賢二）　日程第１、総括質疑を行います。
+　本日最初は、会派新政会、尾島議員です。
+◆12番（尾島武弘）　議席番号12番、新政会の尾島武弘です。通告書に基づき総括質疑をさせていただきます。
+　まず大きく１点目、はじめにについて。
+○議長（髙山賢二）　福井市長。
+◎市長（福井崇郎）　１項目めについてお答えをさせていただきます。
+○議長（髙山賢二）　以上で、会派新政会の尾島議員の総括質疑を終わります。
+　次は、会派福津誠和会、倉元議員です。
+◆6番（倉元敏徳）　議席番号６番、福津誠和会、倉元敏徳です。通告に従い、三つの質問をいたします。
+○議長（髙山賢二）　福井市長。
+◎市長（福井崇郎）　１項目についてお答えをいたします。
+○議長（髙山賢二）　以上で、会派福津誠和会、倉元議員の総括質疑を終わります。
+`;
+  const sections = splitSokatsuShitsugi(parseMinutes(sokatsuDay));
+
+  it("「〜の総括質疑を終わります」ごとに1人分へ切り分ける", () => {
+    expect(sections).toHaveLength(2);
+    expect(sections[0].questionerName).toBe("尾島武弘");
+    expect(sections[0].questionerNumber).toBe("12");
+    expect(sections[1].questionerName).toBe("倉元敏徳");
+  });
+
+  it("一般質問の終了宣言（splitGeneralQuestions）とは混同しない", () => {
+    expect(splitGeneralQuestions(parseMinutes(sokatsuDay))).toEqual([]);
   });
 });
 

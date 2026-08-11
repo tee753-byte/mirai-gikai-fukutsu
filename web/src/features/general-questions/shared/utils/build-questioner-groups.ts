@@ -1,12 +1,13 @@
-import type { GeneralQuestion } from "../types";
+import type { GeneralQuestion, QuestionType } from "../types";
 
-/** 1つの定例会での、その議員の一般質問 */
+/** 1つの定例会での、その議員の一般質問・総括質疑 */
 export type QuestionerSessionEntry = {
   questionId: string;
   sessionName: string;
   sessionSlug: string | null;
   /** 定例会の開始日。新しい順に並べるために使う */
   sessionStartDate: string | null;
+  questionType: QuestionType;
   summary: string | null;
   /** 質問事項（大項目）の見出し */
   topicTitles: string[];
@@ -22,8 +23,6 @@ export type QuestionerGroup = {
   /** 会派。定例会をまたいで変わることがあるため、最新のものを採る */
   party: string | null;
   entries: QuestionerSessionEntry[];
-  /** 掲載している質問事項の総数 */
-  topicCount: number;
 };
 
 /**
@@ -67,6 +66,7 @@ export function buildQuestionerGroups(
       sessionName: q.session_name,
       sessionSlug: q.session_slug,
       sessionStartDate: q.session_start_date,
+      questionType: q.question_type,
       summary: q.summary,
       topicTitles: q.topics.map((t) => t.title),
       hasTranscript: Boolean(q.raw_text),
@@ -81,7 +81,6 @@ export function buildQuestionerGroups(
 
     if (existing) {
       existing.entries.push(entry);
-      existing.topicCount += q.topics.length;
       if (isLatestForParty) {
         existing.party = q.questioner_party;
         partyDecidedAt.set(slug, candidateDate);
@@ -92,7 +91,6 @@ export function buildQuestionerGroups(
         name: q.questioner_name,
         party: q.questioner_party,
         entries: [entry],
-        topicCount: q.topics.length,
       });
       partyDecidedAt.set(slug, candidateDate);
     }

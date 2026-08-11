@@ -22,7 +22,9 @@ export function QuestionSearchResultCard({
       <div className="flex items-center justify-between gap-2 border-b border-border bg-mirai-surface-grouped px-4 py-1.5">
         <span className="inline-flex items-center gap-1.5 text-xs font-bold text-mirai-text-secondary">
           <MessageSquare className="h-3.5 w-3.5 shrink-0" />
-          一般質問
+          {question.questionType === "sokatsu_shitsugi"
+            ? "総括質疑"
+            : "一般質問"}
         </span>
         <span className="text-xs text-mirai-text-muted">
           {question.sessionName}

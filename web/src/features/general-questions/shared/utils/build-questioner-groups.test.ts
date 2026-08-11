@@ -16,6 +16,7 @@ function makeQuestion(
     questioner_number: 1,
     session_day: 1,
     question_order: 1,
+    question_type: "general",
     summary: null,
     topics: [],
     raw_text: null,

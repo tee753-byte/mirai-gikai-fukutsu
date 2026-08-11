@@ -8,6 +8,13 @@ type SessionStatTilesProps = {
   generalQuestionsCount: number;
   /** 一般質問タイルのリンク先。無ければリンクにしない（一般質問が0件の会期など） */
   generalQuestionsHref?: string;
+  /**
+   * 総括質疑の件数。3月定例会など、総括質疑が行われた会期にだけ渡す。
+   * 「3月かどうか」ではなく「データがあるかどうか」でタイルの表示を切り替える
+   * （総括質疑を行う会派は年によって異なるため）。
+   */
+  sokatsuQuestionsCount?: number;
+  sokatsuQuestionsHref?: string;
 };
 
 /** 会期詳細ページの「数字でみるこの会期」タイル */
@@ -18,6 +25,8 @@ export function SessionStatTiles({
   splitVotes,
   generalQuestionsCount,
   generalQuestionsHref,
+  sokatsuQuestionsCount,
+  sokatsuQuestionsHref,
 }: SessionStatTilesProps) {
   const tiles = [
     { label: "提出議案", value: total, href: undefined },
@@ -29,10 +38,21 @@ export function SessionStatTiles({
       value: generalQuestionsCount,
       href: generalQuestionsHref,
     },
+    ...(sokatsuQuestionsCount
+      ? [
+          {
+            label: "総括質疑",
+            value: sokatsuQuestionsCount,
+            href: sokatsuQuestionsHref,
+          },
+        ]
+      : []),
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+    <div
+      className={`grid grid-cols-2 gap-3 ${tiles.length > 5 ? "sm:grid-cols-3" : "sm:grid-cols-5"}`}
+    >
       {tiles.map((tile) => {
         const content = (
           <>

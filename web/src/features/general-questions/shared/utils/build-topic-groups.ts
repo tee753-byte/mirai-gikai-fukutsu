@@ -1,4 +1,8 @@
-import type { GeneralQuestion, GeneralQuestionTopic } from "../types";
+import type {
+  GeneralQuestion,
+  GeneralQuestionTopic,
+  QuestionType,
+} from "../types";
 
 export type TopicEntry = {
   title: string;
@@ -7,6 +11,7 @@ export type TopicEntry = {
   answererRole: string;
   answererName: string;
   topicCount: number;
+  questionType: QuestionType;
   questioner: {
     id: string;
     name: string;
@@ -244,6 +249,7 @@ function buildEntry(
     answererRole: last.answerer_role,
     answererName: last.answerer_name,
     topicCount: topics.length,
+    questionType: q.question_type,
     questioner: {
       id: q.id,
       name: q.questioner_name,
