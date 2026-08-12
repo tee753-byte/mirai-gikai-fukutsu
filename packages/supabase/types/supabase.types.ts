@@ -1140,6 +1140,95 @@ export type Database = {
           },
         ]
       }
+      seimu_katsudohi_expenditure_items: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          id: string
+          note: string | null
+          report_id: string
+          sort_order: number
+        }
+        Insert: {
+          amount?: number
+          category: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          report_id: string
+          sort_order: number
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          report_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seimu_katsudohi_expenditure_items_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "seimu_katsudohi_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seimu_katsudohi_reports: {
+        Row: {
+          balance_amount: number
+          created_at: string
+          expenditure_total: number
+          fiscal_year_label: string
+          fiscal_year_slug: string
+          group_name: string
+          group_slug: string
+          group_type: string
+          id: string
+          income_amount: number
+          member_names: string[]
+          publish_status: string
+          source_url: string
+          updated_at: string
+        }
+        Insert: {
+          balance_amount: number
+          created_at?: string
+          expenditure_total: number
+          fiscal_year_label: string
+          fiscal_year_slug: string
+          group_name: string
+          group_slug: string
+          group_type: string
+          id?: string
+          income_amount: number
+          member_names: string[]
+          publish_status?: string
+          source_url: string
+          updated_at?: string
+        }
+        Update: {
+          balance_amount?: number
+          created_at?: string
+          expenditure_total?: number
+          fiscal_year_label?: string
+          fiscal_year_slug?: string
+          group_name?: string
+          group_slug?: string
+          group_type?: string
+          id?: string
+          income_amount?: number
+          member_names?: string[]
+          publish_status?: string
+          source_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           created_at: string

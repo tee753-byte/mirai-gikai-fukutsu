@@ -6,6 +6,7 @@ import { COMMITTEE_REPORT_SESSIONS } from "@/features/committee-reports/shared/d
 import { getActiveCouncilSession } from "@/features/council-sessions/server/loaders/get-active-council-session";
 import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getQuestionerGroups } from "@/features/general-questions/server/loaders/get-questioner-groups";
+import { getFiscalYearsWithReports } from "@/features/seimu-katsudohi/server/loaders/get-fiscal-years-with-reports";
 import { resolveBaseUrl } from "@/lib/site-url";
 
 /**
@@ -27,6 +28,7 @@ const STATIC_PAGES: {
   { path: "/topics", priority: 0.9, changeFrequency: "weekly" },
   { path: "/sessions", priority: 0.8, changeFrequency: "weekly" },
   { path: "/budget", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/seimu-katsudohi", priority: 0.6, changeFrequency: "monthly" },
   { path: "/search", priority: 0.7, changeFrequency: "weekly" },
   { path: "/questions/members", priority: 0.7, changeFrequency: "weekly" },
   { path: "/committee-reports", priority: 0.7, changeFrequency: "weekly" },
@@ -40,16 +42,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = resolveBaseUrl();
   const now = new Date();
 
-  const [bills, questionerGroups, pastSessions, activeSession, budgetSessions] =
-    await Promise.all([
-      getBills(),
-      getQuestionerGroups(),
-      getAllPastSessions(),
-      getActiveCouncilSession(),
-      siteConfig.features.showBudget
-        ? getSessionsWithBudget()
-        : Promise.resolve([]),
-    ]);
+  const [
+    bills,
+    questionerGroups,
+    pastSessions,
+    activeSession,
+    budgetSessions,
+    seimuKatsudohiFiscalYears,
+  ] = await Promise.all([
+    getBills(),
+    getQuestionerGroups(),
+    getAllPastSessions(),
+    getActiveCouncilSession(),
+    siteConfig.features.showBudget
+      ? getSessionsWithBudget()
+      : Promise.resolve([]),
+    siteConfig.features.showSeimuKatsudohi
+      ? getFiscalYearsWithReports()
+      : Promise.resolve([]),
+  ]);
 
   const billUrls = bills.map((bill) => ({
     url: `${baseUrl}/bills/${bill.id}`,
@@ -107,6 +118,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // 年度ごとの政務活動費ページ
+  const seimuKatsudohiUrls = seimuKatsudohiFiscalYears.map((fy) => ({
+    url: `${baseUrl}/seimu-katsudohi/${fy.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.5,
+  }));
+
   // 会期ごとの委員会報告。掲載している会期だけを載せる
   const committeeUrls = COMMITTEE_REPORT_SESSIONS.map((session) => ({
     url: `${baseUrl}/committee-reports/${session.slug}`,
@@ -115,10 +134,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  const staticUrls = STATIC_PAGES.filter(
-    // 予算ページは設定でオフにできるため、出していないときは載せない
-    (page) => page.path !== "/budget" || siteConfig.features.showBudget
-  ).map((page) => ({
+  const staticUrls = STATIC_PAGES.filter((page) => {
+    // 予算・政務活動費ページは設定でオフにできるため、出していないときは載せない
+    if (page.path === "/budget") return siteConfig.features.showBudget;
+    if (page.path === "/seimu-katsudohi") {
+      return siteConfig.features.showSeimuKatsudohi;
+    }
+    return true;
+  }).map((page) => ({
     url: `${baseUrl}${page.path}`,
     lastModified: now,
     changeFrequency: page.changeFrequency,
@@ -135,6 +158,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticUrls,
     ...sessionUrls,
     ...budgetUrls,
+    ...seimuKatsudohiUrls,
     ...committeeUrls,
     ...billUrls,
     ...memberUrls,

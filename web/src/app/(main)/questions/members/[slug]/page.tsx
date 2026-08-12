@@ -11,6 +11,8 @@ import { findMemberProfile } from "@/features/council-members/shared/member-prof
 import { MINUTES_PUBLICATION_TIMING } from "@/features/council-sessions/shared/minutes-schedule";
 import { getQuestionerGroups } from "@/features/general-questions/server/loaders/get-questioner-groups";
 import { getTopicThumbnail } from "@/features/general-questions/shared/utils/topic-thumbnail";
+import { getFiscalYearsWithReports } from "@/features/seimu-katsudohi/server/loaders/get-fiscal-years-with-reports";
+import { getGroupSlugForMember } from "@/features/seimu-katsudohi/server/loaders/get-group-slug-for-member";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -50,6 +52,27 @@ export default async function QuestionerDetailPage({ params }: Props) {
 
   const profile = findMemberProfile(group.name);
 
+  // 政務活動費ページへのリンク（機能オフ・データ無しの場合はundefinedのまま出さない）
+  let seimuKatsudohiLink:
+    | { fiscalYearSlug: string; groupSlug: string; groupName: string }
+    | undefined;
+  if (siteConfig.features.showSeimuKatsudohi) {
+    const [latestFiscalYear] = await getFiscalYearsWithReports();
+    if (latestFiscalYear) {
+      const match = await getGroupSlugForMember(
+        latestFiscalYear.slug,
+        group.name
+      );
+      if (match) {
+        seimuKatsudohiLink = {
+          fiscalYearSlug: latestFiscalYear.slug,
+          groupSlug: match.groupSlug,
+          groupName: match.groupName,
+        };
+      }
+    }
+  }
+
   return (
     <Container className="py-8 max-w-2xl">
       <Link
@@ -72,7 +95,10 @@ export default async function QuestionerDetailPage({ params }: Props) {
 
       {profile && (
         <div className="mb-8">
-          <MemberProfileCard profile={profile} />
+          <MemberProfileCard
+            profile={profile}
+            seimuKatsudohiLink={seimuKatsudohiLink}
+          />
         </div>
       )}
 

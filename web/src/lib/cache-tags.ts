@@ -8,6 +8,7 @@ export const CACHE_TAGS = {
   GENERAL_QUESTIONS: "general-questions",
   INTERVIEW_CONFIGS: "interview-configs",
   PUBLIC_INTERVIEW_REPORTS: "public-interview-reports",
+  SEIMU_KATSUDOHI: "seimu-katsudohi",
 } as const;
 
 export type CacheTag = (typeof CACHE_TAGS)[keyof typeof CACHE_TAGS];

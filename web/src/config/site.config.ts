@@ -100,6 +100,12 @@ export const siteConfig = {
      * ※バナーは予算データの有無を見ないため、データが無い間は false にする。
      */
     showBudget: true as boolean,
+    /**
+     * 政務活動費の見える化（トップページのバナー・一覧ページへの導線）
+     * 令和7年度分（会派・無会派議員9件）を公開。2026-08-12にローカルプロトタイプを
+     * レビューして採用を決定。
+     */
+    showSeimuKatsudohi: true as boolean,
   },
 } as const;
 

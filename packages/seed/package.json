@@ -6,6 +6,7 @@
   "scripts": {
     "seed": "tsx main/run.ts",
     "seed:session": "tsx fukutsu/seed-session.ts",
+    "seed:seimu-katsudohi": "tsx fukutsu/seed-seimu-katsudohi.ts",
     "seed:csv": "tsx csv/import-csv.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
