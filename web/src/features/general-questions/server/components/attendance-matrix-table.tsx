@@ -38,7 +38,7 @@ export function AttendanceMatrixSection({
       open={defaultOpen}
       className="group rounded-xl border border-border bg-card"
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 transition-colors hover:bg-mirai-surface-muted [&::-webkit-details-marker]:hidden">
         <div>
           <h2 className="text-sm font-bold text-mirai-text">
             定例会ごとの登壇状況
@@ -48,7 +48,16 @@ export function AttendanceMatrixSection({
             回について、各議員が一般質問・総括質疑に登壇したか
           </p>
         </div>
-        <ChevronDown className="h-5 w-5 shrink-0 text-mirai-text-muted transition-transform group-open:rotate-180" />
+        {/*
+          ▼印だけだと押せる場所だと気づかれないため、「開く」「閉じる」と
+          文字でも出す。<details> の開閉状態でどちらを見せるかを切り替えており、
+          JavaScriptは使っていない。
+        */}
+        <span className="flex shrink-0 items-center gap-1 text-xs font-bold text-primary">
+          <span className="group-open:hidden">開く</span>
+          <span className="hidden group-open:inline">閉じる</span>
+          <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+        </span>
       </summary>
 
       <div className="border-t border-border px-4 py-4">
@@ -378,7 +387,7 @@ function NeutralityNote() {
           <strong className="font-bold text-mirai-text">
             行うかどうかは各議員の判断で、義務ではありません。
           </strong>
-          登壇しなかった理由（会派内での分担、委員会での対応、体調など）は会議録に記録されないため、この表からは分かりません。
+          登壇しなかった理由は会議録に記録されないため、この表からは分かりません。
           回数の多い少ないだけで活動の量や質を判断できるものではない点にご注意ください。
           なお、議長は会議の進行役を務めるため、慣例として一般質問を行いません。
           会派は現在のもので分けており、任期の途中で変わっている場合があります。
