@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Container } from "@/components/layouts/container";
 import { siteConfig } from "@/config/site.config";
 import { MemberTermsNote } from "@/features/council-members/client/components/member-terms-note";
+import { AttendanceMatrixSection } from "@/features/general-questions/server/components/attendance-matrix-table";
 import { QuestionerListView } from "@/features/general-questions/server/components/questioner-list-view";
+import { getAttendanceMatrix } from "@/features/general-questions/server/loaders/get-attendance-matrix";
 import { getQuestionerGroups } from "@/features/general-questions/server/loaders/get-questioner-groups";
 
 export const metadata: Metadata = {
@@ -12,7 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default async function QuestionMembersPage() {
-  const groups = await getQuestionerGroups();
+  const [groups, attendance] = await Promise.all([
+    getQuestionerGroups(),
+    getAttendanceMatrix(),
+  ]);
 
   return (
     <Container className="py-8">
@@ -26,8 +31,15 @@ export default async function QuestionMembersPage() {
         </p>
       </div>
       {/* 用語の説明は一度読めば足りるので、議員ごとのページではなくここに置く */}
-      <div className="mb-6">
+      <div className="mb-4">
         <MemberTermsNote />
+      </div>
+      {/*
+        星取表は既定で閉じておく。目当ての議員を探しに来た人にとっては
+        一覧本体が主役で、大きな表が先に開いていると邪魔になるため。
+      */}
+      <div className="mb-6">
+        <AttendanceMatrixSection matrix={attendance.matrix} />
       </div>
       <QuestionerListView groups={groups} />
     </Container>
