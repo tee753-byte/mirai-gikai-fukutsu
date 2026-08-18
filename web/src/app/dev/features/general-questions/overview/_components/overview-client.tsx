@@ -1,8 +1,8 @@
 "use client";
 
+import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight } from "lucide-react";
 import type { GeneralQuestion } from "@/features/general-questions/shared/types";
 
 function TopicTag({

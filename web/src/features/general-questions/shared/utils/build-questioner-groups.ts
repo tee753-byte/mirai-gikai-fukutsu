@@ -9,6 +9,12 @@ export type QuestionerSessionEntry = {
   sessionStartDate: string | null;
   questionType: QuestionType;
   summary: string | null;
+  /**
+   * このデータを最後に更新した日時。
+   * サイトマップの lastmod（検索エンジンに「いつ更新したか」を伝える値）に使う。
+   * 定例会の開催日ではなく更新日時なので、後から議事録を足した場合も新しくなる。
+   */
+  updatedAt: string;
   /** 質問事項（大項目）の見出し */
   topicTitles: string[];
   /** やり取り全文が掲載されているか（議事録が未公開の定例会では false） */
@@ -68,6 +74,7 @@ export function buildQuestionerGroups(
       sessionStartDate: q.session_start_date,
       questionType: q.question_type,
       summary: q.summary,
+      updatedAt: q.updated_at,
       topicTitles: q.topics.map((t) => t.title),
       hasTranscript: Boolean(q.raw_text),
     };

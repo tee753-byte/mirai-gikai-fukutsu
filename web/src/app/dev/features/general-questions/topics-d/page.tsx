@@ -1,16 +1,16 @@
 import {
+  ArrowRight,
   Baby,
-  Shield,
-  Heart,
   Bus,
+  Circle,
+  Heart,
   Leaf,
   MapPin,
-  Circle,
-  ArrowRight,
+  Shield,
 } from "lucide-react";
 import { mockGeneralQuestions } from "@/app/dev/_lib/mock-data";
+import type { TopicEntry, TopicGroup } from "../_lib/build-topic-groups";
 import { buildTopicGroups } from "../_lib/build-topic-groups";
-import type { TopicGroup, TopicEntry } from "../_lib/build-topic-groups";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Baby,

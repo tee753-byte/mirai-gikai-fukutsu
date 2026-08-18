@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
+import { JsonLd } from "@/components/seo/json-ld";
 import { QuestionDetailView } from "@/features/general-questions/client/components/question-detail-view";
 import { getGeneralQuestionById } from "@/features/general-questions/server/loaders/get-general-question-by-id";
 import { toQuestionerSlug } from "@/features/general-questions/shared/utils/build-questioner-groups";
-import { JsonLd } from "@/components/seo/json-ld";
 import {
   buildArticleSchema,
   buildBreadcrumbSchema,
