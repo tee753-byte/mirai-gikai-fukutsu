@@ -101,9 +101,13 @@ const CHAIR_DECISION_RE =
  * 議長が討論の立場を指定する文。
  * 委員会の報告が否決だと「まず、委員会の報告は否決ですので、本案に賛成の議員の…」のように
  * 前置きが入るため、「の議員の発言を許します」の直前にある賛否を拾う。
+ *
+ * 「まず」の直後の読点は付いたり付かなかったりする（「まず本案に反対の議員の…」）。
+ * 読点を必須にしていたため、令和7年6月定例会の反対討論3件と令和8年3月定例会の
+ * 1件が丸ごと落ちていた。読点は任意にする。
  */
 const DEBATE_PERMISSION_RE =
-  /(?:まず|次に)、[^。]*?(反対|賛成)の議員の発言を許します。/g;
+  /(?:まず|次に)、?[^。]*?(反対|賛成)の議員の発言を許します。/g;
 
 /** ◎N番（氏名）　本文 */
 const MEMBER_SPEECH_RE = /◎([0-9０-９]+)番（(.+?)）[\s　]*([\s\S]*)/;
@@ -245,9 +249,19 @@ export function parseBillVotes(text: string, sessionDay: number): BillVote[] {
  *   発議: 「発議第８号…について提案いたします。」
  * 議長の「…についてを議題といたします。」は説明ではないので拾わない
  * （「について」の直後が「を議題」なので、下の並びには当たらない）。
+ *
+ * 補正予算のようにまとめて上程される議案では「まずは議案第29号…についてご説明
+ * いたします。」「続いて、議案第30号…についてご説明いたします。」と切り出す。
+ * この言い回しを入れていなかったため、令和7年6月定例会の補正予算3件の
+ * 提案理由説明が丸ごと落ちていた。
+ *
+ * 件名と説明が1文につながることもある。
+ *   「議案第32号福津市税条例を改正することについて、地方税法等の…改正を行うものでございます。」
+ * この形は句点ではなく読点で続くので、区切りに読点も許す。「については、」
+ * 「についてを議題と」は「について」の直後が読点でも句点でもないため当たらない。
  */
 const REASON_HEADING_RE = new RegExp(
-  `(${BILL_KIND})第([0-9０-９]+)号(?:.+?)について(?:（.+?）)?(?:です|でございます|提案いたします)?。`,
+  `(${BILL_KIND})第([0-9０-９]+)号(?:.+?)について(?:（.+?）)?(?:です|でございます|提案いたします|(?:ご)?説明(?:いた)?します)?[。、]`,
   "g"
 );
 
@@ -332,6 +346,39 @@ function isEnumeration(body: string): boolean {
  * 絞り込みは中身の判定ができる呼び出し側の仕事なので、ここでは出現順に
  * すべて返す。
  */
+/**
+ * 討論の発言かどうか。
+ *
+ * 討論も◎で始まる発言で、「議案第９号令和８年度福津市一般会計予算について、
+ * 反対の立場で発言いたします。」のように件名の読み上げから始まる。
+ * 提案理由説明と見分けがつかないので、書き出しで立場を表明しているかを見る。
+ * 提案理由説明が冒頭で賛否を述べることはない。
+ */
+function isDebateSpeech(body: string): boolean {
+  const firstSentence = body.split("。")[0];
+  return /(?:賛成|反対)の立場|討論(?:を)?(?:いた)?します/.test(firstSentence);
+}
+
+/**
+ * その位置が「◎」で始まる発言（市長・部長・委員長・提出議員）の中かどうか。
+ * 会議録は行頭の記号で話者が分かれる（○=議長、◎=執行部や提案者、◆=質疑）。
+ */
+function isInAnswererSpeech(text: string, index: number): boolean {
+  /** 直近の行頭記号の位置。無ければ -1 */
+  const lastSpeechStart = (mark: string): number => {
+    const found = text.lastIndexOf(`\n${mark}`, index);
+    if (found >= 0) return found + 1;
+    return text.startsWith(mark) ? 0 : -1;
+  };
+
+  const answerer = lastSpeechStart("◎");
+  return (
+    answerer >= 0 &&
+    answerer > lastSpeechStart("○") &&
+    answerer > lastSpeechStart("◆")
+  );
+}
+
 export function extractProposalReasons(text: string): Map<string, string[]> {
   const normalized = text.replace(/\r/g, "");
   const headings: ReasonHeading[] = [];
@@ -358,6 +405,11 @@ export function extractProposalReasons(text: string): Map<string, string[]> {
     if (headings.some((h) => m!.index >= h.index && m!.index < h.endIndex)) {
       continue;
     }
+    // 提案理由を述べるのは市長・部長・提出議員（◎）で、議長（○）ではない。
+    // 議長も上程のたびに件名を読み上げるので、そちらを見出しにすると
+    // 「及び日程第17、議案第56号…」のような議事進行が説明として入ってしまう
+    // （令和7年12月定例会 議案第55号）
+    if (!isInAnswererSpeech(normalized, m.index)) continue;
     headings.push({
       index: m.index,
       endIndex: m.index + m[0].length,
@@ -380,7 +432,9 @@ export function extractProposalReasons(text: string): Map<string, string[]> {
       .split(ENUMERATION_MARKER)[0]
       .trim();
 
-    if (body.length < 20 || isEnumeration(body)) continue;
+    if (body.length < 20 || isEnumeration(body) || isDebateSpeech(body)) {
+      continue;
+    }
 
     for (const billNumber of headings[i].billNumbers) {
       const bodies = reasons.get(billNumber);
@@ -390,6 +444,47 @@ export function extractProposalReasons(text: string): Map<string, string[]> {
   }
 
   return reasons;
+}
+
+/**
+ * 請願の委員長報告を、請願番号ごとに取り出す。
+ *
+ * 【なぜ議案と別に要るか】
+ * extractProposalReasons は「議案第○号…について」という見出しを目印にしている。
+ * 請願の見出しは「請願第１号「…」提出の請願。」で「について」が無く、
+ * BILL_KIND にも請願を入れていないため引っかからない。
+ *
+ * 請願が議案と続けて読み上げられる会期（令和7年9月・12月）では、報告が直前の
+ * 議案の塊に紛れ込むので petitions-*.ts が切り出している。一方、請願だけで
+ * 日程が独立している会期（令和7年6月）では、議長の発言で塊が切れるため
+ * どの議案にも入らず、まるごと落ちる。そのぶんをここで拾う。
+ *
+ * 委員長の報告は議長の発言で終わるので、次に議長が話し出すまでを本文とする。
+ * 議長が請願名を読み上げただけの箇所を拾わないよう、審査結果を含むものだけ返す。
+ */
+export function extractPetitionReports(text: string): Map<string, string> {
+  const normalized = text.replace(/\r/g, "");
+  const HEADING_RE = /請願第([0-9０-９]+)号[\s　]*[^\n]*\n/g;
+  const reports = new Map<string, string>();
+
+  let m: RegExpExecArray | null;
+  while ((m = HEADING_RE.exec(normalized)) !== null) {
+    // 議長も上程のたびに請願名を読み上げる。報告するのは委員長（◎）なので、
+    // そちらの読み上げから始める（議案の委員長報告と同じ切り出し方に揃える）
+    if (!isInAnswererSpeech(normalized, m.index)) continue;
+
+    const body = normalized
+      .slice(m.index)
+      .split(/\n○議長|\n△日程第|～～～～/)[0]
+      .trim();
+    if (!/審査結果/.test(body)) continue;
+
+    const key = `請願第${toHalfWidthDigits(m[1])}号`;
+    const prev = reports.get(key);
+    if (!prev || body.length > prev.length) reports.set(key, body);
+  }
+
+  return reports;
 }
 
 export type Sponsor = {

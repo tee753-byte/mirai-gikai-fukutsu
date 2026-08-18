@@ -12,6 +12,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   type BillVote,
+  extractPetitionReports,
   extractProposalReasons,
   extractSponsors,
   parseBillVotes,
@@ -109,7 +110,7 @@ function main() {
 
   // 提案理由説明と委員長報告は会議録上おなじ書式で読み上げられるため、
   // 日付順に見て「先に出たほう＝提案理由説明」「質疑応答が入るほう＝委員長報告」で振り分ける。
-  const reasons = new Map<string, string>();
+  const reasons = new Map<string, { file: string; body: string }>();
   const committeeReports = new Map<string, string>();
   for (const file of files) {
     const text = fs.readFileSync(path.join(dir, file), "utf8");
@@ -124,8 +125,16 @@ function main() {
           }
           continue;
         }
-        // 提案理由説明は最初に出たものを採る（後日の再掲より初日の説明が正確）
-        if (!reasons.has(billNumber)) reasons.set(billNumber, body);
+        // 提案理由説明は最初に出た日のものを採る（後日の再掲より初日の説明が正確）。
+        // ただし同じ日のうちでは、いちばん詳しいものを採る。まとめて上程された
+        // 議案は市長が概要を述べたあと部長が1件ずつ説明することがあり、
+        // 先勝ちにすると概要だけで止まってしまう（令和7年12月定例会 議案第45号）
+        const prev = reasons.get(billNumber);
+        if (!prev) {
+          reasons.set(billNumber, { file, body });
+        } else if (prev.file === file && body.length > prev.body.length) {
+          reasons.set(billNumber, { file, body });
+        }
       }
     }
   }
@@ -134,7 +143,7 @@ function main() {
   files.forEach((file, i) => {
     const text = fs.readFileSync(path.join(dir, file), "utf8");
     for (const vote of parseBillVotes(text, i + 1)) {
-      const reason = reasons.get(vote.billNumber) ?? null;
+      const reason = reasons.get(vote.billNumber)?.body ?? null;
       records.push({
         ...vote,
         // 提出者の提案理由の説明は討論ではない
@@ -147,10 +156,34 @@ function main() {
     }
   });
 
+  // 請願の委員長報告は議案の見出しに引っかからないので別に集める。
+  // 議案に紛れ込む会期（r7-9・r7-12）では空になり、petitions-*.ts が
+  // これまでどおり議案側から切り出す。
+  const petitionReports: Record<string, string> = {};
+  for (const file of files) {
+    const text = fs.readFileSync(path.join(dir, file), "utf8");
+    for (const [number, body] of extractPetitionReports(text)) {
+      const prev = petitionReports[number];
+      if (!prev || body.length > prev.length) petitionReports[number] = body;
+    }
+  }
+
   const outDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "data");
   fs.mkdirSync(outDir, { recursive: true });
   const outPath = path.join(outDir, `${slug}-bill-votes.json`);
   fs.writeFileSync(outPath, `${JSON.stringify(records, null, 2)}\n`, "utf8");
+
+  if (Object.keys(petitionReports).length > 0) {
+    const reportsPath = path.join(outDir, `${slug}-petition-reports.json`);
+    fs.writeFileSync(
+      reportsPath,
+      `${JSON.stringify(petitionReports, null, 2)}\n`,
+      "utf8"
+    );
+    console.log(
+      `請願の委員長報告 ${Object.keys(petitionReports).length}件を ${reportsPath} に書き出しました`
+    );
+  }
 
   const withoutReason = records.filter((r) => !r.proposalReason);
   console.log(`${records.length}件を ${outPath} に書き出しました`);
