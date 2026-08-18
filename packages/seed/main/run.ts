@@ -41,7 +41,11 @@ import { seedGeneralQuestionsForSession } from "../fukutsu/seed-general-question
 import { R7_12_SESSION_SLUG } from "../fukutsu/bills-r7-12";
 import { R8_1_SESSION_SLUG } from "../fukutsu/bills-r8-1";
 import { R8_2_SESSION_SLUG } from "../fukutsu/bills-r8-2";
+import { R7_6_SESSION_SLUG } from "../fukutsu/bills-r7-6";
+import { R7_9_SESSION_SLUG } from "../fukutsu/bills-r7-9";
 import { seedMemberVotes } from "../fukutsu/seed-member-votes";
+import { seedMemberVotesR7_6 } from "../fukutsu/seed-member-votes-r7-6";
+import { seedMemberVotesR7_9 } from "../fukutsu/seed-member-votes-r7-9";
 import { seedMemberVotesR7_12 } from "../fukutsu/seed-member-votes-r7-12";
 
 async function seedDatabase() {
@@ -231,6 +235,17 @@ async function seedDatabase() {
     const memberVotesCount = await seedMemberVotes(supabase, memberVoteSessionIds);
     console.log(`✅ Inserted ${memberVotesCount} bill member votes`);
 
+    // 議員別の賛否（福津市議会だより83号の賛否表から作成。r7-9が対象）
+    const r7_9SessionId = insertedCouncilSessions.find(
+      (cs) => cs.slug === R7_9_SESSION_SLUG
+    )?.id;
+    const memberVotesR7_9Count = r7_9SessionId
+      ? await seedMemberVotesR7_9(supabase, [r7_9SessionId])
+      : 0;
+    console.log(
+      `✅ Inserted ${memberVotesR7_9Count} bill member votes (r7-9)`
+    );
+
     // 議員別の賛否（福津市議会だより84号の賛否表から作成。r7-12が対象）
     const r7_12SessionId = insertedCouncilSessions.find(
       (cs) => cs.slug === R7_12_SESSION_SLUG
@@ -240,6 +255,17 @@ async function seedDatabase() {
       : 0;
     console.log(
       `✅ Inserted ${memberVotesR7_12Count} bill member votes (r7-12)`
+    );
+
+    // 議員別の賛否（福津市議会だより82号の賛否表から作成。r7-6が対象）
+    const r7_6SessionId = insertedCouncilSessions.find(
+      (cs) => cs.slug === R7_6_SESSION_SLUG
+    )?.id;
+    const memberVotesR7_6Count = r7_6SessionId
+      ? await seedMemberVotesR7_6(supabase, [r7_6SessionId])
+      : 0;
+    console.log(
+      `✅ Inserted ${memberVotesR7_6Count} bill member votes (r7-6)`
     );
 
     // 一般質問（福津市議会）

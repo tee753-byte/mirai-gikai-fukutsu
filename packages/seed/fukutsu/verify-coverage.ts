@@ -17,7 +17,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { findCoverageGaps } from "./check-coverage";
 import { generalQuestionsBySession } from "./general-questions-data";
-import { PETITION_PLAIN_TEXTS_R7_12 } from "./petitions-r7-12";
+import { FUKUTSU_SESSIONS } from "./sessions";
 
 const DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), "data");
 
@@ -37,11 +37,17 @@ function loadBillNumbers(slug: string): string[] {
 
 /**
  * 請願は会議録の議決文の書式が議案と違って独立して拾えないため、
- * 直前の議案に紐づいた塊から切り出して別管理している（petitions-r7-12.ts）。
+ * 直前の議案に紐づいた塊から切り出して別管理している（petitions-*.ts）。
  * 取りこぼしの確認では、そちらに入っているものも「載っている」として数える。
+ *
+ * 会期ごとに書くと請願を足したときに直し忘れるので、実際にサイトに載る
+ * 定義（FUKUTSU_SESSIONS の plainTexts）から引く。
  */
 function loadPetitionNumbers(slug: string): string[] {
-  return slug === "r7-12" ? Object.keys(PETITION_PLAIN_TEXTS_R7_12) : [];
+  const session = FUKUTSU_SESSIONS.find((s) => s.slug === slug);
+  return Object.keys(session?.plainTexts ?? {}).filter((n) =>
+    n.startsWith("請願第")
+  );
 }
 
 function loadQuestioners(slug: string): string[] {

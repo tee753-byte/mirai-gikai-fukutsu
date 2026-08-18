@@ -38,9 +38,35 @@ import {
   R8_2_SOURCE_URL,
   submittedAt as submittedAtR8_2,
 } from "./bills-r8-2";
+import {
+  decidedAt as decidedAtR7_6,
+  PLAIN_TEXTS as PLAIN_TEXTS_R7_6,
+  R7_6_SESSION_SLUG,
+  R7_6_SOURCE_URL,
+  sanitizeR7_6Debates,
+  submittedAt as submittedAtR7_6,
+} from "./bills-r7-6";
+import {
+  decidedAt as decidedAtR7_9,
+  PLAIN_TEXTS as PLAIN_TEXTS_R7_9,
+  R7_9_SESSION_SLUG,
+  R7_9_SOURCE_URL,
+  sanitizeR7_9Debates,
+  submittedAt as submittedAtR7_9,
+} from "./bills-r7-9";
+import r7_6BillVotes from "./data/r7-6-bill-votes.json" with { type: "json" };
+import r7_9BillVotes from "./data/r7-9-bill-votes.json" with { type: "json" };
 import r7_12BillVotes from "./data/r7-12-bill-votes.json" with { type: "json" };
 import r8_1BillVotes from "./data/r8-1-bill-votes.json" with { type: "json" };
 import r8_2BillVotes from "./data/r8-2-bill-votes.json" with { type: "json" };
+import {
+  buildPetitionsR7_6,
+  PETITION_PLAIN_TEXTS_R7_6,
+} from "./petitions-r7-6";
+import {
+  buildPetitionsR7_9,
+  PETITION_PLAIN_TEXTS_R7_9,
+} from "./petitions-r7-9";
 import {
   buildPetitionsR7_12,
   PETITION_PLAIN_TEXTS_R7_12,
@@ -66,6 +92,45 @@ export type FukutsuSession = {
 };
 
 export const FUKUTSU_SESSIONS: FukutsuSession[] = [
+  {
+    // 6月定例会は新市長の所信表明に対する総括質疑と、骨格予算に政策的経費を足す
+    // 肉付け補正予算（議案第29号）が中心。請願第1号も同じ流れで投入する
+    slug: R7_6_SESSION_SLUG,
+    label: "r7-6",
+    votes: [
+      // biome-ignore lint/suspicious/noExplicitAny: JSON importの型をBillVoteRecord[]に合わせるための簡易キャスト
+      ...sanitizeR7_6Debates(r7_6BillVotes as any),
+      // biome-ignore lint/suspicious/noExplicitAny: 同上
+      ...buildPetitionsR7_6(r7_6BillVotes as any),
+    ],
+    plainTexts: {
+      ...PLAIN_TEXTS_R7_6,
+      ...PETITION_PLAIN_TEXTS_R7_6,
+    },
+    sourceUrl: R7_6_SOURCE_URL,
+    documentsFile: "r7-6-bill-documents.json",
+    decidedAt: decidedAtR7_6,
+    submittedAt: submittedAtR7_6,
+  },
+  {
+    // 9月定例会は決算議会を兼ねる（認定第1〜5号）。請願第2号も同じ流れで投入する
+    slug: R7_9_SESSION_SLUG,
+    label: "r7-9",
+    votes: [
+      // biome-ignore lint/suspicious/noExplicitAny: JSON importの型をBillVoteRecord[]に合わせるための簡易キャスト
+      ...sanitizeR7_9Debates(r7_9BillVotes as any),
+      // biome-ignore lint/suspicious/noExplicitAny: 同上
+      ...buildPetitionsR7_9(r7_9BillVotes as any),
+    ],
+    plainTexts: {
+      ...PLAIN_TEXTS_R7_9,
+      ...PETITION_PLAIN_TEXTS_R7_9,
+    },
+    sourceUrl: R7_9_SOURCE_URL,
+    documentsFile: "r7-9-bill-documents.json",
+    decidedAt: decidedAtR7_9,
+    submittedAt: submittedAtR7_9,
+  },
   {
     slug: R7_12_SESSION_SLUG,
     label: "r7-12",
