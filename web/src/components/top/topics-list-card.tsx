@@ -38,7 +38,7 @@ export function TopicsListCard() {
             />
             <Link
               href={`/topics#${topic.slug}`}
-              className="group text-sm font-medium leading-relaxed text-mirai-text hover:text-primary-accent"
+              className="group flex-1 text-sm font-medium leading-relaxed text-mirai-text hover:text-primary-accent"
             >
               {/*
                 文字の下半分だけに色を敷いて、蛍光ペンで線を引いたように見せる。
@@ -48,6 +48,11 @@ export function TopicsListCard() {
                 {topic.title}
               </span>
             </Link>
+            {topic.isNew && (
+              <span className="mt-0.5 shrink-0 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                NEW!!
+              </span>
+            )}
           </li>
         ))}
       </ul>

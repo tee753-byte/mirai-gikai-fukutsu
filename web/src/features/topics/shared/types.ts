@@ -41,4 +41,9 @@ export type Topic = {
   /** 討論についての注記（例: 反対討論が無かった場合など） */
   stanceNote: string | null;
   sources: TopicSource[];
+  /**
+   * 新規追加・更新のお知らせバッジを出すか。手動でON/OFFする
+   * （自動判定ではない。次の更新のときに古いものはfalseに戻すこと）
+   */
+  isNew?: boolean;
 };

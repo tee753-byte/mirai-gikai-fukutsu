@@ -86,6 +86,11 @@ export function TopicCard({ topic, defaultOpen = false }: TopicCardProps) {
         <span className="text-xs text-mirai-text-muted">
           {topic.sessionLabel}・{topic.occurredOn}
         </span>
+        {topic.isNew && (
+          <span className="rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+            NEW!!
+          </span>
+        )}
       </div>
 
       <h2 className="mt-2 text-base sm:text-lg font-bold text-mirai-text leading-snug">
