@@ -115,8 +115,15 @@ export type PlainText = {
    * budgetSystemNote() で組み立てる。
    */
   systemNote?: string;
+  /**
+   * くわしい版だけに出す要約。制度上の位置づけを条文レベルで書いたもの。
+   * 省略した会期は、やさしい版と同じ summary をくわしい版にも使う。
+   */
+  summaryHard?: string;
   /** どの分野の議案か（タグ付けに使う） */
   tag: string;
+  /** 2つ目以降の分野。1つの議案が複数の分野にまたがるときだけ使う */
+  extraTags?: string[];
   /** 付託された委員会。議員提出の発議など委員会付託が無いものはnull */
   committee: string | null;
 };
@@ -405,7 +412,7 @@ export async function seedBillsForSession({
         bill_id: billId,
         difficulty_level: "hard" as const,
         title: v.billName,
-        summary: plain.summary,
+        summary: plain.summaryHard ?? plain.summary,
         content: buildHardContent(contentInput),
       },
     ];
@@ -424,8 +431,13 @@ export async function seedBillsForSession({
   // ── bills_tags ──
   const tagRows = votes.flatMap((v) => {
     const billId = billIdByNumber.get(v.billNumber);
-    const tagId = tagIdByLabel.get(plainTexts[v.billNumber].tag);
-    return billId && tagId ? [{ bill_id: billId, tag_id: tagId }] : [];
+    if (!billId) return [];
+    const plain = plainTexts[v.billNumber];
+    const labels = [plain.tag, ...(plain.extraTags ?? [])];
+    return labels.flatMap((label) => {
+      const tagId = tagIdByLabel.get(label);
+      return tagId ? [{ bill_id: billId, tag_id: tagId }] : [];
+    });
   });
 
   const { error: tagError } = await supabase.from("bills_tags").insert(tagRows);

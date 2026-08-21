@@ -9,13 +9,20 @@
  * seed-bills-r8-3.ts があり、予算データもこの会期にだけ紐づいているため。
  */
 import {
-  BILL_VOTES_R8_4,
   decidedAt as decidedAtR8_4,
   PLAIN_TEXTS as PLAIN_TEXTS_R8_4,
   R8_4_SESSION_SLUG,
   R8_4_SOURCE_URL,
   submittedAt as submittedAtR8_4,
 } from "./bills-r8-4";
+import {
+  decidedAt as decidedAtR8_6,
+  PLAIN_TEXTS as PLAIN_TEXTS_R8_6,
+  R8_6_KETSUGI_PDF_URL,
+  R8_6_SESSION_SLUG,
+  R8_6_SOURCE_URL,
+  submittedAt as submittedAtR8_6,
+} from "./bills-r8-6";
 import {
   decidedAt as decidedAtR7_12,
   PLAIN_TEXTS as PLAIN_TEXTS_R7_12,
@@ -59,6 +66,8 @@ import r7_9BillVotes from "./data/r7-9-bill-votes.json" with { type: "json" };
 import r7_12BillVotes from "./data/r7-12-bill-votes.json" with { type: "json" };
 import r8_1BillVotes from "./data/r8-1-bill-votes.json" with { type: "json" };
 import r8_2BillVotes from "./data/r8-2-bill-votes.json" with { type: "json" };
+import r8_4BillVotes from "./data/r8-4-bill-votes.json" with { type: "json" };
+import r8_6BillVotes from "./data/r8-6-bill-votes.json" with { type: "json" };
 import {
   buildPetitionsR7_6,
   PETITION_PLAIN_TEXTS_R7_6,
@@ -83,6 +92,8 @@ export type FukutsuSession = {
   sourceUrl: string;
   /** 議案書から抽出した理由のファイル名 */
   documentsFile: string;
+  /** 本文の「元の資料」に並べるリンク。省略時は会期のページだけを載せる */
+  sources?: { label: string; url: string }[];
   /** 会議録が公開済みか。省略時は公開済み */
   hasMinutes?: boolean;
   /** 議員別の賛否を載せられているか。省略時は載せられている */
@@ -173,17 +184,42 @@ export const FUKUTSU_SESSIONS: FukutsuSession[] = [
     submittedAt: submittedAtR8_2,
   },
   {
-    // 会議録が未公開の会期。件名と議決結果のみを掲載する。
-    // 市議会だよりも未公開のため、誰が賛成したかもまだ載せられない
+    // 会議録は令和8年8月20日に公開済み。市議会だよりはまだ出ていないため、
+    // 誰が賛成したかは載せられない
     slug: R8_4_SESSION_SLUG,
     label: "r8-4",
-    votes: BILL_VOTES_R8_4,
+    // biome-ignore lint/suspicious/noExplicitAny: 同上
+    votes: r8_4BillVotes as any,
     plainTexts: PLAIN_TEXTS_R8_4,
     sourceUrl: R8_4_SOURCE_URL,
     documentsFile: "r8-4-bill-documents.json",
-    hasMinutes: false,
     hasMemberVotes: false,
     decidedAt: decidedAtR8_4,
     submittedAt: submittedAtR8_4,
+  },
+  {
+    // 会議録は令和8年8月20日に公開済み。市議会だよりはまだ出ていないため、
+    // 誰が賛成したかは載せられない。
+    // 会議録の公開前は main/data.ts 側（Fork元から引き継いだ経路）に置いていた
+    slug: R8_6_SESSION_SLUG,
+    label: "r8-6",
+    // biome-ignore lint/suspicious/noExplicitAny: 同上
+    votes: r8_6BillVotes as any,
+    plainTexts: PLAIN_TEXTS_R8_6,
+    sourceUrl: R8_6_SOURCE_URL,
+    documentsFile: "r8-6-bill-documents.json",
+    sources: [
+      {
+        label: "令和8年6月定例会のページ（福津市公式）",
+        url: R8_6_SOURCE_URL,
+      },
+      {
+        label: "議決結果一覧（PDF・福津市公式）",
+        url: R8_6_KETSUGI_PDF_URL,
+      },
+    ],
+    hasMemberVotes: false,
+    decidedAt: decidedAtR8_6,
+    submittedAt: submittedAtR8_6,
   },
 ];

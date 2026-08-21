@@ -133,18 +133,26 @@ async function seedDatabase() {
     console.log(`✅ Inserted ${insertedFactions.length} factions`);
 
     // Insert bills
+    //
+    // Fork元から引き継いだ経路。福津版の議案は全会期を FUKUTSU_SESSIONS 側で
+    // 入れているため、ここは通常この配列が空になる（data.ts のコメントを参照）。
+    // 空のまま insert すると Supabase がエラーを返すので、そのときは飛ばす。
     console.log("📄 Inserting bills...");
-    const { data: insertedBills, error: billsError } = await supabase
-      .from("bills")
-      .insert(bills)
-      .select("id, name");
+    let insertedBills: { id: string; name: string }[] = [];
+    if (bills.length > 0) {
+      const { data, error: billsError } = await supabase
+        .from("bills")
+        .insert(bills)
+        .select("id, name");
 
-    if (billsError) {
-      throw new Error(`Failed to insert bills: ${billsError.message}`);
-    }
+      if (billsError) {
+        throw new Error(`Failed to insert bills: ${billsError.message}`);
+      }
 
-    if (!insertedBills) {
-      throw new Error("No bills were inserted");
+      if (!data) {
+        throw new Error("No bills were inserted");
+      }
+      insertedBills = data;
     }
 
     console.log(`✅ Inserted ${insertedBills.length} bills`);
@@ -219,6 +227,7 @@ async function seedDatabase() {
         plainTexts: s.plainTexts,
         sourceUrl: s.sourceUrl,
         documentsFile: s.documentsFile,
+        sources: s.sources,
         // 指定が無い会期は、会議録も市議会だよりも公開済み
         hasMinutes: "hasMinutes" in s ? s.hasMinutes : true,
         hasMemberVotes: "hasMemberVotes" in s ? s.hasMemberVotes : true,
@@ -298,26 +307,30 @@ async function seedDatabase() {
       `✅ Inserted ${insertedGeneralQuestionsCount} general questions`
     );
 
-    // Insert bill_contents
+    // Insert bill_contents（上と同じくFork元から引き継いだ経路。通常は空）
     console.log("📚 Inserting bill contents...");
     const billContents = createBillContents(insertedBills);
+    let insertedContentsCount = 0;
 
-    const { data: insertedContents, error: contentsError } = await supabase
-      .from("bill_contents")
-      .insert(billContents)
-      .select("id");
+    if (billContents.length > 0) {
+      const { data: insertedContents, error: contentsError } = await supabase
+        .from("bill_contents")
+        .insert(billContents)
+        .select("id");
 
-    if (contentsError) {
-      throw new Error(
-        `Failed to insert bill contents: ${contentsError.message}`
-      );
+      if (contentsError) {
+        throw new Error(
+          `Failed to insert bill contents: ${contentsError.message}`
+        );
+      }
+
+      if (!insertedContents) {
+        throw new Error("No bill contents were inserted");
+      }
+      insertedContentsCount = insertedContentsCount;
     }
 
-    if (!insertedContents) {
-      throw new Error("No bill contents were inserted");
-    }
-
-    console.log(`✅ Inserted ${insertedContents.length} bill contents`);
+    console.log(`✅ Inserted ${insertedContentsCount} bill contents`);
 
     // Insert faction_stances (みらい会派の見解)
     console.log("🎯 Inserting faction stances...");
@@ -351,23 +364,27 @@ async function seedDatabase() {
     // Insert bills_tags (関連付け)
     console.log("🔗 Inserting bills-tags relations...");
     const billsTags = createBillsTags(insertedBills, insertedTags);
+    let insertedBillsTagsCount = 0;
 
-    const { data: insertedBillsTags, error: billsTagsError } = await supabase
-      .from("bills_tags")
-      .insert(billsTags)
-      .select();
+    if (billsTags.length > 0) {
+      const { data: insertedBillsTags, error: billsTagsError } = await supabase
+        .from("bills_tags")
+        .insert(billsTags)
+        .select();
 
-    if (billsTagsError) {
-      throw new Error(
-        `Failed to insert bills-tags relations: ${billsTagsError.message}`
-      );
+      if (billsTagsError) {
+        throw new Error(
+          `Failed to insert bills-tags relations: ${billsTagsError.message}`
+        );
+      }
+
+      if (!insertedBillsTags) {
+        throw new Error("No bills-tags relations were inserted");
+      }
+      insertedBillsTagsCount = insertedBillsTagsCount;
     }
 
-    if (!insertedBillsTags) {
-      throw new Error("No bills-tags relations were inserted");
-    }
-
-    console.log(`✅ Inserted ${insertedBillsTags.length} bills-tags relations`);
+    console.log(`✅ Inserted ${insertedBillsTagsCount} bills-tags relations`);
 
     // AIチャット機能（インタビュー）のデータ。CLAUDE.mdの方針で
     // フェーズ1では実装しないため、本番投入時は環境変数
@@ -698,9 +715,9 @@ async function seedDatabase() {
     console.log(`  Factions: ${insertedFactions.length}`);
     console.log(`  Tags: ${insertedTags.length}`);
     console.log(`  Bills: ${insertedBills.length}`);
-    console.log(`  Bill Contents: ${insertedContents.length}`);
+    console.log(`  Bill Contents: ${insertedContentsCount}`);
     console.log(`  Faction Stances: ${insertedStancesCount}`);
-    console.log(`  Bills-Tags Relations: ${insertedBillsTags.length}`);
+    console.log(`  Bills-Tags Relations: ${insertedBillsTagsCount}`);
     console.log(`  Interview Config: ${interviewConfigData ? 1 : 0}`);
     console.log(`  Interview Questions: ${insertedQuestionsCount}`);
     console.log(`  Interview Sessions: ${insertedSessionsCount}`);

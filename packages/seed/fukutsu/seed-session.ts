@@ -291,6 +291,7 @@ async function insertSessionData(
       plainTexts: session.plainTexts,
       sourceUrl: session.sourceUrl,
       documentsFile: session.documentsFile,
+      sources: session.sources,
       hasMinutes: session.hasMinutes ?? true,
       hasMemberVotes: session.hasMemberVotes ?? true,
       decidedAt: session.decidedAt,

@@ -18,6 +18,7 @@ import type {
 } from "./general-questions-types";
 import { digestR8_3 } from "./digest-r8-3";
 import { digestR8_3Thick } from "./general-questions-digest-r8-3-thick";
+import { digestR8_6 } from "./digest-r8-6";
 import { digestR7_12 } from "./digest-r7-12";
 import { digestR7_9 } from "./digest-r7-9";
 import { digestR7_6 } from "./digest-r7-6";
@@ -29,6 +30,7 @@ import r8_3SokatsuTranscripts from "./data/r8-3-sokatsu-transcripts.json" with {
 import r7_12Transcripts from "./data/r7-12-transcripts.json" with { type: "json" };
 import r7_9Transcripts from "./data/r7-9-transcripts.json" with { type: "json" };
 import r7_6Transcripts from "./data/r7-6-transcripts.json" with { type: "json" };
+import r8_6Transcripts from "./data/r8-6-transcripts.json" with { type: "json" };
 import r7_6SokatsuTranscripts from "./data/r7-6-sokatsu-transcripts.json" with { type: "json" };
 
 /**
@@ -50,6 +52,13 @@ const r8_3Merged = mergeDigest(
 if (r8_3Merged.unmatched.length > 0) {
   console.log(
     `⚠️ やり取りダイジェストの突き合わせに失敗しました: ${r8_3Merged.unmatched.join(", ")}`
+  );
+}
+
+const r8_6Merged = mergeDigest(generalQuestionsR8_6, digestR8_6);
+if (r8_6Merged.unmatched.length > 0) {
+  console.log(
+    `⚠️ やり取りダイジェストの突き合わせに失敗しました: ${r8_6Merged.unmatched.join(", ")}`
   );
 }
 
@@ -94,14 +103,13 @@ export type {
   SeedTopic,
   SeedTranscript,
 } from "./general-questions-types";
-export { ANSWER_PENDING_NOTE } from "./general-questions-r8-6";
 
 export const generalQuestionsBySession: SeedSessionQuestions[] = [
   {
     session_slug: R8_6_SESSION_SLUG,
     source_url: R8_6_SOURCE_URL,
-    questions: generalQuestionsR8_6,
-    // 議事録が未公開のため、やり取り全文はまだ載せられない
+    questions: r8_6Merged.questions,
+    transcripts: r8_6Transcripts as SeedTranscript[],
   },
   {
     session_slug: R8_3_SESSION_SLUG,

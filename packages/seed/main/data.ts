@@ -204,168 +204,27 @@ export const tags: TagInsert[] = [
   },
 ];
 
-// 議案データ（令和8年6月定例会・全11件）
-// 出典: 会期日程表 https://www.city.fukutsu.lg.jp/material/files/group/20/kaikinitteihyo080616.pdf
-//       議決結果 https://www.city.fukutsu.lg.jp/material/files/group/20/giketukekka0806.pdf
-// いずれも議決年月日は令和8年6月23日（status_noteに記載）。
-// published_at は画面上「提出」として表示されるため、議決日ではなく上程日を入れる。
-// 議案第47〜52号は初日（6/8）に一括上程。発議第2〜6号は最終日（6/23）に追加議案として上程された。
-// ※福津市は議案書そのものを公開していないため、原本リンクは定例会ページ（議決結果PDFを含む）を指す。
-const SESSION_R8_6_URL =
-  "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19863.html";
-const SUBMITTED_AT_INITIAL = "2026-06-08T00:00:00+09:00";
-const SUBMITTED_AT_ADDITIONAL = "2026-06-23T00:00:00+09:00";
-// 注目の議案は「議会の判断が分かれたもの（否決）」で機械的に決める。
-// 特定の議員や政策分野を目立たせないため、人が選ぶ運用にはしない（fukutsu/seed-bills-r8-3.ts と同じ方針）。
-
-export const bills: BillInsert[] = [
-  {
-    name: "令和8年度福津市一般会計補正予算（第1号）について",
-    bill_number: "議案第47号",
-    bill_type: "bill",
-    status: "approved",
-    status_note: "本会議で可決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_INITIAL,
-    publish_status: "published",
-    is_featured: false,
-    source_url: SESSION_R8_6_URL,
-  },
-  {
-    name: "令和8年度福津市介護保険事業特別会計補正予算（第1号）について",
-    bill_number: "議案第48号",
-    bill_type: "bill",
-    status: "approved",
-    status_note: "本会議で可決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_INITIAL,
-    publish_status: "published",
-    is_featured: false,
-    source_url: SESSION_R8_6_URL,
-  },
-  {
-    name: "福津市特別職の職員で常勤のものの給与及び旅費に関する条例を改正することについて",
-    bill_number: "議案第49号",
-    bill_type: "bill",
-    status: "rejected",
-    status_note: "本会議で否決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_INITIAL,
-    publish_status: "published",
-    is_featured: true,
-    source_url: SESSION_R8_6_URL,
-  },
-  {
-    name: "福津市税条例を改正することについて",
-    bill_number: "議案第50号",
-    bill_type: "bill",
-    status: "approved",
-    status_note: "本会議で可決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_INITIAL,
-    publish_status: "published",
-    is_featured: false,
-    source_url: SESSION_R8_6_URL,
-  },
-  {
-    name: "福津市学童保育所条例を改正することについて",
-    bill_number: "議案第51号",
-    bill_type: "bill",
-    status: "approved",
-    status_note: "本会議で可決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_INITIAL,
-    publish_status: "published",
-    is_featured: false,
-    source_url: SESSION_R8_6_URL,
-  },
-  {
-    name: "財産の取得について",
-    bill_number: "議案第52号",
-    bill_type: "bill",
-    status: "approved",
-    status_note: "本会議で可決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_INITIAL,
-    publish_status: "published",
-    is_featured: false,
-    source_url: SESSION_R8_6_URL,
-  },
-  {
-    name: "福津市議会基本条例の制定について",
-    bill_number: "発議第2号",
-    bill_type: "member_bill",
-    status: "approved",
-    status_note: "本会議で可決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_ADDITIONAL,
-    publish_status: "published",
-    is_featured: false,
-    source_url: SESSION_R8_6_URL,
-  },
-  {
-    name: "福津市議会会議規則を改正することについて",
-    bill_number: "発議第3号",
-    bill_type: "member_bill",
-    status: "approved",
-    status_note: "本会議で可決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_ADDITIONAL,
-    publish_status: "published",
-    is_featured: false,
-    source_url: SESSION_R8_6_URL,
-  },
-  {
-    name: "非核三原則の堅持を求める意見書の提出について",
-    bill_number: "発議第4号",
-    bill_type: "opinion",
-    status: "approved",
-    status_note: "本会議で可決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_ADDITIONAL,
-    publish_status: "published",
-    is_featured: false,
-    source_url: SESSION_R8_6_URL,
-  },
-  {
-    name: "ホルムズ海峡情勢の影響から市民生活と地域経済を守るための対策を求める意見書の提出について",
-    bill_number: "発議第5号",
-    bill_type: "opinion",
-    status: "approved",
-    status_note: "本会議で可決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_ADDITIONAL,
-    publish_status: "published",
-    is_featured: false,
-    source_url: SESSION_R8_6_URL,
-  },
-  {
-    name: "ゆたかな学びの実現・教職員定数改善をはかるための、令和9年度政府予算に係る意見書の提出について",
-    bill_number: "発議第6号",
-    bill_type: "opinion",
-    status: "approved",
-    status_note: "本会議で可決（令和8年6月23日）",
-    published_at: SUBMITTED_AT_ADDITIONAL,
-    publish_status: "published",
-    is_featured: false,
-    source_url: SESSION_R8_6_URL,
-  },
-];
+/**
+ * Fork元から引き継いだ議案データの置き場。
+ *
+ * 福津版の議案は全会期を fukutsu/sessions.ts + seed-bills-common.ts の経路で入れている。
+ * 令和8年6月定例会（r8-6）だけは会議録の公開前にここへ置いていたが、会議録が公開され、
+ * 提案理由の説明・討論・採決の方法まで載せられるようになったため fukutsu/bills-r8-6.ts に移した。
+ *
+ * この配列は空のままにしておく。会期を足すときは fukutsu/sessions.ts に追加すること。
+ * （Fork元の更新を取り込みやすくするため、export と型はそのまま残している）
+ */
+export const bills: BillInsert[] = [];
 
 // 議案とタグの関連付け
+//
+// 議案本体と同じく、福津版の紐付けは fukutsu/seed-bills-common.ts が
+// PlainText の tag / extraTags から行う。ここは空のまま残している。
 export function createBillsTags(
   insertedBills: { id: string; name: string }[],
   insertedTags: { id: string; label: string }[]
 ): Omit<BillsTagsInsert, "id" | "created_at">[] {
-  const billTagMap: { [billName: string]: string[] } = {
-    "令和8年度福津市一般会計補正予算（第1号）について": ["予算・財政"],
-    "令和8年度福津市介護保険事業特別会計補正予算（第1号）について": [
-      "予算・財政",
-      "まちづくり",
-    ],
-    "福津市特別職の職員で常勤のものの給与及び旅費に関する条例を改正することについて":
-      ["議会・行政のしくみ"],
-    "福津市税条例を改正することについて": ["予算・財政"],
-    "福津市学童保育所条例を改正することについて": ["子育て・教育"],
-    "財産の取得について": ["予算・財政"],
-    "福津市議会基本条例の制定について": ["議会・行政のしくみ"],
-    "福津市議会会議規則を改正することについて": ["議会・行政のしくみ"],
-    "非核三原則の堅持を求める意見書の提出について": ["意見書・決議"],
-    "ホルムズ海峡情勢の影響から市民生活と地域経済を守るための対策を求める意見書の提出について":
-      ["意見書・決議"],
-    "ゆたかな学びの実現・教職員定数改善をはかるための、令和9年度政府予算に係る意見書の提出について":
-      ["意見書・決議", "子育て・教育"],
-  };
+  const billTagMap: { [billName: string]: string[] } = {};
 
   const billsTags: Omit<BillsTagsInsert, "id" | "created_at">[] = [];
 
