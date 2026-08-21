@@ -260,10 +260,45 @@ export function parseBillVotes(text: string, sessionDay: number): BillVote[] {
  * この形は句点ではなく読点で続くので、区切りに読点も許す。「については、」
  * 「についてを議題と」は「について」の直後が読点でも句点でもないため当たらない。
  */
+/**
+ * 件名の末尾に付く括弧書き。承認は「（令和７年度福津市一般会計補正予算（専決第３号））」
+ * のように括弧が入れ子になることがあるので、内側の括弧を1段だけ許す。
+ * 入れ子に対応していなかったため、令和8年4月臨時会 承認第2号の提案理由説明が
+ * 丸ごと落ちていた。
+ */
+const TITLE_PARENS = "(?:（[^（）]*(?:（[^（）]*）[^（）]*)*）)?";
+
+/**
+ * 件名の読み上げに続く言い回し。市長・部長・提出議員で語尾が変わる。
+ *   「…についてです。」「…についてでございます。」
+ *   「…についてご説明いたします。」「…についてご説明をいたします。」（「を」が入る）
+ *   「…について提案いたします。」「…について提案をします。」
+ *   「…について提案をさせていただきます。」
+ *   「…について（…）につきましては、…を行うものです。」（件名と説明が1文で続く形）
+ * 「を」の有無や「いたし／し／させていただき」の違いだけで丸ごと落ちるため、
+ * 語幹（提案・説明）と語尾を分けて組み立てる。
+ */
+const REASON_TAIL =
+  "です|でございます|(?:ご)?(?:提案|説明)(?:を)?(?:いたし|させていただき|し)ます|につきまして(?:は)?";
+
 const REASON_HEADING_RE = new RegExp(
-  `(${BILL_KIND})第([0-9０-９]+)号(?:.+?)について(?:（.+?）)?(?:です|でございます|提案いたします|(?:ご)?説明(?:いた)?します)?[。、]`,
+  `(${BILL_KIND})第([0-9０-９]+)号(?:.+?)について${TITLE_PARENS}(?:${REASON_TAIL})?[。、]`,
   "g"
 );
+
+/**
+ * 発議を読み上げて提案する形の見出し。
+ *   「発議第５号に関して、文書を読み上げて提案といたします。」
+ *   「発議第６号を読み上げて提案理由の説明といたします。」
+ * 件名を伴わないので REASON_HEADING_RE の「…について」に当たらない。
+ * 意見書の発議はこの形で提案されることが多く、令和8年6月定例会では
+ * 発議第5号・第6号の提案理由説明がこれで落ちていた。
+ *
+ * 「発議第５号に賛成の立場で発言をいたします。」のような討論と紛れないよう、
+ * 議案番号の直後を「に関して」「を」に限っている。
+ */
+const REASON_READOUT_HEADING_RE =
+  /(発議)第([0-9０-９]+)号(?:に関して|を)[^\n。]*(?:提案|説明)(?:と)?(?:いたし|し)ます。/g;
 
 /** 一括説明のあと、件名だけ読み上げる部分の目印。ここから先は説明ではない */
 const ENUMERATION_MARKER = /(?:ページ番号、議案番号、議案名称についてのみ申し上げます。|については、?ページ番号)/;
@@ -379,6 +414,25 @@ function isInAnswererSpeech(text: string, index: number): boolean {
   );
 }
 
+/**
+ * 説明の終わりに残る、次の議案へのつなぎ言葉を落とす。
+ *
+ * まとめて上程された議案は「…計上しております。　続いて、議案第５号…」と
+ * 続けて説明される。次の見出しの手前で切ると「続いて、」だけが末尾に残り、
+ * サイト上では文が途中で切れているように見える。
+ *
+ * 最後の句点より後ろが短い断片のときだけ落とす。長い場合は説明の本文が
+ * 句点なしで続いている可能性があるので触らない。
+ */
+function dropDanglingConnector(body: string): string {
+  const lastPeriod = body.lastIndexOf("。");
+  if (lastPeriod < 0) return body;
+
+  const tail = body.slice(lastPeriod + 1);
+  if (tail.trim().length === 0 || tail.length > 20) return body;
+  return body.slice(0, lastPeriod + 1);
+}
+
 export function extractProposalReasons(text: string): Map<string, string[]> {
   const normalized = text.replace(/\r/g, "");
   const headings: ReasonHeading[] = [];
@@ -417,6 +471,21 @@ export function extractProposalReasons(text: string): Map<string, string[]> {
     });
   }
 
+  // 件名を読み上げずに「発議第５号に関して、…提案といたします。」と切り出す形。
+  // 上の2つで拾えた位置は重複させない
+  REASON_READOUT_HEADING_RE.lastIndex = 0;
+  while ((m = REASON_READOUT_HEADING_RE.exec(normalized)) !== null) {
+    if (headings.some((h) => m!.index >= h.index && m!.index < h.endIndex)) {
+      continue;
+    }
+    if (!isInAnswererSpeech(normalized, m.index)) continue;
+    headings.push({
+      index: m.index,
+      endIndex: m.index + m[0].length,
+      billNumbers: [`${m[1]}第${toHalfWidthDigits(m[2])}号`],
+    });
+  }
+
   headings.sort((a, b) => a.index - b.index);
 
   const reasons = new Map<string, string[]>();
@@ -431,15 +500,20 @@ export function extractProposalReasons(text: string): Map<string, string[]> {
       // 一括説明のあとに件名だけ並ぶ部分は説明ではないので落とす
       .split(ENUMERATION_MARKER)[0]
       .trim();
+    const trimmed = dropDanglingConnector(body);
 
-    if (body.length < 20 || isEnumeration(body) || isDebateSpeech(body)) {
+    if (
+      trimmed.length < 20 ||
+      isEnumeration(trimmed) ||
+      isDebateSpeech(trimmed)
+    ) {
       continue;
     }
 
     for (const billNumber of headings[i].billNumbers) {
       const bodies = reasons.get(billNumber);
-      if (bodies) bodies.push(body);
-      else reasons.set(billNumber, [body]);
+      if (bodies) bodies.push(trimmed);
+      else reasons.set(billNumber, [trimmed]);
     }
   }
 
