@@ -49,6 +49,32 @@ export async function findCurrentCouncilSession(
 }
 
 /**
+ * 指定日より後で最も近い、開会前の定例会を取得
+ * 会期日程・一般質問通告書などは公開されるが、議案の掲載はまだ先という
+ * 「開会前」の状態をトップページの「本日は」バーで案内するために使う
+ */
+export async function findNextUpcomingCouncilSession(
+  afterDate: string
+): Promise<CouncilSession | null> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from("council_sessions")
+    .select("*")
+    .gt("start_date", afterDate)
+    .order("start_date", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to fetch next upcoming council session:", error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
  * 全定例会を新しい順に取得（アクティブなものを除く、公開済み議案が1件以上あるもののみ）
  */
 export async function findAllPastCouncilSessions(): Promise<CouncilSession[]> {

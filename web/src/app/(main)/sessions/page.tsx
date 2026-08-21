@@ -39,6 +39,8 @@ export default async function SessionsPage() {
         billCount: billSummary.total,
         splitVoteCount: billSummary.splitVoteBills.length,
         generalQuestionsCount: generalQuestions.length,
+        // 採決の方法は会議録にしか記録がない。1件でも入っていれば会議録は反映済み
+        hasMinutes: bills.some((b) => b.vote_method !== null),
         hasMemberVotes: sessionIdsWithMemberVotes.has(session.id),
       };
 

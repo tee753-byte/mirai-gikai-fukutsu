@@ -21,6 +21,7 @@ import { HomeChatClient } from "@/features/chat/client/components/home-chat-clie
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
 import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
+import { getNextUpcomingCouncilSession } from "@/features/council-sessions/server/loaders/get-next-upcoming-council-session";
 import { getLatestSessionWithQuestions } from "@/features/general-questions/server/loaders/get-latest-session-with-questions";
 import { getFiscalYearsWithReports } from "@/features/seimu-katsudohi/server/loaders/get-fiscal-years-with-reports";
 import {
@@ -49,6 +50,12 @@ export default async function Home() {
     getFiscalYearsWithReports(),
   ]);
 
+  // 閉会中のときだけ、次に開会予定の定例会を調べる（「本日は」バーの案内用）
+  const upcomingSession =
+    currentSession == null
+      ? await getNextUpcomingCouncilSession(getJapanTime())
+      : null;
+
   const toBillChatContext = (bill: BillWithContent) => {
     return {
       name: `${bill.bill_content?.title}（${bill.name}）`,
@@ -67,7 +74,10 @@ export default async function Home() {
       <Hero />
 
       {/* 本日の定例会セクション */}
-      <CurrentCouncilSession session={currentSession} />
+      <CurrentCouncilSession
+        session={currentSession}
+        upcomingSession={upcomingSession}
+      />
 
       {/* トピックス（暮らしに関わりの大きいテーマ）
           市民に一番読んでほしい内容なので、各機能への入口より前に置く。
