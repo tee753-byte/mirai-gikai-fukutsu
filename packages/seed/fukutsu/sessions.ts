@@ -184,8 +184,7 @@ export const FUKUTSU_SESSIONS: FukutsuSession[] = [
     submittedAt: submittedAtR8_2,
   },
   {
-    // 会議録は令和8年8月20日に公開済み。市議会だよりはまだ出ていないため、
-    // 誰が賛成したかは載せられない
+    // 会議録は令和8年8月20日、議員別の賛否は議会だより86号（令和8年9月1日）で公開済み
     slug: R8_4_SESSION_SLUG,
     label: "r8-4",
     // biome-ignore lint/suspicious/noExplicitAny: 同上
@@ -193,13 +192,11 @@ export const FUKUTSU_SESSIONS: FukutsuSession[] = [
     plainTexts: PLAIN_TEXTS_R8_4,
     sourceUrl: R8_4_SOURCE_URL,
     documentsFile: "r8-4-bill-documents.json",
-    hasMemberVotes: false,
     decidedAt: decidedAtR8_4,
     submittedAt: submittedAtR8_4,
   },
   {
-    // 会議録は令和8年8月20日に公開済み。市議会だよりはまだ出ていないため、
-    // 誰が賛成したかは載せられない。
+    // 会議録は令和8年8月20日、議員別の賛否は議会だより86号（令和8年9月1日）で公開済み。
     // 会議録の公開前は main/data.ts 側（Fork元から引き継いだ経路）に置いていた
     slug: R8_6_SESSION_SLUG,
     label: "r8-6",
@@ -218,7 +215,6 @@ export const FUKUTSU_SESSIONS: FukutsuSession[] = [
         url: R8_6_KETSUGI_PDF_URL,
       },
     ],
-    hasMemberVotes: false,
     decidedAt: decidedAtR8_6,
     submittedAt: submittedAtR8_6,
   },
