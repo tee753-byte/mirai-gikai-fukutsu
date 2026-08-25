@@ -175,24 +175,41 @@ export async function findAllCouncilSessionsWithBills(): Promise<
 export async function findSessionIdsWithMemberVotes(): Promise<Set<string>> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("bill_member_votes")
-    .select("bills!inner(council_session_id)");
+  /*
+   * 賛否は1議案あたり議員の人数ぶん（17件）できるため、会期が増えるほど行が増える。
+   * PostgRESTは1回のリクエストで返す行数に上限（既定1000行）があり、まとめて
+   * 取ると古い会期のぶんで打ち切られ、新しい会期が「賛否なし」に見えてしまう。
+   * 会期の判定に必要なのは重複を除いたIDだけなので、上限ぶんずつ辿って集める。
+   */
+  const PAGE_SIZE = 1000;
+  const sessionIds = new Set<string>();
 
-  if (error) {
-    console.error("Failed to fetch sessions with member votes:", error);
-    return new Set();
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("bill_member_votes")
+      .select("bills!inner(council_session_id)")
+      .order("bill_id", { ascending: true })
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error) {
+      console.error("Failed to fetch sessions with member votes:", error);
+      return new Set();
+    }
+
+    const rows = (data ?? []) as unknown as {
+      bills: { council_session_id: string | null } | null;
+    }[];
+
+    for (const row of rows) {
+      if (row.bills?.council_session_id) {
+        sessionIds.add(row.bills.council_session_id);
+      }
+    }
+
+    if (rows.length < PAGE_SIZE) break;
   }
 
-  const rows = (data ?? []) as unknown as {
-    bills: { council_session_id: string | null } | null;
-  }[];
-
-  return new Set(
-    rows
-      .map((row) => row.bills?.council_session_id)
-      .filter((id): id is string => Boolean(id))
-  );
+  return sessionIds;
 }
 
 /**
