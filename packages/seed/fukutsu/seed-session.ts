@@ -25,13 +25,7 @@
  * （全消しして入れ直す）しか無いと、公開後にサイト全体が一瞬空になるため。
  * main/data.ts に定義が無いときは、そこに追加してから実行する。
  */
-import { createBillContents } from "../main/bill-contents-data";
-import {
-  bills,
-  councilSessions,
-  createBillsTags,
-  createFactionStances,
-} from "../main/data";
+import { councilSessions } from "../main/data";
 import { createAdminClient } from "../shared/helper";
 import { R8_3_SESSION_SLUG } from "./bills-r8-3";
 import { seedBillsForSession } from "./seed-bills-common";
@@ -45,15 +39,13 @@ import { seedMemberVotes } from "./seed-member-votes";
 import { seedMemberVotesR7_6 } from "./seed-member-votes-r7-6";
 import { seedMemberVotesR7_9 } from "./seed-member-votes-r7-9";
 import { seedMemberVotesR7_12 } from "./seed-member-votes-r7-12";
+import {
+  seedMemberVotesR8_4,
+  seedMemberVotesR8_6,
+} from "./seed-member-votes-r8-6";
 import { FUKUTSU_SESSIONS } from "./sessions";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
-
-/**
- * 令和8年6月定例会。会議録が未公開のため、議案一覧と議決結果だけを
- * main/data.ts と main/bill-contents-data.ts に持っている（他の会期と作りが違う）。
- */
-const R8_6_SESSION_SLUG = "r8-6";
 
 /**
  * 会期ごとの、議員別賛否の入れ方。**ここに載っていない会期には賛否を入れない。**
@@ -80,12 +72,14 @@ const MEMBER_VOTES_SEEDERS: Record<
   "r8-1": (supabase, sessionId) => seedMemberVotes(supabase, [sessionId]),
   "r8-2": (supabase, sessionId) => seedMemberVotes(supabase, [sessionId]),
   "r8-3": (supabase, sessionId) => seedMemberVotes(supabase, [sessionId]),
+  // 議会だより86号（4月臨時会・6月定例会の2会期分）
+  "r8-4": (supabase, sessionId) => seedMemberVotesR8_4(supabase, [sessionId]),
+  "r8-6": (supabase, sessionId) => seedMemberVotesR8_6(supabase, [sessionId]),
 };
 
-/** 入れ替えの対象にできる会期。r8-3 と r8-6 は個別実装があるので別扱い */
+/** 入れ替えの対象にできる会期。r8-3 だけは予算があり個別実装なので別扱い */
 const SUPPORTED_SLUGS = [
   R8_3_SESSION_SLUG,
-  R8_6_SESSION_SLUG,
   ...FUKUTSU_SESSIONS.map((s) => s.slug),
 ];
 
@@ -192,59 +186,6 @@ async function deleteSessionData(
   }
 }
 
-/**
- * 令和8年6月定例会を入れ直す。
- *
- * この会期だけ議案データの持ち方が違う（会議録が未公開で、議案一覧と議決結果
- * だけを main/data.ts に持っている）ため、run.ts と同じ手順をここに写している。
- * 会派の見解（faction_stances）も、この会期の議案にだけ付いている。
- */
-async function insertR8_6(
-  supabase: AdminClient,
-  sessionId: string,
-  tagIdByLabel: Map<string, string>
-): Promise<void> {
-  const { data: inserted, error } = await supabase
-    .from("bills")
-    .insert(bills.map((b) => ({ ...b, council_session_id: sessionId })))
-    .select("id, name");
-
-  if (error) throw new Error(`議案の投入に失敗しました: ${error.message}`);
-  if (!inserted) throw new Error("議案が1件も投入されませんでした");
-
-  const contents = await supabase
-    .from("bill_contents")
-    .insert(createBillContents(inserted));
-  if (contents.error) {
-    throw new Error(`説明の投入に失敗しました: ${contents.error.message}`);
-  }
-
-  const tags = [...tagIdByLabel].map(([label, id]) => ({ id, label }));
-  const billsTags = await supabase
-    .from("bills_tags")
-    .insert(createBillsTags(inserted, tags));
-  if (billsTags.error) {
-    throw new Error(`タグの紐付けに失敗しました: ${billsTags.error.message}`);
-  }
-
-  const { data: mirai } = await supabase
-    .from("factions")
-    .select("id")
-    .eq("name", "mirai")
-    .maybeSingle();
-
-  if (mirai) {
-    const stances = await supabase
-      .from("faction_stances")
-      .insert(createFactionStances(inserted, mirai.id));
-    if (stances.error) {
-      throw new Error(`会派の見解の投入に失敗しました: ${stances.error.message}`);
-    }
-  }
-
-  console.log(`✅ Inserted ${inserted.length} r8-6 bills`);
-}
-
 async function insertSessionData(
   supabase: AdminClient,
   sessionId: string,
@@ -268,9 +209,7 @@ async function insertSessionData(
     );
   }
 
-  if (slug === R8_6_SESSION_SLUG) {
-    await insertR8_6(supabase, sessionId, tagIdByLabel);
-  } else if (slug === R8_3_SESSION_SLUG) {
+  if (slug === R8_3_SESSION_SLUG) {
     await seedBillsR8_3(supabase, sessionId, tagIdByLabel, committeeIdByName);
     const budget = await seedBudgetR8_3(supabase, sessionId);
     console.log(
