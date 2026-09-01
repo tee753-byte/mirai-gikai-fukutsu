@@ -24,6 +24,8 @@ export type PreviewQuestion = {
 export type PreviewQuestionDay = {
   tag: string;
   date: string;
+  /** date の YYYY-MM-DD 表記。今日と突き合わせて「本日の登壇者」を出すのに使う */
+  isoDate: string;
   members: {
     name: string;
     questions: PreviewQuestion[];
@@ -86,6 +88,7 @@ const SESSION_PREVIEW_DATA: Record<string, SessionPreviewData> = {
       {
         tag: "本会②",
         date: "9月1日（火）",
+        isoDate: "2026-09-01",
         members: [
           {
             name: "中村清隆",
@@ -155,6 +158,7 @@ const SESSION_PREVIEW_DATA: Record<string, SessionPreviewData> = {
       {
         tag: "本会③",
         date: "9月2日（水）",
+        isoDate: "2026-09-02",
         members: [
           {
             name: "井手口忠信",
@@ -206,6 +210,7 @@ const SESSION_PREVIEW_DATA: Record<string, SessionPreviewData> = {
       {
         tag: "本会④",
         date: "9月3日（木）",
+        isoDate: "2026-09-03",
         members: [
           {
             name: "豆田優子",
@@ -271,6 +276,7 @@ const SESSION_PREVIEW_DATA: Record<string, SessionPreviewData> = {
       {
         tag: "本会⑤",
         date: "9月4日（金）",
+        isoDate: "2026-09-04",
         members: [
           {
             name: "岩下　豊",
@@ -439,4 +445,17 @@ const SESSION_PREVIEW_DATA: Record<string, SessionPreviewData> = {
 
 export function getSessionPreviewData(slug: string): SessionPreviewData | null {
   return SESSION_PREVIEW_DATA[slug] ?? null;
+}
+
+/**
+ * 今日が一般質問の登壇日なら、その日の登壇者一覧を返す。
+ * トップページの「本日は開会中」バーで、その日の登壇者をその場で案内するために使う。
+ */
+export function getTodayQuestionDay(
+  slug: string,
+  todayIso: string
+): PreviewQuestionDay | null {
+  const preview = SESSION_PREVIEW_DATA[slug];
+  if (!preview) return null;
+  return preview.questionDays.find((day) => day.isoDate === todayIso) ?? null;
 }

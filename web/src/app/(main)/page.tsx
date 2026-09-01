@@ -19,6 +19,7 @@ import type { BillWithContent } from "@/features/bills/shared/types";
 import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { HomeChatClient } from "@/features/chat/client/components/home-chat-client";
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
+import { getTodayQuestionDay } from "@/features/council-sessions/server/data/session-preview-data";
 import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
 import { getNextUpcomingCouncilSession } from "@/features/council-sessions/server/loaders/get-next-upcoming-council-session";
@@ -28,7 +29,7 @@ import {
   buildOrganizationSchema,
   buildWebSiteSchema,
 } from "@/lib/structured-data";
-import { getJapanTime } from "@/lib/utils/date";
+import { getJapanTime, toISODate } from "@/lib/utils/date";
 
 export default async function Home() {
   const { billsByTag, featuredBills } = await loadHomeData();
@@ -56,6 +57,12 @@ export default async function Home() {
       ? await getNextUpcomingCouncilSession(getJapanTime())
       : null;
 
+  // 開会中で、かつ今日が一般質問の登壇日なら、その日の登壇者を「本日は」バーに出す
+  const todayQuestionDay =
+    currentSession?.slug != null
+      ? getTodayQuestionDay(currentSession.slug, toISODate(getJapanTime()))
+      : null;
+
   const toBillChatContext = (bill: BillWithContent) => {
     return {
       name: `${bill.bill_content?.title}（${bill.name}）`,
@@ -77,6 +84,7 @@ export default async function Home() {
       <CurrentCouncilSession
         session={currentSession}
         upcomingSession={upcomingSession}
+        todayQuestionDay={todayQuestionDay}
       />
 
       {/* トピックス（暮らしに関わりの大きいテーマ）

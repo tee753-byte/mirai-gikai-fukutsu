@@ -46,3 +46,15 @@ export function getJapanTime(): Date {
     new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" })
   );
 }
+
+/**
+ * getJapanTime() が返す Date を YYYY-MM-DD 形式にする（ゼロ埋めあり）
+ * getJapanTime() は toLocaleString 経由のためタイムゾーン情報を持たず、
+ * 呼び出し元の実行環境のローカル時刻として getFullYear 等を呼ぶ必要がある
+ */
+export function toISODate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
