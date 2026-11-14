@@ -1,4 +1,4 @@
-import type { GeneralQuestion, QuestionType } from "../types";
+import type { GeneralQuestion, QuestionType, RecordKind } from "../types";
 
 /** 1つの定例会での、その議員の一般質問・総括質疑 */
 export type QuestionerSessionEntry = {
@@ -8,7 +8,15 @@ export type QuestionerSessionEntry = {
   /** 定例会の開始日。新しい順に並べるために使う */
   sessionStartDate: string | null;
   questionType: QuestionType;
+  /**
+   * 'attendance_only' は星取表のためだけの記録で、要旨・トピックを持たない。
+   * 記事として一覧に出すときはこれを除く（getQuestionerGroups側で既に
+   * 除かれているが、星取表用の getAttendanceQuestionerGroups は含めて返す）。
+   */
+  recordKind: RecordKind;
   summary: string | null;
+  /** 録画（gikaifukutsu.org）へのリンク。無い場合は null */
+  videoUrl: string | null;
   /**
    * このデータを最後に更新した日時。
    * サイトマップの lastmod（検索エンジンに「いつ更新したか」を伝える値）に使う。
@@ -73,7 +81,9 @@ export function buildQuestionerGroups(
       sessionSlug: q.session_slug,
       sessionStartDate: q.session_start_date,
       questionType: q.question_type,
+      recordKind: q.record_kind,
       summary: q.summary,
+      videoUrl: q.video_url,
       updatedAt: q.updated_at,
       topicTitles: q.topics.map((t) => t.title),
       hasTranscript: Boolean(q.raw_text),

@@ -37,7 +37,11 @@ import { seedBillsR8_3 } from "../fukutsu/seed-bills-r8-3";
 import { seedBudgetR8_3 } from "../fukutsu/seed-budget-r8-3";
 import { seedBillsForSession } from "../fukutsu/seed-bills-common";
 import { FUKUTSU_SESSIONS } from "../fukutsu/sessions";
-import { seedGeneralQuestionsForSession } from "../fukutsu/seed-general-questions";
+import { ATTENDANCE_ONLY_SESSION_SLUGS } from "../fukutsu/attendance-recordings-data";
+import {
+  seedAttendanceOnlyRecordsForSession,
+  seedGeneralQuestionsForSession,
+} from "../fukutsu/seed-general-questions";
 import { R7_12_SESSION_SLUG } from "../fukutsu/bills-r7-12";
 import { R8_1_SESSION_SLUG } from "../fukutsu/bills-r8-1";
 import { R8_2_SESSION_SLUG } from "../fukutsu/bills-r8-2";
@@ -332,6 +336,34 @@ async function seedDatabase() {
 
     console.log(
       `✅ Inserted ${insertedGeneralQuestionsCount} general questions`
+    );
+
+    // 星取表専用の登壇記録（record_kind = 'attendance_only'）
+    // 議案データが無く記事化していない令和5年3月〜令和7年3月の9回分
+    console.log("🙋 Inserting attendance-only records...");
+    let insertedAttendanceOnlyCount = 0;
+
+    for (const slug of ATTENDANCE_ONLY_SESSION_SLUGS) {
+      const attendanceSession = insertedCouncilSessions.find(
+        (s) => s.slug === slug
+      );
+
+      if (!attendanceSession) {
+        console.log(
+          `⚠️ Council session "${slug}" not found. Skipped its attendance-only records.`
+        );
+        continue;
+      }
+
+      insertedAttendanceOnlyCount += await seedAttendanceOnlyRecordsForSession(
+        supabase,
+        attendanceSession.id,
+        slug
+      );
+    }
+
+    console.log(
+      `✅ Inserted ${insertedAttendanceOnlyCount} attendance-only records`
     );
 
     // Insert bill_contents（上と同じくFork元から引き継いだ経路。通常は空）

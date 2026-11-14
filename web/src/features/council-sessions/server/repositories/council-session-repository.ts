@@ -213,6 +213,32 @@ export async function findSessionIdsWithMemberVotes(): Promise<Set<string>> {
 }
 
 /**
+ * 一番新しい定例会を1件取得（is_active・開催期間を問わない）
+ *
+ * トップページの予告埋め込みは「今日が会期の期間内か」ではなく「一番新しい会期に
+ * まだ実データが無いか」で出し分けたい。閉会した瞬間に currentSession（期間判定）が
+ * null になっても、速報の実データが入るまでは予告を出し続けるため、期間に関係なく
+ * 単純に start_date が一番新しい行を返す。
+ */
+export async function findLatestCouncilSession(): Promise<CouncilSession | null> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from("council_sessions")
+    .select("*")
+    .order("start_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to fetch latest council session:", error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
  * 指定日より前の直近の定例会を取得
  */
 export async function findPreviousCouncilSession(

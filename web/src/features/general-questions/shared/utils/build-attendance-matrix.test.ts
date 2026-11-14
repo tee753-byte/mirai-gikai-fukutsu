@@ -48,7 +48,9 @@ function makeQuestioner(
       sessionStartDate: null,
       questionType: (s.questionType ??
         "general") as Questioner["entries"][number]["questionType"],
+      recordKind: "question" as Questioner["entries"][number]["recordKind"],
       summary: null,
+      videoUrl: null,
       updatedAt: "2026-01-01T00:00:00Z",
       topicTitles: [],
       hasTranscript: true,

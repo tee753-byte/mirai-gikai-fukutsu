@@ -179,6 +179,16 @@ export default async function QuestionerDetailPage({ params }: Props) {
                       <ArrowRight className="h-3 w-3" />
                     </Link>
                   </Button>
+                  {entry.videoUrl && (
+                    <Link
+                      href={entry.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-mirai-text-secondary hover:underline"
+                    >
+                      録画を見る
+                    </Link>
+                  )}
                   {entry.sessionSlug && (
                     <Link
                       href={`/sessions/${entry.sessionSlug}/questions`}

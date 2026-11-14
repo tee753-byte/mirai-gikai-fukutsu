@@ -11,6 +11,8 @@
     "seed": "dotenv -e .env -- pnpm --filter @mirai-gikai/seed seed",
     "seed:session": "dotenv -e .env -- pnpm --filter @mirai-gikai/seed seed:session",
     "seed:session:prod": "dotenv -e .env.production -- pnpm --filter @mirai-gikai/seed seed:session",
+    "backfill:video-urls": "dotenv -e .env -- pnpm --filter @mirai-gikai/seed backfill:video-urls",
+    "backfill:video-urls:prod": "dotenv -e .env.production -- pnpm --filter @mirai-gikai/seed backfill:video-urls",
     "seed:csv": "dotenv -e .env -- pnpm --filter @mirai-gikai/seed seed:csv",
     "test": "pnpm -r --parallel run test",
     "test:coverage": "pnpm -r --parallel run test:coverage",

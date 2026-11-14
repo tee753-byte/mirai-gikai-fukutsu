@@ -12,8 +12,52 @@ export type GeneralQuestionWithSessionName = GeneralQuestion & {
 /**
  * 公開済みの一般質問を、定例会の情報つきで全件取得する。
  * 議員別ページで、1人の議員の質問を定例会をまたいで並べるために使う。
+ *
+ * `record_kind = 'question'` のみを返す。星取表専用の軽いレコード
+ * （`attendance_only`）は要旨・トピックを持たず記事として成立しないため、
+ * ここでは含めない（星取表には findAllQuestionRecordsForAttendance を使う）。
  */
 export async function findAllPublishedGeneralQuestions(): Promise<
+  GeneralQuestionWithSession[]
+> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("general_questions")
+    .select("*, council_sessions(name, slug, start_date)")
+    .eq("publish_status", "published")
+    .eq("record_kind", "question")
+    .order("question_order", { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to fetch general questions: ${error.message}`);
+  }
+
+  return (data ?? []).map((row) => {
+    const { council_sessions, ...question } = row as typeof row & {
+      council_sessions: {
+        name: string;
+        slug: string | null;
+        start_date: string | null;
+      } | null;
+    };
+    return {
+      ...question,
+      topics: Array.isArray(question.topics) ? question.topics : [],
+      session_name: council_sessions?.name ?? "",
+      session_slug: council_sessions?.slug ?? null,
+      session_start_date: council_sessions?.start_date ?? null,
+    };
+  }) as GeneralQuestionWithSession[];
+}
+
+/**
+ * 公開済みの一般質問・登壇記録を、種別を問わず全件取得する。
+ *
+ * 定例会ごとの登壇状況（星取表）は「誰が登壇したか」だけが分かればよく、
+ * 要旨・トピックを持たない `attendance_only` のレコードも数える必要がある。
+ * 記事として表示する一覧（findAllPublishedGeneralQuestions）とは別に用意する。
+ */
+export async function findAllQuestionRecordsForAttendance(): Promise<
   GeneralQuestionWithSession[]
 > {
   const supabase = createAdminClient();
@@ -24,7 +68,9 @@ export async function findAllPublishedGeneralQuestions(): Promise<
     .order("question_order", { ascending: true });
 
   if (error) {
-    throw new Error(`Failed to fetch general questions: ${error.message}`);
+    throw new Error(
+      `Failed to fetch general question records: ${error.message}`
+    );
   }
 
   return (data ?? []).map((row) => {
@@ -54,6 +100,7 @@ export async function findPublishedGeneralQuestionsBySession(
     .select("*")
     .eq("council_session_id", sessionId)
     .eq("publish_status", "published")
+    .eq("record_kind", "question")
     .order("session_day", { ascending: true })
     .order("question_order", { ascending: true });
 
@@ -75,7 +122,8 @@ export async function findLatestSessionSlugWithPublishedQuestions(): Promise<
   const { data: rows, error: qErr } = await supabase
     .from("general_questions")
     .select("council_session_id")
-    .eq("publish_status", "published");
+    .eq("publish_status", "published")
+    .eq("record_kind", "question");
 
   if (qErr || !rows?.length) return null;
 
@@ -113,6 +161,7 @@ export async function findPublishedGeneralQuestionById(
     .select("*, council_sessions(name, slug)")
     .eq("id", id)
     .eq("publish_status", "published")
+    .eq("record_kind", "question")
     .single();
 
   if (error) {

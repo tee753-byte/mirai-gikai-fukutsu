@@ -21,6 +21,8 @@ function makeQuestion(
     topics: [],
     raw_text: null,
     source_url: null,
+    video_url: null,
+    record_kind: "question",
     publish_status: "published",
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",

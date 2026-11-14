@@ -5,8 +5,8 @@ import {
   isSessionInCurrentTerm,
   toAttendanceSession,
 } from "../../shared/utils/build-attendance-matrix";
-import { getQuestionerGroups } from "./get-questioner-groups";
-import { getSessionsWithQuestions } from "./get-sessions-with-questions";
+import { getAttendanceQuestionerGroups } from "./get-questioner-groups";
+import { getSessionsWithAttendanceRecords } from "./get-sessions-with-questions";
 
 export type AttendanceMatrixResult = {
   matrix: AttendanceMatrix;
@@ -21,8 +21,8 @@ export type AttendanceMatrixResult = {
  */
 export async function getAttendanceMatrix(): Promise<AttendanceMatrixResult> {
   const [questioners, allSessions] = await Promise.all([
-    getQuestionerGroups(),
-    getSessionsWithQuestions(),
+    getAttendanceQuestionerGroups(),
+    getSessionsWithAttendanceRecords(),
   ]);
 
   // getSessionsWithQuestions は新しい順に返すので、表示に合わせて古い順に直す

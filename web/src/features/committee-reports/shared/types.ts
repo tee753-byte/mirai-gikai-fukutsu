@@ -25,6 +25,12 @@ export type CommitteeReportGroup = {
   /** 審査年月日 */
   reviewedAt: string;
   sourceUrl: string;
+  /**
+   * 委員会審査の録画（福津市議会公式・YouTube）へのリンク。
+   * 常任委員会のネット中継・録画配信は令和8年9月定例会から始まったため、
+   * それより前の会期では持たない（省略時は録画リンクを出さない）。
+   */
+  videoUrl?: string;
   reviews: CommitteeReportBillReview[];
 };
 

@@ -5,7 +5,10 @@ import {
   buildQuestionerGroups,
   type QuestionerGroup,
 } from "../../shared/utils/build-questioner-groups";
-import { findAllPublishedGeneralQuestions } from "../repositories/general-questions-repository";
+import {
+  findAllPublishedGeneralQuestions,
+  findAllQuestionRecordsForAttendance,
+} from "../repositories/general-questions-repository";
 
 /**
  * 名簿上はいるが、一般質問も総括質疑も一度も行っていない議員を0回の議員として補う。
@@ -46,6 +49,33 @@ const _getCached = unstable_cache(
     return fillMissingRosterMembers(groups);
   },
   ["general-questions-questioner-groups"],
+  {
+    revalidate: 600,
+    tags: [CACHE_TAGS.GENERAL_QUESTIONS],
+  }
+);
+
+/**
+ * 星取表専用。一般質問・総括質疑に加え、記事化していない登壇記録
+ * （record_kind = 'attendance_only'）も含めて議員ごとにまとめる。
+ *
+ * 議員一覧ページのカード表示（getQuestionerGroups）とは異なり、
+ * 「その定例会に登壇したか」の判定にしか使わない。
+ */
+export async function getAttendanceQuestionerGroups(): Promise<
+  QuestionerGroup[]
+> {
+  return _getAttendanceCached();
+}
+
+const _getAttendanceCached = unstable_cache(
+  async (): Promise<QuestionerGroup[]> => {
+    const groups = buildQuestionerGroups(
+      await findAllQuestionRecordsForAttendance()
+    );
+    return fillMissingRosterMembers(groups);
+  },
+  ["general-questions-attendance-questioner-groups"],
   {
     revalidate: 600,
     tags: [CACHE_TAGS.GENERAL_QUESTIONS],

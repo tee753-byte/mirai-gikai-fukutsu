@@ -1,9 +1,10 @@
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, PlayCircle } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
 import { JsonLd } from "@/components/seo/json-ld";
+import { Button } from "@/components/ui/button";
 import { QuestionDetailView } from "@/features/general-questions/client/components/question-detail-view";
 import { getGeneralQuestionById } from "@/features/general-questions/server/loaders/get-general-question-by-id";
 import { toQuestionerSlug } from "@/features/general-questions/shared/utils/build-questioner-groups";
@@ -99,6 +100,24 @@ export default async function GeneralQuestionDetailPage({ params }: Props) {
           )}
           {dayLabel}
         </p>
+
+        {/*
+          録画リンクは見出しの直後、一番目立つ位置に置く。
+          会議録の公開（3か月後）を待たずに実際のやり取りを見てもらえる、
+          このページで一番リンクしたい・共有したい先のため。
+        */}
+        {question.video_url && (
+          <Button asChild className="mt-4">
+            <Link
+              href={question.video_url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <PlayCircle className="w-4 h-4" />
+              録画を見る（福津市議会公式）
+            </Link>
+          </Button>
+        )}
       </div>
 
       {question.summary && (

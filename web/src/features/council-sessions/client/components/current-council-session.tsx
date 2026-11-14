@@ -17,18 +17,31 @@ type CurrentCouncilSessionProps = {
    * 「本日は」バーでその場で誰が質問するか分かるように案内する。
    */
   todayQuestionDay?: PreviewQuestionDay | null;
+  /**
+   * このバーの下に、予告カード（SessionPreviewBanner）がすでに表示されているか。
+   * 表示されている場合、末尾の「会期日程・一般質問予定を見る」リンクは
+   * 予告カードの「会期日程・すべて見る」と行き先が同じで並ぶと二重になるため、
+   * ここでは出さない（本日の登壇者へのピンポイントリンクは、予告カードでは
+   * 代わりが効かないため出したままにする）。
+   */
+  hasPreviewBanner?: boolean;
 };
 
 export function CurrentCouncilSession({
   session,
   upcomingSession,
   todayQuestionDay,
+  hasPreviewBanner,
 }: CurrentCouncilSessionProps) {
   const showUpcoming =
     session == null && upcomingSession != null && upcomingSession.slug;
-  const showCurrentSchedule = session != null && session.slug;
   const showTodayQuestionDay =
     session != null && session.slug && todayQuestionDay != null;
+  // 予告カードが出るなら、今日の登壇者への案内以外は予告カード側に譲って重複を避ける
+  const showCurrentSchedule =
+    session != null &&
+    session.slug &&
+    (showTodayQuestionDay || !hasPreviewBanner);
 
   return (
     <div className="w-full bg-mirai-surface-warm px-6 py-6">

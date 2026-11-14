@@ -24,15 +24,25 @@
  * 定義を使って会期の行から作る。新しい定例会を本番に載せる手段が pnpm seed
  * （全消しして入れ直す）しか無いと、公開後にサイト全体が一瞬空になるため。
  * main/data.ts に定義が無いときは、そこに追加してから実行する。
+ *
+ * 【注意：既に実データがある会期に対して「一部フィールドだけ直したい」場合は使わない】
+ * このスクリプトは bills/general_questions を id を指定せず insert するため、
+ * 実行のたびにDBが新しいUUIDを振り直す。/bills/{id}・/questions/{id} は
+ * その素のUUIDをURLに使っているため、実行するたびに対象会期の全URLが変わり、
+ * Googleに登録済みだったURLが軒並み404になる（2026-09-18、Search Consoleの
+ * 404急増から発覚）。video_url の後付けのような軽微な更新には、代わりに
+ * `backfill-question-video-urls.ts`（idを変えずUPDATEする）を使う。
  */
 import { councilSessions } from "../main/data";
 import { createAdminClient } from "../shared/helper";
+import { ATTENDANCE_ONLY_SESSION_SLUGS } from "./attendance-recordings-data";
 import { R8_3_SESSION_SLUG } from "./bills-r8-3";
 import { seedBillsForSession } from "./seed-bills-common";
 import { seedBillsR8_3 } from "./seed-bills-r8-3";
 import { seedBudgetR8_3 } from "./seed-budget-r8-3";
 import {
   findGeneralQuestions,
+  seedAttendanceOnlyRecordsForSession,
   seedGeneralQuestionsForSession,
 } from "./seed-general-questions";
 import { seedMemberVotes } from "./seed-member-votes";
@@ -77,11 +87,17 @@ const MEMBER_VOTES_SEEDERS: Record<
   "r8-6": (supabase, sessionId) => seedMemberVotesR8_6(supabase, [sessionId]),
 };
 
-/** 入れ替えの対象にできる会期。r8-3 だけは予算があり個別実装なので別扱い */
-const SUPPORTED_SLUGS = [
-  R8_3_SESSION_SLUG,
-  ...FUKUTSU_SESSIONS.map((s) => s.slug),
-];
+/**
+ * 入れ替えの対象にできる会期。
+ *
+ * main/data.ts の councilSessions が全会期の定義を持つ唯一の場所なので、
+ * それをそのまま対象にする。議案データがまだ無い会期（開会したばかりで
+ * 速報も出せない状態）も、council_sessions の行だけ先に作れるように
+ * 対象に含める（insertSessionData 側で議案が無ければスキップする）。
+ */
+const SUPPORTED_SLUGS = councilSessions
+  .map((s) => s.slug)
+  .filter((slug): slug is string => Boolean(slug));
 
 async function findSessionId(
   supabase: AdminClient,
@@ -191,6 +207,18 @@ async function insertSessionData(
   sessionId: string,
   slug: string
 ): Promise<void> {
+  // 議案データが無い会期（星取表専用）は、タグ・委員会も議案も要らない。
+  // 登壇記録だけを投入して終わる。
+  if ((ATTENDANCE_ONLY_SESSION_SLUGS as readonly string[]).includes(slug)) {
+    const count = await seedAttendanceOnlyRecordsForSession(
+      supabase,
+      sessionId,
+      slug
+    );
+    console.log(`✅ 登壇記録（星取表用）: ${count}件`);
+    return;
+  }
+
   const { data: tags } = await supabase.from("tags").select("id, label");
   const { data: committees } = await supabase
     .from("committees")
@@ -217,7 +245,17 @@ async function insertSessionData(
     );
   } else {
     const session = FUKUTSU_SESSIONS.find((s) => s.slug === slug);
-    if (!session) throw new Error(`会期の定義が見つかりません: ${slug}`);
+    if (!session) {
+      // 会期は開いたが議案データがまだ無い状態（速報の前段階）。
+      // council_sessions の行だけ作って、トップページの「本日は」バーが
+      // 開会中を示せるようにする。議案・一般質問は後で
+      // FUKUTSU_SESSIONS / general-questions-data.ts に足してから
+      // このスラッグで再実行すれば入る。
+      console.log(
+        `ℹ️  議案: "${slug}" のデータはまだ無いため投入しない（会期の行だけ作成）`
+      );
+      return;
+    }
 
     await seedBillsForSession({
       supabase,

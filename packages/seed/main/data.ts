@@ -24,6 +24,26 @@ type InterviewReportInsert =
 // 出典: https://www.city.fukutsu.lg.jp/gikai/nittei/index.html
 export const councilSessions: CouncilSessionInsert[] = [
   {
+    // 議案書は入手済み（2026-09-12時点）だが、議決結果は9月18日の閉会後。
+    // 議案・一般質問はまだ入れず、会期の行だけ先に作る
+    // （トップページの「本日は」バーを開会中と正しく表示させるため）。
+    //
+    // is_active はあえて立てない。is_active は「今の会期の期間か」ではなく
+    // 「注目の議案・タグ別議案一覧・/questions のリダイレクト先など、
+    // “今掲載できる中身がある会期はどれか” を指す値として使われている
+    // （getFeaturedBills / getBillsByFeaturedTags / questions/page.tsx 参照）。
+    // 議案が1件も無いこの会期を is_active にすると、これらのセクションが
+    // 軒並み空になってしまう（2026-09-13に発生・修正）。議案・一般質問が
+    // 入ったら、この行を true にして r8-6 を false にする
+    // （もしくは本番では管理画面の「アクティブにする」ボタンで切り替える）。
+    name: "令和8年 9月定例会",
+    slug: "r8-9",
+    council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/20419.html",
+    start_date: "2026-08-27",
+    end_date: "2026-09-18",
+    is_active: false,
+  },
+  {
     name: "令和8年 6月定例会",
     slug: "r8-6",
     council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19863.html",
@@ -85,6 +105,75 @@ export const councilSessions: CouncilSessionInsert[] = [
     council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_6/17865.html",
     start_date: "2025-06-06",
     end_date: "2025-06-30",
+    is_active: false,
+  },
+  // 令和5年3月〜令和7年3月（9回）は、星取表（定例会ごとの登壇状況）の
+  // ためだけに定義する。議案データが無く記事化していないため
+  // findAllCouncilSessionsWithBills（会期一覧に使う）には出てこない。
+  // start_date / end_date は録画の収録日（一般質問・総括質疑を行った日）を
+  // 元にした概算で、正式な会期日程ではない（並び順にしか使わないため）。
+  // [[fukutsu-attendance-matrix]] [[fukutsu-publication-stages]]
+  {
+    name: "令和7年 3月定例会",
+    slug: "r7-3",
+    start_date: "2025-03-24",
+    end_date: "2025-03-26",
+    is_active: false,
+  },
+  {
+    name: "令和6年 12月定例会",
+    slug: "r6-12",
+    start_date: "2024-11-21",
+    end_date: "2024-11-26",
+    is_active: false,
+  },
+  {
+    name: "令和6年 9月定例会",
+    slug: "r6-9",
+    start_date: "2024-08-28",
+    end_date: "2024-09-03",
+    is_active: false,
+  },
+  {
+    name: "令和6年 6月定例会",
+    slug: "r6-6",
+    start_date: "2024-06-04",
+    end_date: "2024-06-10",
+    is_active: false,
+  },
+  {
+    name: "令和6年 3月定例会",
+    slug: "r6-3",
+    start_date: "2024-02-29",
+    end_date: "2024-03-19",
+    is_active: false,
+  },
+  {
+    name: "令和5年 12月定例会",
+    slug: "r5-12",
+    start_date: "2023-11-22",
+    end_date: "2023-11-28",
+    is_active: false,
+  },
+  {
+    name: "令和5年 9月定例会",
+    slug: "r5-9",
+    start_date: "2023-08-30",
+    end_date: "2023-09-04",
+    is_active: false,
+  },
+  {
+    name: "令和5年 6月定例会",
+    slug: "r5-6",
+    start_date: "2023-06-13",
+    end_date: "2023-06-20",
+    is_active: false,
+  },
+  {
+    name: "令和5年 3月定例会",
+    slug: "r5-3",
+    start_date: "2023-03-03",
+    end_date: "2023-03-16",
     is_active: false,
   },
 ];

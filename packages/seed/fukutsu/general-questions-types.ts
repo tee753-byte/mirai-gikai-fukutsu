@@ -61,6 +61,11 @@ export type SeedGeneralQuestion = {
   question_type?: "general" | "sokatsu_shitsugi";
   summary: string;
   topics: SeedTopic[];
+  /**
+   * 録画（gikaifukutsu.org）へのリンク。会議録の公開前でも案内できるように
+   * 添える。省略時（録画が見当たらない場合）は投入しない。
+   */
+  video_url?: string;
 };
 
 /**

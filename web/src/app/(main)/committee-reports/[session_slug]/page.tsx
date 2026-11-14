@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -77,8 +77,19 @@ export default async function CommitteeReportSessionPage({
                   {committeeName}
                 </h2>
                 {group && (
-                  <span className="text-xs text-mirai-text-muted">
+                  <span className="flex items-center gap-3 text-xs text-mirai-text-muted">
                     審査年月日: {group.reviewedAt}
+                    {group.videoUrl && (
+                      <Link
+                        href={group.videoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        録画を見る
+                      </Link>
+                    )}
                   </span>
                 )}
               </div>

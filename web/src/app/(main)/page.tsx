@@ -19,10 +19,16 @@ import type { BillWithContent } from "@/features/bills/shared/types";
 import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { HomeChatClient } from "@/features/chat/client/components/home-chat-client";
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
-import { getTodayQuestionDay } from "@/features/council-sessions/server/data/session-preview-data";
+import { SessionPreviewContent } from "@/features/council-sessions/server/components/session-preview-content";
+import {
+  getSessionPreviewData,
+  getTodayQuestionDay,
+} from "@/features/council-sessions/server/data/session-preview-data";
 import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
+import { getLatestCouncilSession } from "@/features/council-sessions/server/loaders/get-latest-council-session";
 import { getNextUpcomingCouncilSession } from "@/features/council-sessions/server/loaders/get-next-upcoming-council-session";
+import { isSessionOpen } from "@/features/council-sessions/shared/utils/is-session-open";
 import { getLatestSessionWithQuestions } from "@/features/general-questions/server/loaders/get-latest-session-with-questions";
 import { getFiscalYearsWithReports } from "@/features/seimu-katsudohi/server/loaders/get-fiscal-years-with-reports";
 import {
@@ -37,6 +43,7 @@ export default async function Home() {
   // ゆくゆくタグ機能がマージされたらBFFに統合する
   const [
     currentSession,
+    latestSession,
     currentDifficulty,
     pastSessions,
     budgetSessions,
@@ -44,6 +51,7 @@ export default async function Home() {
     seimuKatsudohiFiscalYears,
   ] = await Promise.all([
     getCurrentCouncilSession(getJapanTime()),
+    getLatestCouncilSession(),
     getDifficultyLevel(),
     getAllPastSessions(),
     getSessionsWithBudget(),
@@ -62,6 +70,24 @@ export default async function Home() {
     currentSession?.slug != null
       ? getTodayQuestionDay(currentSession.slug, toISODate(getJapanTime()))
       : null;
+
+  // 一番新しい会期に、まだ議案の内容を掲載できていない場合だけ「予告」を出す
+  // （議案の内容が掲載され始めたら session-preview-data.ts 側でこの会期のデータを消す）
+  //
+  // あえて currentSession（開催期間内かどうかの日付判定）ではなく latestSession
+  // （単純に一番新しい会期）を使う。会期が閉会した瞬間に currentSession は null に
+  // なるが、速報の実データが入るまでには数日かかるため、期間に関係なく「一番新しい
+  // 会期にまだ実データが無いか」で出し分けないと、閉会直後にトップページから
+  // 予告が消えて空白期間ができてしまう（2026-09-18に発覚）
+  const sessionPreview =
+    latestSession?.slug != null
+      ? getSessionPreviewData(latestSession.slug)
+      : null;
+
+  // 「予告」中の会期が今日時点でまだ開催中かどうか（バッジ・文言の出し分け用）
+  const isLatestSessionOpen =
+    latestSession != null &&
+    isSessionOpen(latestSession, toISODate(getJapanTime()));
 
   const toBillChatContext = (bill: BillWithContent) => {
     return {
@@ -85,7 +111,28 @@ export default async function Home() {
         session={currentSession}
         upcomingSession={upcomingSession}
         todayQuestionDay={todayQuestionDay}
+        hasPreviewBanner={sessionPreview != null}
       />
+
+      {/*
+        一番新しい会期の予告（まだ議案の内容を掲載できていない会期のみ）
+        「本日は」バーの直後に置く。会期日程・一般質問予定・議案等一覧をまるごと
+        トップページに出す（予告ページ /sessions/[slug]/preview と同じ内容）。
+        「一覧に飛ばないと今なにが話し合われているか分からない」との指摘を受けて、
+        2026-09-13にバナー1行から現在の形に変更した。開催期間が終わっても
+        （currentSessionがnullになっても）速報の実データが入るまでは出し続ける
+        （2026-09-18、latestSessionベースに変更）。
+      */}
+      {sessionPreview && latestSession && (
+        <Container className="pt-6">
+          <SessionPreviewContent
+            session={latestSession}
+            preview={sessionPreview}
+            headingLevel="h2"
+            isOpen={isLatestSessionOpen}
+          />
+        </Container>
+      )}
 
       {/* トピックス（暮らしに関わりの大きいテーマ）
           市民に一番読んでほしい内容なので、各機能への入口より前に置く。
