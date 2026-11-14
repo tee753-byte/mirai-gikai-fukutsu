@@ -23,6 +23,10 @@
  *   [[fukutsu-attendance-matrix]] 参照）。
  */
 
+/** 令和8年9月定例会の録画一覧ページ（福津市議会）。9月1日分の個別録画の代わりに使う */
+const R8_9_DAY1_RECORDINGS_PAGE =
+  "https://www.city.fukutsu.lg.jp/gikai/koho/20465.html";
+
 export type AttendanceRecordingEntry = {
   /** 氏名（空白なし）。general_questions.questioner_name と突き合わせるときは
    *  stripSpaces() した形で比較する */
@@ -275,6 +279,28 @@ export const ATTENDANCE_RECORDINGS: Record<string, AttendanceRecordingEntry[]> =
     { name: "豆田優子", qType: "general", date: "2026-06-11", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第5回定例会080611一般質問03豆田優子議員.mp4" },
     { name: "倉元敏徳", qType: "general", date: "2026-06-10", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第5回定例会080610一般質問01倉元敏徳議員.mp4" },
     { name: "佐伯美保", qType: "general", date: "2026-06-12", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第5回定例会080612一般質問03佐伯美保議員.mp4" },
+  ],
+  // 9月1日（一般質問1日目）の4人は、市の議員別ページから個別の録画ファイルにリンクされて
+  // いるが、そのファイル自体が録画サーバーに無い（2026-11-14に確認、404）。1日分の
+  // 録画（前半・後半）はあるものの、誰がどちらに入っているかは見ないと分からないため、
+  // 推測で選ばず、両方が並ぶ市の9月定例会の録画ページにリンクしている。
+  // 個別ファイルが復旧したら差し替え、backfill-question-video-urls.ts で本番を更新する。
+  "r8-9": [
+    { name: "中村清隆", qType: "general", date: "2026-09-01", videoUrl: R8_9_DAY1_RECORDINGS_PAGE },
+    { name: "秦浩", qType: "general", date: "2026-09-01", videoUrl: R8_9_DAY1_RECORDINGS_PAGE },
+    { name: "大山隆之", qType: "general", date: "2026-09-01", videoUrl: R8_9_DAY1_RECORDINGS_PAGE },
+    { name: "中村恵輔", qType: "general", date: "2026-09-01", videoUrl: R8_9_DAY1_RECORDINGS_PAGE },
+    { name: "井手口忠信", qType: "general", date: "2026-09-02", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080902一般質問01井手口忠信議員.mp4" },
+    { name: "石田まなみ", qType: "general", date: "2026-09-02", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080902一般質問02石田まなみ議員.mp4" },
+    { name: "榎本博", qType: "general", date: "2026-09-02", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080902一般質問03榎本博議員.mp4" },
+    { name: "倉元敏徳", qType: "general", date: "2026-09-02", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080902一般質問04倉元敏徳議員.mp4" },
+    { name: "豆田優子", qType: "general", date: "2026-09-03", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080903一般質問01豆田優子議員.mp4" },
+    { name: "中村晶代", qType: "general", date: "2026-09-03", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080903一般質問02中村晶代議員.mp4" },
+    { name: "山本祐平", qType: "general", date: "2026-09-03", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080903一般質問03山本祐平議員.mp4" },
+    { name: "尾島武弘", qType: "general", date: "2026-09-03", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080903一般質問04尾島武弘議員.mp4" },
+    { name: "岩下豊", qType: "general", date: "2026-09-04", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080904一般質問01岩下豊議員.mp4" },
+    { name: "佐伯美保", qType: "general", date: "2026-09-04", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080904一般質問02佐伯美保議員.mp4" },
+    { name: "戸田進一", qType: "general", date: "2026-09-04", videoUrl: "https://gikaifukutsu.org/vod/R8/令和8年第6回定例会080904一般質問03戸田進一議員.mp4" },
   ],
 };
 

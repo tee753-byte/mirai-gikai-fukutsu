@@ -9,6 +9,7 @@ import { generalQuestionsR8_3, R8_3_SESSION_SLUG, R8_3_SOURCE_URL } from "./gene
 import { sokatsuShitsugiR8_3 } from "./general-questions-sokatsu-r8-3";
 import { sokatsuShitsugiR7_6 } from "./general-questions-sokatsu-r7-6";
 import { generalQuestionsR8_6, R8_6_SESSION_SLUG, R8_6_SOURCE_URL } from "./general-questions-r8-6";
+import { generalQuestionsR8_9, R8_9_SESSION_SLUG, R8_9_SOURCE_URL } from "./general-questions-r8-9";
 import { generalQuestionsR7_12, R7_12_SESSION_SLUG, R7_12_SOURCE_URL } from "./general-questions-r7-12";
 import { generalQuestionsR7_9, R7_9_SESSION_SLUG, R7_9_SOURCE_URL } from "./general-questions-r7-9";
 import { generalQuestionsR7_6, R7_6_SESSION_SLUG, R7_6_SOURCE_URL } from "./general-questions-r7-6";
@@ -105,6 +106,12 @@ export type {
 } from "./general-questions-types";
 
 export const generalQuestionsBySession: SeedSessionQuestions[] = [
+  {
+    // 会議録が未公開のため、通告書の質問だけを載せる（答弁・やり取り全文は空）
+    session_slug: R8_9_SESSION_SLUG,
+    source_url: R8_9_SOURCE_URL,
+    questions: generalQuestionsR8_9,
+  },
   {
     session_slug: R8_6_SESSION_SLUG,
     source_url: R8_6_SOURCE_URL,

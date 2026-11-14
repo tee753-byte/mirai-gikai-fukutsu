@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Container } from "@/components/layouts/container";
 import { SessionPreviewContent } from "@/features/council-sessions/server/components/session-preview-content";
 import { getSessionPreviewData } from "@/features/council-sessions/server/data/session-preview-data";
@@ -35,8 +35,14 @@ export default async function SessionPreviewPage({ params }: Props) {
     Promise.resolve(getSessionPreviewData(session_slug)),
   ]);
 
-  if (!session || !preview) {
+  if (!session) {
     notFound();
+  }
+
+  // 議案・一般質問の実データが入った会期は、予告データを消している。
+  // SNS等で共有された予告ページのURLが行き止まりにならないよう、議案一覧へ送る。
+  if (!preview) {
+    permanentRedirect(`/sessions/${session_slug}/bills`);
   }
 
   return (
