@@ -209,6 +209,11 @@ function buildStatusNote(
     result = rejected ? "不採択" : "採択";
   } else if (isApprovalItem(billNumber)) {
     result = rejected ? "不承認" : "承認";
+  } else if (billNumber.startsWith("同意")) {
+    // 人事案件は「同意／不同意」、決算は「認定／不認定」と言う（議決結果一覧の表記どおり）
+    result = rejected ? "不同意" : "同意";
+  } else if (billNumber.startsWith("認定")) {
+    result = rejected ? "不認定" : "認定";
   } else {
     result = rejected ? "否決" : "可決";
   }

@@ -68,6 +68,15 @@ import r8_1BillVotes from "./data/r8-1-bill-votes.json" with { type: "json" };
 import r8_2BillVotes from "./data/r8-2-bill-votes.json" with { type: "json" };
 import r8_4BillVotes from "./data/r8-4-bill-votes.json" with { type: "json" };
 import r8_6BillVotes from "./data/r8-6-bill-votes.json" with { type: "json" };
+import r8_9BillVotes from "./data/r8-9-bill-votes.json" with { type: "json" };
+import {
+  decidedAt as decidedAtR8_9,
+  PLAIN_TEXTS as PLAIN_TEXTS_R8_9,
+  R8_9_KETSUGI_PDF_URL,
+  R8_9_SESSION_SLUG,
+  R8_9_SOURCE_URL,
+  submittedAt as submittedAtR8_9,
+} from "./bills-r8-9";
 import {
   buildPetitionsR7_6,
   PETITION_PLAIN_TEXTS_R7_6,
@@ -217,5 +226,29 @@ export const FUKUTSU_SESSIONS: FukutsuSession[] = [
     ],
     decidedAt: decidedAtR8_6,
     submittedAt: submittedAtR8_6,
+  },
+  {
+    // 速報（第1段階）。議決結果は市の議決結果一覧PDFから。会議録・議員別の賛否はまだ無い
+    slug: R8_9_SESSION_SLUG,
+    label: "r8-9",
+    // biome-ignore lint/suspicious/noExplicitAny: 同上
+    votes: r8_9BillVotes as any,
+    plainTexts: PLAIN_TEXTS_R8_9,
+    sourceUrl: R8_9_SOURCE_URL,
+    documentsFile: "r8-9-bill-documents.json",
+    sources: [
+      {
+        label: "令和8年9月定例会のページ（福津市公式）",
+        url: R8_9_SOURCE_URL,
+      },
+      {
+        label: "議決結果一覧（PDF・福津市公式）",
+        url: R8_9_KETSUGI_PDF_URL,
+      },
+    ],
+    hasMinutes: false,
+    hasMemberVotes: false,
+    decidedAt: decidedAtR8_9,
+    submittedAt: submittedAtR8_9,
   },
 ];

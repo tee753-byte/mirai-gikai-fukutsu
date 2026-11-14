@@ -34,24 +34,19 @@ export const councilSessions: CouncilSessionInsert[] = [
     is_active: false,
   },
   {
-    // 議案書は入手済み（2026-09-12時点）だが、議決結果は9月18日の閉会後。
-    // 議案・一般質問はまだ入れず、会期の行だけ先に作る
-    // （トップページの「本日は」バーを開会中と正しく表示させるため）。
-    //
-    // is_active はあえて立てない。is_active は「今の会期の期間か」ではなく
-    // 「注目の議案・タグ別議案一覧・/questions のリダイレクト先など、
-    // “今掲載できる中身がある会期はどれか” を指す値として使われている
-    // （getFeaturedBills / getBillsByFeaturedTags / questions/page.tsx 参照）。
-    // 議案が1件も無いこの会期を is_active にすると、これらのセクションが
-    // 軒並み空になってしまう（2026-09-13に発生・修正）。議案・一般質問が
-    // 入ったら、この行を true にして r8-6 を false にする
-    // （もしくは本番では管理画面の「アクティブにする」ボタンで切り替える）。
+    // 議案書は入手済み（2026-09-12時点）。当初は会期の行だけ先に作り、is_active は
+    // 立てなかった。is_active は「今の会期の期間か」ではなく「注目の議案・タグ別
+    // 議案一覧・/questions のリダイレクト先など、“今掲載できる中身がある会期は
+    // どれか” を指す値」で、議案が1件も無い会期を is_active にするとこれらの
+    // セクションが空になる（2026-09-13に発生・修正）。
+    // 議決結果の速報（議案28件）を入れたので、2026-11-14に true にして r8-6 を
+    // false にした。一般質問は未投入。
     name: "令和8年 9月定例会",
     slug: "r8-9",
     council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/20419.html",
     start_date: "2026-08-27",
     end_date: "2026-09-18",
-    is_active: false,
+    is_active: true,
   },
   {
     name: "令和8年 6月定例会",
@@ -59,7 +54,7 @@ export const councilSessions: CouncilSessionInsert[] = [
     council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19863.html",
     start_date: "2026-06-08",
     end_date: "2026-06-23",
-    is_active: true,
+    is_active: false,
   },
   {
     name: "令和8年 4月臨時会",
