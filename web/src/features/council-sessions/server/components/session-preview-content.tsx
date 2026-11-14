@@ -13,6 +13,7 @@ const BILL_TYPE_BADGE_CLASS: Record<PreviewBillType, string> = {
   請願: "bg-bill-type-petition-bg border-bill-type-petition-border text-bill-type-petition-text",
   報告: "bg-bill-type-other-bg border-bill-type-other-border text-bill-type-other-text",
   同意: "bg-bill-type-other-bg border-bill-type-other-border text-bill-type-other-text",
+  発議: "bg-bill-type-member-bg border-bill-type-member-border text-bill-type-member-text",
 };
 
 function formatRange(startDate: string, endDate: string | null) {
@@ -70,7 +71,7 @@ export function SessionPreviewContent({
     {}
   );
   const billCountLabel = (
-    ["報告", "同意", "議案", "認定", "請願"] as PreviewBillType[]
+    ["報告", "同意", "議案", "認定", "請願", "発議"] as PreviewBillType[]
   )
     .filter((type) => billTypeCounts[type])
     .map((type) => `${type}${billTypeCounts[type]}`)

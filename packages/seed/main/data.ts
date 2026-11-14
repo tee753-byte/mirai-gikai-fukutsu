@@ -24,6 +24,16 @@ type InterviewReportInsert =
 // 出典: https://www.city.fukutsu.lg.jp/gikai/nittei/index.html
 export const councilSessions: CouncilSessionInsert[] = [
   {
+    // 会期日程表・議案等一覧・一般質問通告書は公開済み（2026-11-13）。
+    // 議案書は未入手。r8-9 と同じく会期の行だけ先に作り、is_active は立てない。
+    name: "令和8年 12月定例会",
+    slug: "r8-12",
+    council_url: "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/21428.html",
+    start_date: "2026-11-20",
+    end_date: "2026-12-08",
+    is_active: false,
+  },
+  {
     // 議案書は入手済み（2026-09-12時点）だが、議決結果は9月18日の閉会後。
     // 議案・一般質問はまだ入れず、会期の行だけ先に作る
     // （トップページの「本日は」バーを開会中と正しく表示させるため）。
