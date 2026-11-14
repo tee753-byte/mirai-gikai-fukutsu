@@ -933,7 +933,7 @@ const SESSION_PREVIEW_DATA: Record<string, SessionPreviewData> = {
         no: "第60号",
         title: "福津市道路占用料条例等を改正することについて",
         reason:
-          "国の道路法施行令の改正にあわせ、電柱や広告塔などが道路を使う際の占用料（多くは値上げ）を見直すもの。",
+          "国の道路法施行令の改正にあわせ、電柱や広告塔などが道路を使う際の占用料を見直すもの。",
       },
     ],
     sources: [

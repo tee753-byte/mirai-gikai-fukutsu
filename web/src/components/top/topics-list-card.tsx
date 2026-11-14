@@ -1,6 +1,7 @@
 import { ArrowRight, Megaphone } from "lucide-react";
 import Link from "next/link";
 import { TOPICS, TOPICS_ON_TOP_LIST } from "@/features/topics/shared/data";
+import { splitTitleByMarks } from "@/features/topics/shared/split-title-by-marks";
 
 /**
  * トップページのトピックス枠（一覧カード版）。
@@ -41,12 +42,25 @@ export function TopicsListCard() {
               className="group flex-1 text-sm font-medium leading-relaxed text-mirai-text hover:text-primary-accent"
             >
               {/*
-                文字の下半分だけに色を敷いて、蛍光ペンで線を引いたように見せる。
-                下線だと他のリンクと区別がつかず、全体を塗ると読みにくくなる。
+                強調したい語句（topic.marks）の文字の下半分だけに色を敷いて、
+                蛍光ペンで線を引いたように見せる。見出し全体に引くと読みにくく、
+                下線だと他のリンクと区別がつかない。引く語句は「何についての話か」
+                と金額・件数に限る（結果や評価の語には引かない）。
               */}
-              <span className="bg-[linear-gradient(transparent_62%,var(--color-topic-marker)_62%)] group-hover:bg-[linear-gradient(transparent_62%,var(--color-topic-marker-hover)_62%)]">
-                {topic.title}
-              </span>
+              {splitTitleByMarks(topic.title, topic.marks).map((segment, i) =>
+                segment.marked ? (
+                  <span
+                    // biome-ignore lint/suspicious/noArrayIndexKey: 見出しの分割結果は固定で並びも変わらない
+                    key={i}
+                    className="bg-[linear-gradient(transparent_62%,var(--color-topic-marker)_62%)] group-hover:bg-[linear-gradient(transparent_62%,var(--color-topic-marker-hover)_62%)]"
+                  >
+                    {segment.text}
+                  </span>
+                ) : (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: 同上
+                  <span key={i}>{segment.text}</span>
+                )
+              )}
             </Link>
             {topic.isNew && (
               <span className="mt-0.5 shrink-0 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">

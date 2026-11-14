@@ -40,14 +40,112 @@ const R8_3_SESSION_URL =
   "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/19269.html";
 const R8_6_KETSUGI_PDF_URL =
   "https://www.city.fukutsu.lg.jp/material/files/group/20/giketukekka0806.pdf";
+const R8_9_SESSION_URL =
+  "https://www.city.fukutsu.lg.jp/gikai/nittei/2_7/20419.html";
+const R8_9_KETSUGI_PDF_URL =
+  "https://www.city.fukutsu.lg.jp/material/files/group/20/giketukekka0809.pdf";
 const COMMITTEE_REPORTS_URL =
   "https://www.city.fukutsu.lg.jp/gikai/hokoku/2/19272.html";
 
 export const TOPICS: Topic[] = [
   {
+    slug: "miyaji-shogakko-kensetsu-keiyaku",
+    title: "新設の宮司小学校、建設工事の契約金額が約1億9,154万円増えた",
+    marks: ["宮司小学校", "約1億9,154万円"],
+    sessionLabel: "令和8年9月定例会",
+    occurredOn: "令和8年9月18日",
+    lead: "令和9年4月に宮司地区で開校する宮司小学校の建設工事について、契約金額を45億2,100万円から47億1,254万円に変更する議案が可決されました。同じ日に、学校の名称と位置を定める条例の改正と、机・椅子などの備品の取得も可決されています。",
+    outcome: "approved",
+    outcomeNote: "議案第61号（工事請負契約の変更）を可決",
+    facts: [
+      "建設工事の契約金額は45億2,100万円から47億1,254万円に変更された。増加額は約1億9,154万円（議案第61号）。工期は令和9年2月15日まで。",
+      "宮司小学校を市立学校の一覧に加える条例改正（議案第58号）が可決された。開校は令和9年4月1日。",
+      "宮司小学校で使う机・椅子・棚などの備品一式を、指名競争入札により5,610万円で取得する議案（議案第62号）が可決された。",
+    ],
+    stances: [],
+    stanceNote:
+      "契約金額が増えた理由と、討論の内容は、まだ確認できていません。会議録は公開まで約3か月かかるため、討論の内容は公開後（令和8年12月ごろの見込み）に追記します。",
+    sources: [
+      {
+        label: "令和8年9月定例会の議案（このサイト内）",
+        href: "/sessions/r8-9/bills",
+      },
+      { label: "議決結果一覧（福津市議会）", href: R8_9_KETSUGI_PDF_URL },
+      {
+        label: "令和8年9月定例会のページ（福津市議会）",
+        href: R8_9_SESSION_URL,
+      },
+    ],
+    isNew: true,
+  },
+
+  {
+    slug: "tsuya-chugakkoku-boshi-seigan",
+    title: "津屋崎中学校区の子どもの安全確保を求める請願が採択された",
+    marks: ["津屋崎中学校区", "子どもの安全確保"],
+    sessionLabel: "令和8年9月定例会",
+    occurredOn: "令和8年9月18日",
+    lead: "津屋崎中学校区の公共施設で青少年による迷惑行為が起きていることを受け、防犯体制の強化を求める請願（請願第1号）が、本会議で採択されました。",
+    outcome: "approved",
+    outcomeNote: "請願第1号を採択",
+    facts: [
+      "請願は、津屋崎中学校区の公共施設（福津市複合文化センター「カメリアステージ」等）で青少年による迷惑行為が起きていることを挙げ、防犯カメラの増設などの安全対策を求めている。",
+      "あわせて、学校・行政・警察・地域が連携した見守り体制の強化を求めている。",
+      "請願は常任委員会に付託されたうえで、9月18日の本会議で採択された。",
+    ],
+    stances: [],
+    stanceNote:
+      "委員会や本会議での審議の内容は、まだ確認できていません。会議録は公開まで約3か月かかるため、討論の内容は公開後（令和8年12月ごろの見込み）に追記します。",
+    sources: [
+      {
+        label: "令和8年9月定例会の議案（このサイト内）",
+        href: "/sessions/r8-9/bills",
+      },
+      { label: "議決結果一覧（福津市議会）", href: R8_9_KETSUGI_PDF_URL },
+      {
+        label: "令和8年9月定例会のページ（福津市議会）",
+        href: R8_9_SESSION_URL,
+      },
+    ],
+    isNew: true,
+  },
+
+  {
+    slug: "r8-9-ippan-kaikei-hosei",
+    title: "一般会計の補正予算で7億5,759万円が追加された",
+    marks: ["7億5,759万円"],
+    sessionLabel: "令和8年9月定例会",
+    occurredOn: "令和8年9月1日",
+    lead: "令和8年度の一般会計に7億5,759万円を追加する補正予算（議案第53号）が可決され、予算の総額は345億3,686万円になりました。総務費、民生費、災害復旧費などが増えています。",
+    outcome: "approved",
+    outcomeNote: "議案第53号（一般会計補正予算）を可決",
+    facts: [
+      "追加額は7億5,759万円。補正後の一般会計の総額は345億3,686万円（議案第53号）。",
+      "主な増額は、総務費4億7,343万円、民生費1億2,221万円、災害復旧費6,414万円。",
+      "同じ日に、国民健康保険・後期高齢者医療・介護保険・公共下水道の各会計の補正予算（議案第54〜57号）も可決された。",
+    ],
+    stances: [],
+    stanceNote:
+      "個々の増額の中身と、討論の内容は、まだ確認できていません。会議録は公開まで約3か月かかるため、討論の内容は公開後（令和8年12月ごろの見込み）に追記します。",
+    sources: [
+      {
+        label: "令和8年9月定例会の議案（このサイト内）",
+        href: "/sessions/r8-9/bills",
+      },
+      { label: "議決結果一覧（福津市議会）", href: R8_9_KETSUGI_PDF_URL },
+      {
+        label: "令和8年9月定例会のページ（福津市議会）",
+        href: R8_9_SESSION_URL,
+      },
+    ],
+    isNew: true,
+  },
+
+  {
     slug: "seikatsu-hogo-saikosai-hanketsu",
     title:
       "生活保護費の減額を違法とした最高裁判決を受け、対象者への追加給付が決まった",
+    marks: ["生活保護費", "追加給付"],
     sessionLabel: "令和8年6月定例会",
     occurredOn: "令和8年6月23日",
     lead: "平成25年度の生活扶助基準の引き下げを違法とした令和7年6月の最高裁判決を受け、対象者へ保護費を追加給付する補正予算が可決されました。ただし追加給付は国が示した新たな基準にもとづくもので、判決が求める全額支給にはなっていないとの指摘が討論でありました。",
@@ -80,13 +178,13 @@ export const TOPICS: Topic[] = [
       },
       { label: "会議録検索システム（福津市議会）", href: MINUTES_SEARCH_URL },
     ],
-    isNew: true,
   },
 
   {
     slug: "shinsetsu-shogakko-gakudou-anzensei",
     title:
       "新設小学校の学童保育所条例改正、立地の安全性への懸念が残ったまま可決された",
+    marks: ["学童保育所条例改正"],
     sessionLabel: "令和8年6月定例会",
     occurredOn: "令和8年6月23日",
     lead: "令和9年4月に開所する新設小学校の学童保育所（定員140名）を条例に加える改正が可決されました。討論では、この学童保育所が立地する土地や周辺地域の安全性について、以前から指摘されてきた懸念が解消されていないという反対意見が述べられました。",
@@ -115,12 +213,12 @@ export const TOPICS: Topic[] = [
       },
       { label: "会議録検索システム（福津市議会）", href: MINUTES_SEARCH_URL },
     ],
-    isNew: true,
   },
 
   {
     slug: "koukyou-shisetsu-shiyouryou",
     title: "公共施設の使用料を見直す条例改正5件が、いずれも否決された",
+    marks: ["公共施設の使用料", "5件"],
     sessionLabel: "令和8年3月定例会",
     occurredOn: "令和8年3月26日",
     lead: "市は算定方法の統一と受益者負担を目的に、武道館・学校施設の開放・ふくとぴあ・福間会館・下水道の使用料を見直す条例改正を提出しましたが、5件ともに否決されました。ただし使用料の減免のきまりは条例ではないため、議決とは別に見直しが進む可能性があります。",
@@ -178,6 +276,7 @@ export const TOPICS: Topic[] = [
     slug: "kikin-fukumizon",
     title:
       "基金の債券に約23億円の含み損。調査のための特別委員会の設置は否決された",
+    marks: ["約23億円の含み損"],
     sessionLabel: "令和8年3月定例会",
     occurredOn: "令和8年3月26日",
     lead: "市の基金で運用していた債券に含み損が生じている問題について、地方自治法100条にもとづく調査特別委員会（百条委員会）を設置する議案が提出されましたが、否決されました。反対の討論を行った議員はいませんでした。",
@@ -215,6 +314,7 @@ export const TOPICS: Topic[] = [
   {
     slug: "shicho-kyuyo-gengaku",
     title: "市長の給与を10%減らす条例改正が、3月と6月の2回とも否決された",
+    marks: ["市長の給与を10%減らす"],
     sessionLabel: "令和8年3月定例会・6月定例会",
     occurredOn: "令和8年3月26日／6月23日",
     lead: "市長の公約にもとづき給料月額を10%減額する条例改正が3月定例会で否決され、6月定例会に再提案されましたが、6月23日の本会議で再び否決されました。減額そのものより、減った分の使い道の説明に議論が集まりました。",
@@ -267,13 +367,13 @@ export const TOPICS: Topic[] = [
       { label: "委員会等報告書（福津市議会）", href: COMMITTEE_REPORTS_URL },
       { label: "会議録検索システム（福津市議会）", href: MINUTES_SEARCH_URL },
     ],
-    isNew: true,
   },
 
   {
     slug: "fukuma-gyokou-mingen-taiyo",
     title:
       "福間漁港の係留施設を民間に貸与。利用者との協議が整わないまま可決された",
+    marks: ["福間漁港の係留施設"],
     sessionLabel: "令和8年3月定例会",
     occurredOn: "令和8年3月26日",
     lead: "福間漁港の小型船舶係留等施設を民間事業者に貸与することに伴う条例改正が可決されました。市は事業者に「急激な値上げにならないこと」「利用者に丁寧に説明すること」を条件としていましたが、議決の日まで利用者との協議は整いませんでした。",
@@ -314,6 +414,7 @@ export const TOPICS: Topic[] = [
     slug: "kadai-kibo-kou",
     title:
       "福間南小学校の過大規模。市は令和8年度に家庭科室の整備とトイレの洋式化を行う",
+    marks: ["福間南小学校の過大規模"],
     sessionLabel: "令和7年12月定例会・令和8年3月定例会",
     occurredOn: "令和7年12月11日／令和8年3月23日〜25日",
     lead: "児童数が多い福間南小学校の教育環境について、市民から提出された請願が令和7年12月に不採択となりました。その後の令和8年3月定例会で複数の議員が一般質問で取り上げ、市は令和8年度に家庭科室を整備し、和式トイレ8か所を洋式に取り替えると答弁しています。",
@@ -369,6 +470,7 @@ export const TOPICS: Topic[] = [
   {
     slug: "kokuho-kosodate-shienkin",
     title: "国民健康保険税に子ども・子育て支援金が上乗せされることが決まった",
+    marks: ["子ども・子育て支援金"],
     sessionLabel: "令和8年3月定例会",
     occurredOn: "令和8年3月26日",
     lead: "国民健康保険税条例の改正（議案第28号）が可決され、子ども・子育て支援金が新たに上乗せされます。国民健康保険に加入している世帯が対象で、子どもがいない世帯も負担します。",
@@ -406,6 +508,7 @@ export const TOPICS: Topic[] = [
   {
     slug: "shicho-koyaku-miokuri",
     title: "市長選挙時の公約のうち、当面見送られているもの",
+    marks: ["市長選挙時の公約"],
     sessionLabel: "令和8年3月定例会",
     occurredOn: "令和8年3月23日",
     lead: "市の財政状況を踏まえた今後2年間の臨時行財政運営方針の中で、市長は下記の公約について実施を見送ると答弁しています（2年後に状況を見て優先順位を判断するとしています）。",
