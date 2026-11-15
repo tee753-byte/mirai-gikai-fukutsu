@@ -77,6 +77,7 @@ export function SessionPreviewContent({
     .map((type) => `${type}${billTypeCounts[type]}`)
     .join("・");
   const totalBillCount = countPreviewBills(preview.bills);
+  const hasReasons = preview.bills.some((bill) => bill.reason);
   const Headline = headingLevel;
 
   return (
@@ -248,9 +249,17 @@ export function SessionPreviewContent({
           </div>
         </details>
         <p className="mt-2 text-xs text-mirai-text-muted">
+          {/*
+            理由（reason）が1件も無い会期で「議案書の記載にもとづく要約です」と書くと、
+            要約が載っているように読めてしまう（2026-11-15、外部レビューで指摘）。
+            理由の有無で前半の文を出し分ける。
+          */}
+          {hasReasons
+            ? "「なぜ出されたか」は議案書の記載にもとづく要約です。"
+            : "いまは件名だけを載せています。議案が出された理由は、議案書の内容を確認しだい追記します。"}
           {isOpen
-            ? "「なぜ出されたか」は議案書の記載にもとづく要約です。賛否・議決結果はまだ無く、これから会期中に決まります。議案の詳しい内容や答弁の要約は、議決結果と合わせて公開する速報段階で追記します。"
-            : "「なぜ出されたか」は議案書の記載にもとづく要約です。会期は閉会しましたが、議決結果（可決・否決・認定等）はまだ確認できていません。確認でき次第、結果と合わせて追記します。"}
+            ? "賛否・議決結果はまだ無く、これから会期中に決まります。議案の詳しい内容や答弁の要約は、議決結果と合わせて公開する速報段階で追記します。"
+            : "会期は閉会しましたが、議決結果（可決・否決・認定等）はまだ確認できていません。確認でき次第、結果と合わせて追記します。"}
         </p>
       </section>
 

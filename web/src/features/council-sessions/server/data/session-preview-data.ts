@@ -510,6 +510,11 @@ export function getSessionPreviewData(slug: string): SessionPreviewData | null {
   return SESSION_PREVIEW_DATA[slug] ?? null;
 }
 
+/** 予告ページがある会期のスラッグ（サイトマップ用） */
+export function getPreviewSessionSlugs(): string[] {
+  return Object.keys(SESSION_PREVIEW_DATA);
+}
+
 /**
  * 今日が一般質問の登壇日なら、その日の登壇者一覧を返す。
  * トップページの「本日は開会中」バーで、その日の登壇者をその場で案内するために使う。

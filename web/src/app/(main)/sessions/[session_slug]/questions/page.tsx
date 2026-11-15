@@ -1,7 +1,8 @@
 import { ArrowRight, Info, Landmark, Users } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layouts/container";
+import { getSessionPreviewData } from "@/features/council-sessions/server/data/session-preview-data";
 import { getCouncilSessionBySlug } from "@/features/council-sessions/server/loaders/get-council-session-by-slug";
 import { SessionQuestionsSwitcher } from "@/features/general-questions/server/components/session-questions-switcher";
 import { SessionTopicsView } from "@/features/general-questions/server/components/session-topics-view";
@@ -21,6 +22,7 @@ export async function generateMetadata({ params }: Props) {
   }
 
   const questions = await getGeneralQuestionsBySession(session.id);
+
   const hasSokatsu = questions.some(
     (q) => q.question_type === "sokatsu_shitsugi"
   );
@@ -47,6 +49,14 @@ export default async function SessionQuestionsPage({ params }: Props) {
     getGeneralQuestionsBySession(session.id),
     getSessionsWithQuestions(),
   ]);
+
+  // 実データがまだ無く、予告ページがある会期は予告へ案内する。予告では件名や
+  // 質問予定を公開済みなのに、ここが「0件」「準備中」と出ると矛盾して見えるため
+  // （2026-11-15、外部レビューで指摘）。実データが入れば転送は自然に止まる。
+  // 一時的な転送なので 307（redirect）を使う。
+  if (questions.length === 0 && getSessionPreviewData(session_slug)) {
+    redirect(`/sessions/${session_slug}/preview`);
+  }
 
   const hasSokatsu = questions.some(
     (q) => q.question_type === "sokatsu_shitsugi"

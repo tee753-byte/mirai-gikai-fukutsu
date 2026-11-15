@@ -1,7 +1,9 @@
 import type { BillWithContent } from "../types";
+import { isPassedStatus } from "./bill-status";
 
 export type SessionBillSummary = {
   total: number;
+  /** 可決・同意・認定・採択など（isPassedStatus） */
   approved: number;
   rejected: number;
   other: number;
@@ -17,7 +19,7 @@ export type SessionBillSummary = {
 export function summarizeSessionBills(
   bills: BillWithContent[]
 ): SessionBillSummary {
-  const approved = bills.filter((b) => b.status === "approved").length;
+  const approved = bills.filter((b) => isPassedStatus(b.status)).length;
   const rejected = bills.filter((b) => b.status === "rejected").length;
   const other = bills.length - approved - rejected;
   const splitVoteBills = bills.filter(

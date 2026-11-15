@@ -7,8 +7,8 @@ import {
   LegalSectionTitle,
 } from "@/components/layouts/legal-page-layout";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buildFaqSchema } from "@/lib/structured-data";
 import { siteConfig } from "@/config/site.config";
+import { buildFaqSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
   title: "よくあるご質問",
@@ -166,15 +166,17 @@ const faqs: FaqItem[] = [
         } satisfies FaqItem,
       ]
     : []),
+  // 以前は「開発者で選定」と書いていたが、実際は seed で is_featured を
+  // 否決（outcome === "rejected"）から機械的に決めている（2026-11-15、外部レビューで指摘）
   {
     question: "「注目の議案」はどのような基準で選ばれているのでしょうか？",
     answer: (
       <>
-        議案の内容や報道の状況などを見ながら、注目度の高い議案を開発者で選定しています。
+        最新の定例会で、否決・不採択となった議案を「注目の議案」として表示しています。運営者が議案を選ぶのではなく、議決の結果だけで機械的に決めています（特定の議員や立場を目立たせないためです）。否決・不採択の議案が無い定例会では表示されません。
       </>
     ),
     answerText:
-      "議案の内容や報道の状況などを見ながら、注目度の高い議案を開発者で選定しています。",
+      "最新の定例会で、否決・不採択となった議案を「注目の議案」として表示しています。運営者が議案を選ぶのではなく、議決の結果だけで機械的に決めています（特定の議員や立場を目立たせないためです）。否決・不採択の議案が無い定例会では表示されません。",
   },
   {
     question: "「トピックス」はどのような基準で選ばれているのでしょうか？",

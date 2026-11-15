@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { BillWithContent } from "@/features/bills/shared/types";
 import { CompactBillCard } from "@/features/bills/client/components/bill-list/compact-bill-card";
+import type { BillWithContent } from "@/features/bills/shared/types";
+import { isPassedStatus } from "@/features/bills/shared/utils/bill-status";
 
 type FilterType = "all" | "approved" | "rejected" | "other";
 
@@ -13,7 +14,7 @@ type Props = {
 };
 
 function getFilterCounts(bills: BillWithContent[]) {
-  const approved = bills.filter((b) => b.status === "approved").length;
+  const approved = bills.filter((b) => isPassedStatus(b.status)).length;
   const rejected = bills.filter((b) => b.status === "rejected").length;
   const other = bills.length - approved - rejected;
 
@@ -26,12 +27,12 @@ function filterBills(
 ): BillWithContent[] {
   switch (filter) {
     case "approved":
-      return bills.filter((b) => b.status === "approved");
+      return bills.filter((b) => isPassedStatus(b.status));
     case "rejected":
       return bills.filter((b) => b.status === "rejected");
     case "other":
       return bills.filter(
-        (b) => b.status !== "approved" && b.status !== "rejected"
+        (b) => !isPassedStatus(b.status) && b.status !== "rejected"
       );
     default:
       return bills;
@@ -45,7 +46,7 @@ export function BillListWithStatusFilter({ bills }: Props) {
 
   const filters: { key: FilterType; label: string; count: number }[] = [
     { key: "all", label: "ALL", count: counts.all },
-    { key: "approved", label: "可決", count: counts.approved },
+    { key: "approved", label: "可決・採択", count: counts.approved },
     { key: "rejected", label: "否決", count: counts.rejected },
     { key: "other", label: "その他", count: counts.other },
   ];

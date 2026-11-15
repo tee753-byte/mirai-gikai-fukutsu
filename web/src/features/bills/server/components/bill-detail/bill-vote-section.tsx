@@ -117,7 +117,12 @@ export async function BillVoteSection({ billId, voteMethod }: Props) {
               ))}
             </div>
             <p className="text-xs text-mirai-text-secondary">
-              発言は公式会議録からの引用です。討論をしなかった議員の賛否は公表されていません。
+              発言は公式会議録からの引用です。
+              {/* 議会だよりの賛否一覧表がある議案では、全員の賛否が上に載っている。
+                  そこで「公表されていません」と書くと食い違うため出し分ける */}
+              {memberVotes.length > 0
+                ? "討論をしなかった議員を含む全員の賛否は、上の「議員別の賛否」をご覧ください。"
+                : "会議録には、討論をしなかった議員の賛否は記録されていません。"}
             </p>
           </>
         )}

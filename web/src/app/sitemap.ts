@@ -3,6 +3,7 @@ import { siteConfig } from "@/config/site.config";
 import { getBills } from "@/features/bills/server/loaders/get-bills";
 import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
 import { COMMITTEE_REPORT_SESSIONS } from "@/features/committee-reports/shared/data";
+import { getPreviewSessionSlugs } from "@/features/council-sessions/server/data/session-preview-data";
 import { getActiveCouncilSession } from "@/features/council-sessions/server/loaders/get-active-council-session";
 import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getQuestionerGroups } from "@/features/general-questions/server/loaders/get-questioner-groups";
@@ -160,6 +161,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   });
 
+  // 会期の予告ページ。予告は静的データで、上の会期一覧（議案のある会期）には
+  // 入らないため別に足す。今いちばん読んでほしいページが検索エンジンに伝わらない
+  // 状態だった（2026-11-15、外部レビューで指摘）。更新日時は持たないので lastmod なし
+  const previewUrls = getPreviewSessionSlugs().map((slug) => ({
+    url: `${baseUrl}/sessions/${slug}/preview`,
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
   // 会期ごとの予算ページ。個別の施策ページは会期ページから辿れる
   const budgetUrls = budgetSessions.map((session) => ({
     url: `${baseUrl}/budget/${session.slug}`,
@@ -242,6 +252,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...staticUrls,
     ...sessionUrls,
+    ...previewUrls,
     ...budgetUrls,
     ...seimuKatsudohiUrls,
     ...committeeUrls,

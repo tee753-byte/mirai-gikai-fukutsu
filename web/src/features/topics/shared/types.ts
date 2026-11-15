@@ -36,8 +36,11 @@ export type Topic = {
   marks?: string[];
   /** 何が起きたかを1〜2文で。事実のみ */
   lead: string;
-  /** 関係する議案の議決結果。複数議案や議決を伴わないものは null */
-  outcome: "approved" | "rejected" | null;
+  /**
+   * 関係する議案の議決結果。複数議案や議決を伴わないものは null。
+   * 請願・陳情は「可決／否決」ではなく「採択／不採択」と呼ぶため、別の値にしている
+   */
+  outcome: "approved" | "rejected" | "adopted" | "not_adopted" | null;
   /** 議決結果の補足（例:「関係する5議案がいずれも否決」） */
   outcomeNote: string | null;
   /** 確認できる事実。評価や解釈は書かない */

@@ -5,6 +5,7 @@ import { BillListWithStatusFilter } from "@/features/council-sessions/client/com
 import type { CouncilSession } from "@/features/council-sessions/shared/types";
 import type { BillWithContent } from "../../shared/types";
 import { groupBillsByTag } from "../../shared/utils/group-bills-by-tag";
+import { sortBillsByNumber } from "../../shared/utils/sort-bills-by-number";
 import { summarizeSessionBills } from "../../shared/utils/summarize-session-bills";
 import { BillsByTagSection } from "./bills-by-tag-section";
 import { FeaturedBillSection } from "./featured-bill-section";
@@ -37,18 +38,22 @@ export function SessionBillsPage({
       {/* アーカイブヘッダー */}
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-1">
-          <h1>
-            <Image
-              src="/icons/archive-typography.svg"
-              alt="Archive"
-              width={156}
-              height={36}
-              priority
-            />
+          {/*
+            以前は「Archive」の飾り文字の画像を h1 にしていて、ページの見出しが
+            読み上げや検索エンジンには「Archive」としか伝わらなかった（2026-11-15、
+            外部レビューで指摘）。画像は飾りとして残し、会期名を h1 にする。
+          */}
+          <Image
+            src="/icons/archive-typography.svg"
+            alt=""
+            aria-hidden
+            width={156}
+            height={36}
+            priority
+          />
+          <h1 className="text-sm font-bold text-primary-accent">
+            {session.name} 議案一覧
           </h1>
-          <p className="text-sm font-bold text-primary-accent">
-            {session.name}に上程された議案
-          </p>
         </div>
 
         <div className="flex flex-col gap-0.5">
@@ -97,7 +102,8 @@ export function SessionBillsPage({
           <h2 className="text-[22px] font-bold text-black leading-[1.48]">
             全議案一覧
           </h2>
-          <BillListWithStatusFilter bills={bills} />
+          {/* 番号で探す人向けに、種別→番号の機械的な順にする */}
+          <BillListWithStatusFilter bills={sortBillsByNumber(bills)} />
         </section>
       )}
 

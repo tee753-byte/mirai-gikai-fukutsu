@@ -60,7 +60,9 @@
   /* Text */
   --color-mirai-text: #1f2937;
   --color-mirai-text-secondary: #404040;
-  --color-mirai-text-muted: #8e8e93;
+  /* 以前は #8e8e93（白地で3.3:1）。小さい注記や日付に使うため、背景が
+     いちばん濃い #e5e5ea の上でも4.5:1を超える濃さにした（2026-11-15） */
+  --color-mirai-text-muted: #636368;
   --color-mirai-text-placeholder: #aeaeb2;
   --color-mirai-text-note: #4c4c4c;
   --color-mirai-text-subtle: #666666;

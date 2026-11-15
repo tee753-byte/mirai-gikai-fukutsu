@@ -59,20 +59,36 @@ export async function findVoteCountsByBillIds(
   }
 
   const supabase = createAdminClient();
-  const result = await supabase
-    .from("bill_member_votes")
-    .select("bill_id, vote")
-    .in("bill_id", billIds)
-    .in("vote", ["for", "against"]);
-
-  const rows = resolveQueryResult(result, "bill vote counts");
-
   const counts = new Map<string, { for: number; against: number }>();
-  for (const row of rows) {
-    const current = counts.get(row.bill_id) ?? { for: 0, against: 0 };
-    if (row.vote === "for") current.for += 1;
-    if (row.vote === "against") current.against += 1;
-    counts.set(row.bill_id, current);
+
+  /*
+   * PostgRESTは1回のリクエストで返す行数に上限（既定1000行）がある。賛否は
+   * 1議案あたり議員の人数ぶん（17件）あるため、検索ページのように全議案を
+   * まとめて数えると途中で打ち切られ、後ろの議案が「人数なし」、境目の議案が
+   * 「途中までの人数」になっていた（2026-11-15、外部レビューで判明）。
+   * findSessionIdsWithMemberVotes と同じく、上限ぶんずつ辿って全部数える。
+   * 並び順は id で固定する（固定しないとページの境目で行が重複・欠落しうる）。
+   */
+  const PAGE_SIZE = 1000;
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const result = await supabase
+      .from("bill_member_votes")
+      .select("bill_id, vote")
+      .in("bill_id", billIds)
+      .in("vote", ["for", "against"])
+      .order("id", { ascending: true })
+      .range(from, from + PAGE_SIZE - 1);
+
+    const rows = resolveQueryResult(result, "bill vote counts");
+
+    for (const row of rows) {
+      const current = counts.get(row.bill_id) ?? { for: 0, against: 0 };
+      if (row.vote === "for") current.for += 1;
+      if (row.vote === "against") current.against += 1;
+      counts.set(row.bill_id, current);
+    }
+
+    if (rows.length < PAGE_SIZE) break;
   }
 
   return counts;

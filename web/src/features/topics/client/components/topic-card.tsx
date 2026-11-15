@@ -17,14 +17,20 @@ type TopicCardProps = {
   defaultOpen?: boolean;
 };
 
+const OUTCOME_LABELS = {
+  approved: "可決",
+  rejected: "否決",
+  adopted: "採択",
+  not_adopted: "不採択",
+} as const;
+
 function OutcomeBadge({ topic }: { topic: Topic }) {
   if (!topic.outcome) return null;
 
+  const passed = topic.outcome === "approved" || topic.outcome === "adopted";
   return (
-    <Badge
-      variant={topic.outcome === "approved" ? "billApproved" : "billRejected"}
-    >
-      {topic.outcome === "approved" ? "可決" : "否決"}
+    <Badge variant={passed ? "billApproved" : "billRejected"}>
+      {OUTCOME_LABELS[topic.outcome]}
     </Badge>
   );
 }

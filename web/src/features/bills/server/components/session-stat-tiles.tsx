@@ -30,7 +30,7 @@ export function SessionStatTiles({
 }: SessionStatTilesProps) {
   const tiles = [
     { label: "提出議案", value: total, href: undefined },
-    { label: "可決・同意など", value: approved, href: undefined },
+    { label: "可決・同意・採択など", value: approved, href: undefined },
     { label: "否決・不採択など", value: rejected, href: undefined },
     { label: "賛否が分かれた案件", value: splitVotes, href: undefined },
     {
