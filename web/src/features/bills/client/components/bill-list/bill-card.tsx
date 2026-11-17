@@ -35,7 +35,7 @@ export function BillCard({ bill }: BillCardProps) {
 
         {/* サムネイル画像。個別設定が無ければタグに応じたデフォルト画像を表示する */}
         {thumbnailUrl && (
-          <div className="relative w-full h-52 md:h-65">
+          <div className="relative w-full aspect-[3/1]">
             <Image
               src={thumbnailUrl}
               alt={bill.name}
